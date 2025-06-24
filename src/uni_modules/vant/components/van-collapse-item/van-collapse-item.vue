@@ -1,133 +1,125 @@
-
-    <template>
-    
-
-<view class="van-collapse-item custom-class {{ index !== 0 ? 'van-hairline--top' : '' }}">
-  <van-cell
-    size="{{ size }}"
-    title="{{ title }}"
-    title-class="title-class"
-    icon="{{ icon }}"
-    value="{{ value }}"
-    label="{{ label }}"
-    is-link="{{ isLink }}"
-    clickable="{{ clickable }}"
-    border="{{ border && expanded }}"
-    class="{{ utils.bem('collapse-item__title', { disabled, expanded }) }}"
-    right-icon-class="van-cell__right-icon"
-    custom-class="van-cell"
-    hover-class="van-cell--hover"
-    bind:click="onClick"
-  >
-    <slot
-      name="title"
-      slot="title"
-    />
-    <slot
-      name="icon"
-      slot="icon"
-    />
-    <slot name="value" />
-    <slot
-      name="right-icon"
-      slot="right-icon"
-    />
-  </van-cell>
+<template>
   <view
-    class="{{ utils.bem('collapse-item__wrapper') }}"
-    style="height: 0;"
-    animation="{{ animation }}"
+    class="van-collapse-item"
+    :class="[{ 'van-hairline--top': index !== 0 }, customClass]"
   >
-    <view
-      class="van-collapse-item__content content-class"
+    <van-cell
+      :size="size"
+      :title="title"
+      title-class="title-class"
+      :icon="icon"
+      :value="value"
+      :label="label"
+      :is-link="isLink"
+      :clickable="clickable"
+      :border="border && expanded"
+      :class="[
+        'collapse-item__title',
+        {
+          'collapse-item__title--disabled': disabled,
+          'collapse-item__title--expanded': expanded,
+        },
+      ]"
+      right-icon-class="van-cell__right-icon"
+      custom-class="van-cell"
+      hover-class="van-cell--hover"
+      @click="onClick"
     >
-      <slot />
+      <template #title><slot name="title" /></template>
+      <template #icon><slot name="icon" /></template>
+      <template #value><slot name="value" /></template>
+      <template #right-icon><slot name="right-icon" /></template>
+    </van-cell>
+    <view class="van-collapse-item__wrapper" :style="wrapperStyle">
+      <view class="van-collapse-item__content content-class">
+        <slot />
+      </view>
     </view>
   </view>
-</view>
+</template>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useParent } from '../common/relation';
-import { setContentAnimate } from './animate';
+<script setup lang="ts">
+import { ref, inject, computed, onMounted, watch } from "vue";
+import { collapseItemProps, CollapseItemProps } from "./props";
+import VanCell from "../van-cell/van-cell.vue";
 
-VantComponent({
-  classes: ['title-class', 'content-class'],
+const props = defineProps<CollapseItemProps>();
+const {
+  size,
+  name,
+  title,
+  value,
+  icon,
+  label,
+  disabled,
+  clickable,
+  border,
+  isLink,
+} = props;
+const customClass = "";
+const contentClass = "";
 
-  relation: useParent('collapse'),
+const collapseActiveNames = inject<any>("collapseActiveNames");
+const collapseSwitch = inject<any>("collapseSwitch");
 
-  props: {
-    size: String,
-    name: null,
-    title: null,
-    value: null,
-    icon: String,
-    label: String,
-    disabled: Boolean,
-    clickable: Boolean,
-    border: {
-      type: Boolean,
-      value: true,
-    },
-    isLink: {
-      type: Boolean,
-      value: true,
-    },
-  },
-
-  data: {
-    expanded: false,
-  },
-
-  mounted() {
-    this.updateExpanded();
-    this.mounted = true;
-  },
-
-  methods: {
-    updateExpanded() {
-      if (!this.parent) {
-        return;
-      }
-
-      const { value, accordion } = this.parent.data;
-      const { children = [] } = this.parent;
-      const { name } = this.data;
-
-      const index = children.indexOf(this);
-      const currentName = name == null ? index : name;
-
-      const expanded = accordion
-        ? value === currentName
-        : (value || []).some((name: string | number) => name === currentName);
-
-      if (expanded !== this.data.expanded) {
-        setContentAnimate(this, expanded, this.mounted);
-      }
-
-      this.setData({ index, expanded });
-    },
-
-    onClick() {
-      if (this.data.disabled) {
-        return;
-      }
-
-      const { name, expanded } = this.data;
-      const index = this.parent.children.indexOf(this);
-      const currentName = name == null ? index : name;
-
-      this.parent.switch(currentName, !expanded);
-    },
-  },
+const index = ref(0);
+const expanded = computed(() => {
+  if (!collapseActiveNames) return false;
+  const currentName = name ?? index.value;
+  if (Array.isArray(collapseActiveNames.value)) {
+    return collapseActiveNames.value.includes(currentName);
+  }
+  return collapseActiveNames.value === currentName;
 });
 
+const wrapperStyle = computed(() => ({
+  height: expanded.value ? "auto" : "0",
+  overflow: "hidden",
+  transition: "height 0.3s",
+}));
 
-    
-    </script>
-    <style>
-    .van-collapse-item__title .van-cell__right-icon{transform:rotate(90deg);transition:transform var(--collapse-item-transition-duration,.3s)}.van-collapse-item__title--expanded .van-cell__right-icon{transform:rotate(-90deg)}.van-collapse-item__title--disabled .van-cell,.van-collapse-item__title--disabled .van-cell__right-icon{color:var(--collapse-item-title-disabled-color,#c8c9cc)!important}.van-collapse-item__title--disabled .van-cell--hover{background-color:#fff!important}.van-collapse-item__wrapper{overflow:hidden}.van-collapse-item__content{background-color:var(--collapse-item-content-background-color,#fff);color:var(--collapse-item-content-text-color,#969799);font-size:var(--collapse-item-content-font-size,13px);line-height:var(--collapse-item-content-line-height,1.5);padding:var(--collapse-item-content-padding,15px)}
-    </style>
-  
+function onClick() {
+  if (disabled) return;
+  const currentName = name ?? index.value;
+  collapseSwitch && collapseSwitch(currentName, !expanded.value);
+}
+
+onMounted(() => {
+  // index 由父组件管理，简化为 0
+  index.value = 0;
+});
+
+watch(
+  () => props.name,
+  () => {
+    // 可根据父组件实际实现调整
+  }
+);
+</script>
+
+<style scoped>
+.van-collapse-item__title .van-cell__right-icon {
+  transform: rotate(90deg);
+  transition: transform var(--collapse-item-transition-duration, 0.3s);
+}
+.van-collapse-item__title--expanded .van-cell__right-icon {
+  transform: rotate(-90deg);
+}
+.van-collapse-item__title--disabled .van-cell,
+.van-collapse-item__title--disabled .van-cell__right-icon {
+  color: var(--collapse-item-title-disabled-color, #c8c9cc) !important;
+}
+.van-collapse-item__title--disabled .van-cell--hover {
+  background-color: #fff !important;
+}
+.van-collapse-item__wrapper {
+  overflow: hidden;
+}
+.van-collapse-item__content {
+  background-color: var(--collapse-item-content-background-color, #fff);
+  color: var(--collapse-item-content-text-color, #969799);
+  font-size: var(--collapse-item-content-font-size, 13px);
+  line-height: var(--collapse-item-content-line-height, 1.5);
+  padding: var(--collapse-item-content-padding, 15px);
+}
+</style>

@@ -1,137 +1,106 @@
-
-    <template>
-    <view class="van-count-down">
-  <slot wx:if="{{ useSlot }}"/>
-  <block wx:else>{{ formattedTime }}</block>
-</view>
-
+<template>
+  <view class="van-count-down">
+    <template v-if="useSlot">
+      <slot />
     </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { isSameSecond, parseFormat, parseTimeData } from './utils';
+    <template v-else>
+      {{ formattedTime }}
+    </template>
+  </view>
+</template>
 
-function simpleTick(fn: WechatMiniprogram.SetTimeoutCompleteCallback) {
+<script setup lang="ts">
+import { ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { countDownProps, CountDownProps } from "./props";
+import { parseTimeData, parseFormat, isSameSecond } from "./utils";
+
+const props = defineProps<CountDownProps>();
+const emit = defineEmits(["change", "finish"]);
+
+const remain = ref(props.time || 0);
+const formattedTime = ref(
+  parseFormat(props.format, parseTimeData(remain.value))
+);
+let counting = false;
+let endTime = 0;
+let tid: any = null;
+
+function simpleTick(fn: () => void) {
   return setTimeout(fn, 30);
 }
 
-VantComponent({
-  props: {
-    useSlot: Boolean,
-    millisecond: Boolean,
-    time: {
-      type: Number,
-      observer: 'reset',
-    },
-    format: {
-      type: String,
-      value: 'HH:mm:ss',
-    },
-    autoStart: {
-      type: Boolean,
-      value: true,
-    },
-  },
+function start() {
+  if (counting) return;
+  counting = true;
+  endTime = Date.now() + remain.value;
+  tick();
+}
 
-  data: {
-    timeData: parseTimeData(0),
-    formattedTime: '0',
-  },
+function pause() {
+  counting = false;
+  clearTimeout(tid);
+}
 
-  destroyed() {
-    clearTimeout(this.tid);
-    this.tid = null;
-  },
+function reset() {
+  pause();
+  remain.value = props.time || 0;
+  setRemain(remain.value);
+  if (props.autoStart) start();
+}
 
-  methods: {
-    // 开始
-    start() {
-      if (this.counting) {
-        return;
-      }
+function tick() {
+  if (props.millisecond) {
+    microTick();
+  } else {
+    macroTick();
+  }
+}
 
-      this.counting = true;
-      this.endTime = Date.now() + this.remain;
-      this.tick();
-    },
+function microTick() {
+  tid = simpleTick(() => {
+    setRemain(getRemain());
+    if (remain.value !== 0) microTick();
+  });
+}
 
-    // 暂停
-    pause() {
-      this.counting = false;
-      clearTimeout(this.tid);
-    },
+function macroTick() {
+  tid = simpleTick(() => {
+    const r = getRemain();
+    if (!isSameSecond(r, remain.value) || r === 0) setRemain(r);
+    if (remain.value !== 0) macroTick();
+  });
+}
 
-    // 重置
-    reset() {
-      this.pause();
-      this.remain = this.data.time;
-      this.setRemain(this.remain);
+function getRemain() {
+  return Math.max(endTime - Date.now(), 0);
+}
 
-      if (this.data.autoStart) {
-        this.start();
-      }
-    },
+function setRemain(val: number) {
+  remain.value = val;
+  const timeData = parseTimeData(val);
+  if (props.useSlot) emit("change", timeData);
+  formattedTime.value = parseFormat(props.format, timeData);
+  if (val === 0) {
+    pause();
+    emit("finish");
+  }
+}
 
-    tick() {
-      if (this.data.millisecond) {
-        this.microTick();
-      } else {
-        this.macroTick();
-      }
-    },
+watch(() => props.time, reset);
 
-    microTick() {
-      this.tid = simpleTick(() => {
-        this.setRemain(this.getRemain());
-
-        if (this.remain !== 0) {
-          this.microTick();
-        }
-      });
-    },
-
-    macroTick() {
-      this.tid = simpleTick(() => {
-        const remain = this.getRemain();
-
-        if (!isSameSecond(remain, this.remain) || remain === 0) {
-          this.setRemain(remain);
-        }
-
-        if (this.remain !== 0) {
-          this.macroTick();
-        }
-      });
-    },
-
-    getRemain() {
-      return Math.max(this.endTime - Date.now(), 0);
-    },
-
-    setRemain(remain) {
-      this.remain = remain;
-      const timeData = parseTimeData(remain);
-
-      if (this.data.useSlot) {
-        this.$emit('change', timeData);
-      }
-
-      this.setData({
-        formattedTime: parseFormat(this.data.format, timeData),
-      });
-
-      if (remain === 0) {
-        this.pause();
-        this.$emit('finish');
-      }
-    },
-  },
+onMounted(() => {
+  reset();
 });
 
+onBeforeUnmount(() => {
+  pause();
+});
+</script>
 
-    
-    </script>
-    <style>
-    .van-count-down{color:var(--count-down-text-color,#323233);font-size:var(--count-down-font-size,14px);line-height:var(--count-down-line-height,20px)}
-    </style>
-  
+<style scoped>
+.van-count-down {
+  color: var(--count-down-text-color, #323233);
+  font-size: var(--count-down-font-size, 14px);
+  line-height: var(--count-down-line-height, 20px);
+}
+</style>

@@ -1,77 +1,57 @@
-
-    <template>
-    <demo-block title="默认主题">
-  <van-cell-group>
-    <van-field label="评分">
-      <view slot="input" style="width: 100%">
-        <van-rate model:value="{{ rate }}" data-key="rate" bind:change="onChange" />
-      </view>
-    </van-field>
-    <van-field label="滑块" border="{{ false }}">
-      <view slot="input" style="width: 100%">
-        <van-slider value="{{ slider }}" data-key="slider" bind:change="onChange" />
-      </view>
-    </van-field>
-  </van-cell-group>
-
-  <view style="margin: 16px">
-    <van-button round block type="primary">提交</van-button>
-  </view>
-</demo-block>
-
-<demo-block title="定制主题">
-  <van-config-provider theme-vars="{{ themeVars }}">
+<template>
+  <demo-block title="默认主题">
     <van-cell-group>
       <van-field label="评分">
-        <view slot="input" style="width: 100%">
-          <van-rate model:value="{{ rate }}" data-key="rate" bind:change="onChange" />
-        </view>
+        <template #input>
+          <van-rate v-model="rate" style="width: 100%" />
+        </template>
       </van-field>
-      <van-field label="滑块" border="{{ false }}">
-        <view slot="input" style="width: 100%">
-          <van-slider value="{{ slider }}" data-key="slider" bind:change="onChange" />
-        </view>
+      <van-field label="滑块" :border="false">
+        <template #input>
+          <van-slider v-model="slider" style="width: 100%" />
+        </template>
       </van-field>
     </van-cell-group>
-
-    <view style="margin: 16px">
+    <div style="margin: 16px">
       <van-button round block type="primary">提交</van-button>
-    </view>
-  </van-config-provider>
-</demo-block>
+    </div>
+  </demo-block>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+  <demo-block title="定制主题">
+    <van-config-provider :theme-vars="themeVars">
+      <van-cell-group>
+        <van-field label="评分">
+          <template #input>
+            <van-rate v-model="rate" style="width: 100%" />
+          </template>
+        </van-field>
+        <van-field label="滑块" :border="false">
+          <template #input>
+            <van-slider v-model="slider" style="width: 100%" />
+          </template>
+        </van-field>
+      </van-cell-group>
+      <div style="margin: 16px">
+        <van-button round block type="primary">提交</van-button>
+      </div>
+    </van-config-provider>
+  </demo-block>
+</template>
 
-VantComponent({
-  data: {
-    rate: 4,
-    slider: 50,
-    themeVars: {
-      rateIconFullColor: '#07c160',
-      sliderBarHeight: '4px',
-      sliderButtonWidth: '20px',
-      sliderButtonHeight: '20px',
-      sliderActiveBackgroundColor: '#07c160',
-      buttonPrimaryBorderColor: '#07c160',
-      buttonPrimaryBackgroundColor: '#07c160',
-    },
-  },
+<script lang="ts" setup>
+import { ref } from "vue";
 
-  methods: {
-    onChange(event) {
-      const { key } = event.currentTarget.dataset;
-      this.setData({
-        [key]: event.detail,
-      });
-    },
-  },
-});
+const rate = ref(4);
+const slider = ref(50);
+const themeVars = {
+  rateIconFullColor: "#07c160",
+  sliderBarHeight: "4px",
+  sliderButtonWidth: "20px",
+  sliderButtonHeight: "20px",
+  sliderActiveBackgroundColor: "#07c160",
+  buttonPrimaryBorderColor: "#07c160",
+  buttonPrimaryBackgroundColor: "#07c160",
+};
+</script>
 
-    </script>
-    <style>
-    
-    </style>
-  
+<style></style>

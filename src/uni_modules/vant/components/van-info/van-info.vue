@@ -1,18 +1,18 @@
 <template>
   <view
-    v-if="(info !== undefined && info !== null && info !== '') || dot"
-    :class="cn(bem('info', { dot }), customClass)"
+    v-if="(info !== null && info !== '') || dot"
+    class="van-info"
+    :class="{ 'van-info--dot': dot }"
     :style="customStyle"
   >
-    {{ dot ? "" : info }}
+    <template v-if="!dot">{{ info }}</template>
   </view>
 </template>
 
 <script setup lang="ts">
-import { cn, bem, commonProps } from "../../utils";
-import { infoProps, type InfoProps } from "./props";
+import { infoProps } from "./props";
 
-const props = defineProps<InfoProps>();
+defineProps(infoProps);
 </script>
 
 <style>

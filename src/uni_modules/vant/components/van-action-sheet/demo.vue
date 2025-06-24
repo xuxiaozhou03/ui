@@ -1,138 +1,112 @@
+<template>
+  <demo-block title="基础用法" padding>
+    <van-button type="primary" @click="toggleActionSheet1">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show1"
+      :actions="action1"
+      @close="toggleActionSheet1"
+    />
+  </demo-block>
 
-    <template>
-    <demo-block title="基础用法" padding>
-  <van-button type="primary" bind:click="toggleActionSheet1">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show1 }}"
-    actions="{{ action1 }}"
-    bind:close="toggleActionSheet1"
-  />
-</demo-block>
+  <demo-block title="选项状态" padding>
+    <van-button type="primary" @click="toggleActionSheet2">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show2"
+      :actions="action2"
+      @close="toggleActionSheet2"
+    />
+  </demo-block>
 
-<demo-block title="选项状态" padding>
-  <van-button type="primary" bind:click="toggleActionSheet2">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show2 }}"
-    actions="{{ action2 }}"
-    bind:close="toggleActionSheet2"
-  />
-</demo-block>
+  <demo-block title="展示取消按钮" padding>
+    <van-button type="primary" @click="toggleActionSheet3">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show3"
+      :actions="action1"
+      cancel-text="取消"
+      @close="toggleActionSheet3"
+    />
+  </demo-block>
 
-<demo-block title="展示取消按钮" padding>
-  <van-button type="primary" bind:click="toggleActionSheet3">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show3 }}"
-    actions="{{ action1 }}"
-    cancel-text="取消"
-    bind:close="toggleActionSheet3"
-  >
-  </van-action-sheet>
-</demo-block>
+  <demo-block title="展示描述信息" padding>
+    <van-button type="primary" @click="toggleActionSheet4">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show4"
+      :actions="action1"
+      description="这是一段描述信息"
+      @close="toggleActionSheet4"
+    />
+  </demo-block>
 
-<demo-block title="展示描述信息" padding>
-  <van-button type="primary" bind:click="toggleActionSheet4">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show4 }}"
-    actions="{{ action1 }}"
-    description="这是一段描述信息"
-    bind:close="toggleActionSheet4"
-  >
-  </van-action-sheet>
-</demo-block>
+  <demo-block title="展示标题栏" padding>
+    <van-button type="primary" @click="toggleActionSheet5">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show5"
+      title="标题"
+      @close="toggleActionSheet5"
+    >
+      <view class="content">内容</view>
+    </van-action-sheet>
+  </demo-block>
 
-<demo-block title="展示标题栏" padding>
-  <van-button type="primary" bind:click="toggleActionSheet5">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show5 }}"
-    title="标题"
-    bind:close="toggleActionSheet5"
-  >
-    <view class="content">内容</view>
-  </van-action-sheet>
-</demo-block>
+  <demo-block title="微信开放能力" padding>
+    <van-button type="primary" @click="toggleActionSheet6">弹出菜单</van-button>
+    <van-action-sheet
+      v-model:show="show6"
+      title="标题"
+      :actions="action6"
+      @close="toggleActionSheet6"
+      @getuserinfo="onGetUserInfo"
+    />
+  </demo-block>
+</template>
+<script lang="ts" setup>
+import { ref } from "vue";
 
-<demo-block title="微信开放能力" padding>
-  <van-button type="primary" bind:click="toggleActionSheet6">弹出菜单</van-button>
-  <van-action-sheet
-    show="{{ show6 }}"
-    title="标题"
-    bind:close="toggleActionSheet6"
-    actions="{{ action6 }}"
-    bind:getuserinfo="onGetUserInfo"
-  >
-  </van-action-sheet>
-</demo-block>
+const show1 = ref(false);
+const show2 = ref(false);
+const show3 = ref(false);
+const show4 = ref(false);
+const show5 = ref(false);
+const show6 = ref(false);
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+const action1 = [
+  { name: "选项" },
+  { name: "选项" },
+  { name: "选项", subname: "描述信息" },
+];
+const action2 = [
+  { name: "着色选项", color: "#ee0a24" },
+  { loading: true },
+  { name: "禁用选项", disabled: true },
+];
+const action6 = [
+  { name: "获取用户信息", color: "#07c160", openType: "getUserInfo" },
+];
 
-VantComponent({
-  data: {
-    show1: false,
-    show2: false,
-    show3: false,
-    show4: false,
-    show5: false,
-    show6: false,
-    action1: [
-      { name: '选项' },
-      { name: '选项' },
-      { name: '选项', subname: '描述信息' },
-    ],
-    action2: [
-      { name: '着色选项', color: '#ee0a24' },
-      { loading: true },
-      { name: '禁用选项', disabled: true },
-    ],
-    action6: [
-      { name: '获取用户信息', color: '#07c160', openType: 'getUserInfo' },
-    ],
-  },
-
-  methods: {
-    toggle(type) {
-      this.setData({
-        [type]: !this.data[type],
-      });
-    },
-
-    toggleActionSheet1() {
-      this.toggle('show1');
-    },
-
-    toggleActionSheet2() {
-      this.toggle('show2');
-    },
-
-    toggleActionSheet3() {
-      this.toggle('show3');
-    },
-
-    toggleActionSheet4() {
-      this.toggle('show4');
-    },
-
-    toggleActionSheet5() {
-      this.toggle('show5');
-    },
-
-    toggleActionSheet6() {
-      this.toggle('show6');
-    },
-
-    onGetUserInfo(e) {
-      console.log(e.detail);
-    },
-  },
-});
-
-    </script>
-    <style>
-    .content {
+function toggleActionSheet1() {
+  show1.value = !show1.value;
+}
+function toggleActionSheet2() {
+  show2.value = !show2.value;
+}
+function toggleActionSheet3() {
+  show3.value = !show3.value;
+}
+function toggleActionSheet4() {
+  show4.value = !show4.value;
+}
+function toggleActionSheet5() {
+  show5.value = !show5.value;
+}
+function toggleActionSheet6() {
+  show6.value = !show6.value;
+}
+function onGetUserInfo(e: any) {
+  console.log(e.detail);
+}
+</script>
+<style>
+.content {
   padding: 20px;
 }
-
-    </style>
-  
+</style>

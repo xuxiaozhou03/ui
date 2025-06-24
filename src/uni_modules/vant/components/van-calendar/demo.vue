@@ -1,335 +1,298 @@
+<template>
+  <demo-block title="基础用法">
+    <van-cell
+      is-link
+      title="选择单个日期"
+      data-type="single"
+      data-id="selectSingle"
+      :value="formatFullDate(date.selectSingle)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="选择多个日期"
+      data-type="multiple"
+      data-id="selectMultiple"
+      :value="formatMultiple(date.selectMultiple)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="选择日期区间"
+      data-type="range"
+      data-id="selectRange"
+      :value="formatRange(date.selectRange)"
+      @click="show"
+    />
+  </demo-block>
 
-    <template>
-    <wxs src="./index.wxs" module="computed"></wxs>
+  <demo-block title="快捷选择">
+    <van-cell
+      is-link
+      title="选择单个日期"
+      data-type="single"
+      data-id="quickSelect1"
+      :value="formatFullDate(date.quickSelect1)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="选择日期区间"
+      data-type="range"
+      data-id="quickSelect2"
+      :value="formatRange(date.quickSelect2)"
+      @click="show"
+    />
+  </demo-block>
 
-<demo-block title="基础用法">
-  <van-cell
-    is-link
-    title="选择单个日期"
-    data-type="single"
-    data-id="selectSingle"
-    value="{{ computed.formatFullDate(date.selectSingle) }}"
-    bind:click="show"
-  />
+  <demo-block title="自定义日历">
+    <van-cell
+      is-link
+      title="自定义颜色"
+      data-type="range"
+      data-id="customColor"
+      :value="formatRange(date.customColor)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="自定义日期范围"
+      data-type="single"
+      data-id="customRange"
+      :value="formatFullDate(date.customRange)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="自定义按钮文字"
+      data-type="range"
+      data-id="customConfirm"
+      :value="formatRange(date.customConfirm)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="自定义日期文案"
+      data-type="range"
+      data-id="customDayText"
+      :value="formatRange(date.customDayText)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="自定义弹出位置"
+      data-type="single"
+      data-id="customPosition"
+      :value="formatFullDate(date.customPosition)"
+      @click="show"
+    />
+    <van-cell
+      is-link
+      title="日期区间最大范围"
+      data-type="range"
+      data-id="maxRange"
+      :value="formatRange(date.maxRange)"
+      @click="show"
+    />
+  </demo-block>
 
-  <van-cell
-    is-link
-    title="选择多个日期"
-    data-type="multiple"
-    data-id="selectMultiple"
-    value="{{ computed.formatMultiple(date.selectMultiple) }}"
-    bind:click="show"
-  />
+  <demo-block title="平铺展示">
+    <van-calendar
+      title="日历"
+      :poppable="false"
+      :show-confirm="false"
+      :min-date="tiledMinDate"
+      :max-date="tiledMaxDate"
+      :first-day-of-week="firstDayOfWeek"
+      class="tiled-calendar"
+    />
+  </demo-block>
 
-  <van-cell
-    is-link
-    title="选择日期区间"
-    data-type="range"
-    data-id="selectRange"
-    value="{{ computed.formatRange(date.selectRange) }}"
-    bind:click="show"
-  />
-</demo-block>
-
-<demo-block title="快捷选择">
-  <van-cell
-    is-link
-    title="选择单个日期"
-    data-type="single"
-    data-id="quickSelect1"
-    value="{{ computed.formatFullDate(date.quickSelect1) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="选择日期区间"
-    data-type="range"
-    data-id="quickSelect2"
-    value="{{ computed.formatRange(date.quickSelect2) }}"
-    bind:click="show"
-  />
-</demo-block>
-
-<demo-block title="自定义日历">
-  <van-cell
-    is-link
-    title="自定义颜色"
-    data-type="range"
-    data-id="customColor"
-    value="{{ computed.formatRange(date.customColor) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="自定义日期范围"
-    data-type="single"
-    data-id="customRange"
-    value="{{ computed.formatFullDate(date.customRange) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="自定义按钮文字"
-    data-type="range"
-    data-id="customConfirm"
-    value="{{ computed.formatRange(date.customConfirm) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="自定义日期文案"
-    data-type="range"
-    data-id="customDayText"
-    value="{{ computed.formatRange(date.customDayText) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="自定义弹出位置"
-    data-type="single"
-    data-id="customPosition"
-    value="{{ computed.formatFullDate(date.customPosition) }}"
-    bind:click="show"
-  />
-
-  <van-cell
-    is-link
-    title="日期区间最大范围"
-    data-type="range"
-    data-id="maxRange"
-    value="{{ computed.formatRange(date.maxRange) }}"
-    bind:click="show"
-  />
-</demo-block>
-
-<demo-block title="平铺展示">
   <van-calendar
-    title="日历"
-    poppable="{{ false }}"
-    show-confirm="{{ false }}"
-    min-date="{{ tiledMinDate }}"
-    max-date="{{ tiledMaxDate }}"
-    first-day-of-week="{{ firstDayOfWeek }}"
-    class="tiled-calendar"
+    v-model:show="showCalendar"
+    :type="type"
+    :color="color"
+    :round="round"
+    :position="position"
+    :min-date="minDate"
+    :max-date="maxDate"
+    :max-range="maxRange"
+    :formatter="formatter"
+    :show-confirm="showConfirm"
+    :confirm-text="confirmText"
+    :confirm-disabled-text="confirmDisabledText"
+    :first-day-of-week="firstDayOfWeek"
+    @confirm="onConfirm"
+    @select="onSelect"
+    @unselect="onUnselect"
+    @open="onOpen"
+    @opened="onOpened"
+    @close="onClose"
+    @closed="onClosed"
   />
-</demo-block>
+</template>
 
-<van-calendar
-  show="{{ showCalendar }}"
-  type="{{ type }}"
-  color="{{ color }}"
-  round="{{ round }}"
-  position="{{ position }}"
-  min-date="{{ minDate }}"
-  max-date="{{ maxDate }}"
-  max-range="{{ maxRange }}"
-  formatter="{{ formatter }}"
-  show-confirm="{{ showConfirm }}"
-  confirm-text="{{ confirmText }}"
-  confirm-disabled-text="{{ confirmDisabledText }}"
-  first-day-of-week="{{ firstDayOfWeek }}"
-  bind:confirm="onConfirm"
-  bind:select="onSelect"
-  bind:unselect="onUnselect"
-  bind:open="onOpen"
-  bind:opened="onOpened"
-  bind:close="onClose"
-  bind:closed="onClosed"
->
-</van-calendar>
+<script lang="ts" setup>
+import { ref, reactive } from "vue";
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
-
-type Data = {
-  id?: string;
-  type?: 'single' | 'multiple' | 'range';
-  round?: boolean;
-  color?: string;
-  minDate?: number;
-  maxDate?: number;
-  maxRange?: any;
-  position?: 'top' | 'right' | 'bottom' | 'left';
-  formatter?: any;
-  showConfirm?: boolean;
-  showCalendar?: boolean;
-  tiledMinDate?: number;
-  tiledMaxDate?: number;
-  confirmText?: string | '确定';
-  confirmDisabledText?: string | '确定';
-  firstDayOfWeek?: number;
-};
-
-VantComponent({
-  data: {
-    date: {
-      maxRange: [],
-      selectSingle: null,
-      selectRange: [],
-      selectMultiple: [],
-      quickSelect1: null,
-      quickSelect2: [],
-      customColor: [],
-      customConfirm: [],
-      customRange: null,
-      customDayText: [],
-      customPosition: null,
-    },
-    type: 'single',
-    round: true,
-    color: '',
-    minDate: Date.now(),
-    maxDate: new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 6,
-      new Date().getDate()
-    ).getTime(),
-    maxRange: undefined,
-    position: 'bottom',
-    formatter: undefined,
-    showConfirm: false,
-    showCalendar: false,
-    tiledMinDate: new Date(2012, 0, 10).getTime(),
-    tiledMaxDate: new Date(2012, 2, 20).getTime(),
-    confirmText: '确定',
-    confirmDisabledText: '确定',
-    firstDayOfWeek: 0,
-  },
-
-  methods: {
-    onConfirm(event) {
-      console.log(event);
-      this.setData({ showCalendar: false });
-
-      this.setData({
-        [`date.${this.data.id}`]: Array.isArray(event.detail)
-          ? event.detail.map((date) => date.valueOf())
-          : event.detail.valueOf(),
-      });
-    },
-
-    onSelect(event) {
-      console.log(event);
-    },
-
-    onUnselect(event) {
-      console.log(event);
-    },
-
-    onClose() {
-      this.setData({ showCalendar: false });
-    },
-
-    onOpen() {
-      console.log('open');
-    },
-
-    onOpened() {
-      console.log('opened');
-    },
-
-    onClosed() {
-      console.log('closed');
-    },
-
-    resetSettings() {
-      this.setData({
-        round: true,
-        color: '',
-        minDate: Date.now(),
-        maxDate: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 6,
-          new Date().getDate()
-        ).getTime(),
-        maxRange: undefined,
-        position: 'bottom',
-        formatter: undefined,
-        showConfirm: true,
-        confirmText: '确定',
-        confirmDisabledText: '确定',
-      });
-    },
-
-    show(event) {
-      this.resetSettings();
-      const { type, id } = event.currentTarget.dataset;
-      const data: Data = {
-        id,
-        type,
-        showCalendar: true,
-      };
-
-      switch (id) {
-        case 'quickSelect1':
-        case 'quickSelect2':
-          data.showConfirm = false;
-          break;
-        case 'customColor':
-          data.color = '#07c160';
-          break;
-        case 'customConfirm':
-          data.confirmText = '完成';
-          data.confirmDisabledText = '请选择结束时间';
-          break;
-        case 'customRange':
-          data.minDate = new Date(2010, 0, 1).getTime();
-          data.maxDate = new Date(2010, 0, 31).getTime();
-          break;
-        case 'customDayText':
-          data.minDate = new Date(2010, 4, 1).getTime();
-          data.maxDate = new Date(2010, 4, 31).getTime();
-          data.formatter = this.dayFormatter;
-          break;
-        case 'customPosition':
-          data.round = false;
-          data.position = 'right';
-          break;
-        case 'maxRange':
-          data.maxRange = 3;
-          break;
-      }
-
-      this.setData(data);
-    },
-
-    dayFormatter(day) {
-      const month = day.date.getMonth() + 1;
-      const date = day.date.getDate();
-
-      if (month === 5) {
-        if (date === 1) {
-          day.topInfo = '劳动节';
-        } else if (date === 4) {
-          day.topInfo = '五四青年节';
-        } else if (date === 11) {
-          day.text = '今天';
-        }
-      }
-
-      if (day.type === 'start') {
-        day.bottomInfo = '入店';
-      } else if (day.type === 'end') {
-        day.bottomInfo = '离店';
-      }
-
-      return day;
-    },
-  },
-});
-
-    </script>
-    <style>
-    .tiled-calendar {
-  --calendar-height: 618px;
+// 日期格式化工具函数
+function formatFullDate(val: number | null) {
+  if (!val) return "";
+  const date = new Date(val);
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+function formatMultiple(val: number[]) {
+  if (!val || !val.length) return "";
+  return val.map(formatFullDate).join(", ");
+}
+function formatRange(val: number[] | null) {
+  if (!val || !val.length) return "";
+  if (Array.isArray(val)) {
+    return val.map(formatFullDate).join(" ~ ");
+  }
+  return "";
 }
 
-    </style>
-  
+const date = reactive({
+  maxRange: [],
+  selectSingle: null,
+  selectRange: [],
+  selectMultiple: [],
+  quickSelect1: null,
+  quickSelect2: [],
+  customColor: [],
+  customConfirm: [],
+  customRange: null,
+  customDayText: [],
+  customPosition: null,
+});
+
+const type = ref<"single" | "multiple" | "range">("single");
+const round = ref(true);
+const color = ref("");
+const minDate = ref(Date.now());
+const maxDate = ref(
+  new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 6,
+    new Date().getDate()
+  ).getTime()
+);
+const maxRange = ref();
+const position = ref<"top" | "right" | "bottom" | "left">("bottom");
+const formatter = ref();
+const showConfirm = ref(false);
+const showCalendar = ref(false);
+const tiledMinDate = ref(new Date(2012, 0, 10).getTime());
+const tiledMaxDate = ref(new Date(2012, 2, 20).getTime());
+const confirmText = ref("确定");
+const confirmDisabledText = ref("确定");
+const firstDayOfWeek = ref(0);
+const id = ref<string | undefined>();
+
+function resetSettings() {
+  round.value = true;
+  color.value = "";
+  minDate.value = Date.now();
+  maxDate.value = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 6,
+    new Date().getDate()
+  ).getTime();
+  maxRange.value = undefined;
+  position.value = "bottom";
+  formatter.value = undefined;
+  showConfirm.value = true;
+  confirmText.value = "确定";
+  confirmDisabledText.value = "确定";
+}
+
+function show(event: Event) {
+  resetSettings();
+  const target = event.currentTarget as HTMLElement;
+  const typeAttr = target.getAttribute("data-type") as
+    | "single"
+    | "multiple"
+    | "range";
+  const idAttr = target.getAttribute("data-id") as string;
+  type.value = typeAttr;
+  id.value = idAttr;
+  showCalendar.value = true;
+
+  switch (idAttr) {
+    case "quickSelect1":
+    case "quickSelect2":
+      showConfirm.value = false;
+      break;
+    case "customColor":
+      color.value = "#07c160";
+      break;
+    case "customConfirm":
+      confirmText.value = "完成";
+      confirmDisabledText.value = "请选择结束时间";
+      break;
+    case "customRange":
+      minDate.value = new Date(2010, 0, 1).getTime();
+      maxDate.value = new Date(2010, 0, 31).getTime();
+      break;
+    case "customDayText":
+      minDate.value = new Date(2010, 4, 1).getTime();
+      maxDate.value = new Date(2010, 4, 31).getTime();
+      formatter.value = dayFormatter;
+      break;
+    case "customPosition":
+      round.value = false;
+      position.value = "right";
+      break;
+    case "maxRange":
+      maxRange.value = 3;
+      break;
+  }
+}
+
+function onConfirm(event: any) {
+  showCalendar.value = false;
+  if (!id.value) return;
+  date[id.value] = Array.isArray(event)
+    ? event.map((d: Date) => d.valueOf())
+    : event.valueOf();
+}
+function onSelect(event: any) {
+  // 可根据需要处理
+}
+function onUnselect(event: any) {
+  // 可根据需要处理
+}
+function onClose() {
+  showCalendar.value = false;
+}
+function onOpen() {}
+function onOpened() {}
+function onClosed() {}
+
+function dayFormatter(day: any) {
+  const month = day.date.getMonth() + 1;
+  const dateNum = day.date.getDate();
+  if (month === 5) {
+    if (dateNum === 1) {
+      day.topInfo = "劳动节";
+    } else if (dateNum === 4) {
+      day.topInfo = "五四青年节";
+    } else if (dateNum === 11) {
+      day.text = "今天";
+    }
+  }
+  if (day.type === "start") {
+    day.bottomInfo = "入店";
+  } else if (day.type === "end") {
+    day.bottomInfo = "离店";
+  }
+  return day;
+}
+</script>
+
+<style>
+.tiled-calendar {
+  --calendar-height: 618px;
+}
+</style>

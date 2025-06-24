@@ -1,10 +1,9 @@
-import { commonProps } from "../../utils";
-import type { PropType, ExtractPropTypes } from "vue";
+import type { ExtractPropTypes, PropType } from "vue";
 
 export const infoProps = {
-  ...commonProps,
   dot: Boolean,
-  info: [String, Number] as PropType<string | number>,
+  info: [String, Number],
+  customStyle: String,
 };
 
 export type InfoProps = ExtractPropTypes<typeof infoProps>;

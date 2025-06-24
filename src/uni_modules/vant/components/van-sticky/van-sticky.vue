@@ -1,185 +1,128 @@
+<template>
+  <div class="van-sticky" :style="containerStyle">
+    <div
+      :class="['van-sticky-wrap', { 'van-sticky-wrap--fixed': fixed }]"
+      :style="wrapStyle"
+    >
+      <slot />
+    </div>
+  </div>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { stickyProps } from "./props";
 
+const emit = defineEmits<{
+  (e: "scroll", payload: { scrollTop: number; isFixed: boolean }): void;
+}>();
 
-<view class="custom-class van-sticky" style="{{ computed.containerStyle({ fixed, height, zIndex }) }}">
-  <view class="{{ utils.bem('sticky-wrap', { fixed }) }}" style="{{ computed.wrapStyle({ fixed, offsetTop, transform, zIndex }) }}">
-    <slot />
-  </view>
-</view>
+const props = defineProps(stickyProps);
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { getRect } from '../common/utils';
-import { VantComponent } from '../common/component';
-import { isDef } from '../common/validator';
-import { pageScrollMixin } from '../mixins/page-scroll';
+const fixed = ref(false);
+const height = ref(0);
+const transform = ref(0);
+const root = ref<HTMLElement | null>(null);
 
-const ROOT_ELEMENT = '.van-sticky';
-
-VantComponent({
-  props: {
-    zIndex: {
-      type: Number,
-      value: 99,
-    },
-    offsetTop: {
-      type: Number,
-      value: 0,
-      observer: 'onScroll',
-    },
-    disabled: {
-      type: Boolean,
-      observer: 'onScroll',
-    },
-    container: {
-      type: null,
-      observer: 'onScroll',
-    },
-    scrollTop: {
-      type: null,
-      observer(val) {
-        this.onScroll({ scrollTop: val });
-      },
-    },
-  },
-
-  mixins: [
-    pageScrollMixin(function (event) {
-      if (this.data.scrollTop != null) {
-        return;
-      }
-      this.onScroll(event);
-    }),
-  ],
-
-  data: {
-    height: 0,
-    fixed: false,
-    transform: 0,
-  },
-
-  mounted() {
-    this.onScroll();
-  },
-
-  methods: {
-    onScroll({ scrollTop }: { scrollTop?: number } = {}) {
-      const { container, offsetTop, disabled } = this.data;
-
-      if (disabled) {
-        this.setDataAfterDiff({
-          fixed: false,
-          transform: 0,
-        });
-        return;
-      }
-
-      this.scrollTop = scrollTop || this.scrollTop;
-
-      if (typeof container === 'function') {
-        Promise.all([getRect(this, ROOT_ELEMENT), this.getContainerRect()])
-          .then(([root, container]) => {
-            if (offsetTop + root.height > container.height + container.top) {
-              this.setDataAfterDiff({
-                fixed: false,
-                transform: container.height - root.height,
-              });
-            } else if (offsetTop >= root.top) {
-              this.setDataAfterDiff({
-                fixed: true,
-                height: root.height,
-                transform: 0,
-              });
-            } else {
-              this.setDataAfterDiff({ fixed: false, transform: 0 });
-            }
-          })
-          .catch(() => {});
-
-        return;
-      }
-
-      getRect(this, ROOT_ELEMENT).then((root) => {
-        if (!isDef(root) || (!root.width && !root.height)) {
-          return;
-        }
-        if (offsetTop >= root.top) {
-          this.setDataAfterDiff({ fixed: true, height: root.height });
-          this.transform = 0;
-        } else {
-          this.setDataAfterDiff({ fixed: false });
-        }
-      });
-    },
-
-    setDataAfterDiff(data) {
-      wx.nextTick(() => {
-        const diff = Object.keys(data).reduce((prev, key) => {
-          if (data[key] !== this.data[key]) {
-            prev[key] = data[key];
-          }
-
-          return prev;
-        }, {});
-
-        if (Object.keys(diff).length > 0) {
-          this.setData(diff);
-        }
-
-        this.$emit('scroll', {
-          scrollTop: this.scrollTop,
-          isFixed: data.fixed || this.data.fixed,
-        });
-      });
-    },
-
-    getContainerRect() {
-      const nodesRef: WechatMiniprogram.NodesRef = this.data.container();
-
-      if (!nodesRef) {
-        return Promise.reject(new Error('not found container'));
-      }
-
-      return new Promise<WechatMiniprogram.BoundingClientRectCallbackResult>(
-        (resolve) => nodesRef.boundingClientRect(resolve).exec()
-      );
-    },
-  },
+const containerStyle = computed(() => {
+  return {
+    height: fixed.value ? `${height.value}px` : "",
+    zIndex: props.zIndex,
+  };
 });
 
+const wrapStyle = computed(() => {
+  return {
+    transform: transform.value ? `translate3d(0, ${transform.value}px, 0)` : "",
+    top: fixed.value ? `${props.offsetTop}px` : "",
+    zIndex: props.zIndex,
+  };
+});
 
-    // 把下面代码变成 computed 属性
-    
+function getContainerRect(): Promise<DOMRect> {
+  if (typeof props.container === "function") {
+    const el = props.container();
+    if (el) {
+      return Promise.resolve(el.getBoundingClientRect());
+    }
+  }
+  return Promise.reject(new Error("not found container"));
+}
 
-
-
-function wrapStyle(data) {
-  return style({
-    transform: data.transform
-      ? 'translate3d(0, ' + data.transform + 'px, 0)'
-      : '',
-    top: data.fixed ? addUnit(data.offsetTop) : '',
-    'z-index': data.zIndex,
+function getRootRect(): Promise<DOMRect> {
+  return new Promise((resolve) => {
+    nextTick(() => {
+      if (root.value) {
+        resolve(root.value.getBoundingClientRect());
+      }
+    });
   });
 }
 
-function containerStyle(data) {
-  return style({
-    height: data.fixed ? addUnit(data.height) : '',
-    'z-index': data.zIndex,
-  });
+async function onScroll(scrollTop?: number) {
+  if (props.disabled) {
+    fixed.value = false;
+    transform.value = 0;
+    return;
+  }
+  let currentScrollTop = scrollTop ?? window.scrollY;
+  try {
+    if (typeof props.container === "function") {
+      const [rootRect, containerRect] = await Promise.all([
+        getRootRect(),
+        getContainerRect(),
+      ]);
+      if (
+        props.offsetTop + rootRect.height >
+        containerRect.height + containerRect.top
+      ) {
+        fixed.value = false;
+        transform.value = containerRect.height - rootRect.height;
+      } else if (props.offsetTop >= rootRect.top) {
+        fixed.value = true;
+        height.value = rootRect.height;
+        transform.value = 0;
+      } else {
+        fixed.value = false;
+        transform.value = 0;
+      }
+    } else {
+      const rootRect = await getRootRect();
+      if (!rootRect || (!rootRect.width && !rootRect.height)) return;
+      if (props.offsetTop >= rootRect.top) {
+        fixed.value = true;
+        height.value = rootRect.height;
+        transform.value = 0;
+      } else {
+        fixed.value = false;
+      }
+    }
+    emit("scroll", { scrollTop: currentScrollTop, isFixed: fixed.value });
+  } catch {
+    // ignore
+  }
 }
 
-module.exports = {
-  wrapStyle: wrapStyle,
-  containerStyle: containerStyle,
-};
+watch(
+  () => [props.offsetTop, props.disabled, props.container, props.scrollTop],
+  () => {
+    onScroll(props.scrollTop);
+  }
+);
 
-    </script>
-    <style>
-    .van-sticky{position:relative}.van-sticky-wrap--fixed{left:0;position:fixed;right:0}
-    </style>
-  
+onMounted(() => {
+  onScroll(props.scrollTop);
+  window.addEventListener("scroll", () => onScroll(), { passive: true });
+});
+</script>
+
+<style>
+.van-sticky {
+  position: relative;
+}
+.van-sticky-wrap--fixed {
+  left: 0;
+  position: fixed;
+  right: 0;
+}
+</style>

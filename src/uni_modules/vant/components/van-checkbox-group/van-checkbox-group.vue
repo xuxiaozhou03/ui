@@ -1,62 +1,46 @@
+<template>
+  <view
+    :class="[
+      'van-checkbox-group',
+      { 'van-checkbox-group--horizontal': direction === 'horizontal' },
+    ]"
+  >
+    <slot />
+  </view>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { checkboxGroupProps, CheckboxGroupProps } from "./props";
+import { provide, ref, watch } from "vue";
 
-<view class="{{ utils.bem('checkbox-group', [{ horizontal: direction === 'horizontal' }]) }}">
-  <slot />
-</view>
+const props = defineProps<CheckboxGroupProps>();
+const emit = defineEmits(["update:modelValue", "change"]);
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { useChildren } from '../common/relation';
-import { VantComponent } from '../common/component';
+const { max, modelValue, disabled, direction } = props;
+const value = ref(modelValue || []);
 
-type TrivialInstance = WechatMiniprogram.Component.TrivialInstance;
+watch(
+  () => props.modelValue,
+  (val) => {
+    value.value = val || [];
+  }
+);
 
-VantComponent({
-  field: true,
+function updateValue(val: any[]) {
+  emit("update:modelValue", val);
+  emit("change", val);
+}
 
-  relation: useChildren('checkbox', function (target) {
-    this.updateChild(target);
-  }),
+provide("checkboxGroupValue", value);
+provide("checkboxGroupDisabled", disabled);
+provide("checkboxGroupDirection", direction);
+provide("checkboxGroupMax", max);
+provide("checkboxGroupUpdate", updateValue);
+</script>
 
-  props: {
-    max: Number,
-    value: {
-      type: Array,
-      observer: 'updateChildren',
-    },
-    disabled: {
-      type: Boolean,
-      observer: 'updateChildren',
-    },
-    direction: {
-      type: String,
-      value: 'vertical',
-    },
-  },
-
-  methods: {
-    updateChildren() {
-      this.children.forEach((child) => this.updateChild(child));
-    },
-
-    updateChild(child: TrivialInstance) {
-      const { value, disabled, direction } = this.data;
-      child.setData({
-        value: value.indexOf(child.data.name) !== -1,
-        parentDisabled: disabled,
-        direction,
-      });
-    },
-  },
-});
-
-
-    
-    </script>
-    <style>
-    .van-checkbox-group--horizontal{display:flex;flex-wrap:wrap}
-    </style>
-  
+<style scoped>
+.van-checkbox-group--horizontal {
+  display: flex;
+  flex-wrap: wrap;
+}
+</style>

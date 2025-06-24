@@ -1,54 +1,37 @@
+<template>
+  <teleport to="body" v-if="rootPortal">
+    <div
+      v-if="show"
+      class="van-overlay"
+      :style="customStyle"
+      @click="onClick"
+    ></div>
+  </teleport>
+  <div
+    v-else-if="show"
+    class="van-overlay"
+    :style="customStyle"
+    @click="onClick"
+  ></div>
+</template>
 
-    <template>
-    <import src="./overlay.wxml" />
+<script setup lang="ts">
+import { overlayProps } from "./props";
 
-<root-portal wx:if="{{ rootPortal }}">
-  <include src="./overlay.wxml" />
-</root-portal>
+defineProps(overlayProps);
+const emit = defineEmits(["click"]);
+function onClick() {
+  emit("click");
+}
+</script>
 
-<include wx:else src="./overlay.wxml" />
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-
-VantComponent({
-  props: {
-    show: Boolean,
-    customStyle: String,
-    duration: {
-      type: null,
-      value: 300,
-    },
-    zIndex: {
-      type: Number,
-      value: 1,
-    },
-    lockScroll: {
-      type: Boolean,
-      value: true,
-    },
-    rootPortal: {
-      type: Boolean,
-      value: false,
-    },
-  },
-
-  methods: {
-    onClick() {
-      this.$emit('click');
-    },
-
-    // for prevent touchmove
-    noop() {},
-  },
-});
-
-
-    
-    </script>
-    <style>
-    .van-overlay{background-color:var(--overlay-background-color,rgba(0,0,0,.7));height:100%;left:0;position:fixed;top:0;width:100%}
-    </style>
-  
+<style>
+.van-overlay {
+  background-color: var(--overlay-background-color, rgba(0, 0, 0, 0.7));
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+</style>

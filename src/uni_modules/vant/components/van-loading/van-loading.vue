@@ -1,14 +1,18 @@
 <template>
   <view
     :class="cn(bem('loading', { vertical }), customClass)"
-    :style="customStyle"
+    :style="rootStyle"
   >
     <view
-      :class="cn('van-loading__spinner', `van-loading__spinner--${type}`)"
+      :class="['van-loading__spinner', `van-loading__spinner--${type}`]"
       :style="spinnerStyle"
     >
       <template v-if="type === 'spinner'">
-        <view v-for="n in 12" :key="n" class="van-loading__dot" />
+        <view
+          v-for="(_, index) in array12"
+          :key="index"
+          class="van-loading__dot"
+        />
       </template>
     </view>
     <view class="van-loading__text" :style="textStyle">
@@ -16,25 +20,33 @@
     </view>
   </view>
 </template>
-
-<script setup lang="ts">
-import { computed, type CSSProperties } from "vue";
-import { cn, bem, commonProps, addUnit } from "../../utils";
+<script lang="ts" setup>
+import { computed } from "vue";
+import { cn, bem, addUnit, style } from "../../utils";
 import { loadingProps } from "./props";
 
-const props = defineProps(loadingProps);
+const props = defineProps(loadingProps); // 推荐：类型推断和运行时校验、默认值都生效
 
-const spinnerStyle = computed<CSSProperties>(() => ({
-  color: props.color,
-  width: addUnit(props.size),
-  height: addUnit(props.size),
+const array12 = computed(() => Array.from({ length: 12 }));
+
+const rootStyle = computed(() => ({
+  ...props.customStyle,
 }));
 
-const textStyle = computed<CSSProperties>(() => ({
-  fontSize: addUnit(props.textSize),
-}));
+const spinnerStyle = computed(() =>
+  style({
+    color: props.color,
+    width: addUnit(props.size),
+    height: addUnit(props.size),
+  })
+);
+
+const textStyle = computed(() =>
+  style({
+    fontSize: addUnit(props.textSize),
+  })
+);
 </script>
-
 <style>
 :host {
   font-size: 0;

@@ -1,55 +1,93 @@
+<template>
+  <view
+    :class="[
+      'van-divider',
+      { 'van-divider--dashed': dashed, 'van-divider--hairline': hairline },
+      contentPosition ? `van-divider--${contentPosition}` : '',
+      customClass,
+    ]"
+    :style="rootStyle"
+  >
+    <slot />
+  </view>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { computed } from "vue";
+import { dividerProps, DividerProps } from "./props";
 
+const props = defineProps<DividerProps>();
+const {
+  dashed,
+  hairline,
+  contentPosition,
+  fontSize,
+  borderColor,
+  textColor,
+  customStyle,
+} = props;
+const customClass = "";
 
-<view
-  class="custom-class {{ utils.bem('divider', [{ dashed, hairline }, contentPosition]) }}"
-  style="{{ computed.rootStyle({ borderColor, textColor, fontSize, customStyle }) }}"
->
-  <slot />
-</view>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-
-VantComponent({
-  props: {
-    dashed: Boolean,
-    hairline: Boolean,
-    contentPosition: String,
-    fontSize: String,
-    borderColor: String,
-    textColor: String,
-    customStyle: String,
-  },
-});
-
-
-    // 把下面代码变成 computed 属性
-    
-
-
-
-function rootStyle(data) {
-  return style([
-    {
-      'border-color': data.borderColor,
-      color: data.textColor,
-      'font-size': addUnit(data.fontSize),
-    },
-    data.customStyle,
-  ]);
+function addUnit(value?: string | number) {
+  if (value == null) return undefined;
+  return typeof value === "number" ? `${value}px` : value;
 }
 
-module.exports = {
-  rootStyle: rootStyle,
-};
+const rootStyle = computed(() => {
+  return {
+    "border-color": borderColor,
+    color: textColor,
+    "font-size": addUnit(fontSize),
+    ...(customStyle && typeof customStyle === "object" ? customStyle : {}),
+  };
+});
+</script>
 
-    </script>
-    <style>
-    .van-divider{align-items:center;border:0 solid var(--divider-border-color,#ebedf0);color:var(--divider-text-color,#969799);display:flex;font-size:var(--divider-font-size,14px);line-height:var(--divider-line-height,24px);margin:var(--divider-margin,16px 0)}.van-divider:after,.van-divider:before{border-color:inherit;border-style:inherit;border-width:1px 0 0;box-sizing:border-box;display:block;flex:1;height:1px}.van-divider:before{content:""}.van-divider--hairline:after,.van-divider--hairline:before{transform:scaleY(.5)}.van-divider--dashed{border-style:dashed}.van-divider--center:before,.van-divider--left:before,.van-divider--right:before{margin-right:var(--divider-content-padding,16px)}.van-divider--center:after,.van-divider--left:after,.van-divider--right:after{content:"";margin-left:var(--divider-content-padding,16px)}.van-divider--left:before{max-width:var(--divider-content-left-width,10%)}.van-divider--right:after{max-width:var(--divider-content-right-width,10%)}
-    </style>
-  
+<style scoped>
+.van-divider {
+  align-items: center;
+  border: 0 solid var(--divider-border-color, #ebedf0);
+  color: var(--divider-text-color, #969799);
+  display: flex;
+  font-size: var(--divider-font-size, 14px);
+  line-height: var(--divider-line-height, 24px);
+  margin: var(--divider-margin, 16px 0);
+}
+.van-divider:after,
+.van-divider:before {
+  border-color: inherit;
+  border-style: inherit;
+  border-width: 1px 0 0;
+  box-sizing: border-box;
+  display: block;
+  flex: 1;
+  height: 1px;
+}
+.van-divider:before {
+  content: "";
+}
+.van-divider--hairline:after,
+.van-divider--hairline:before {
+  transform: scaleY(0.5);
+}
+.van-divider--dashed {
+  border-style: dashed;
+}
+.van-divider--center:before,
+.van-divider--left:before,
+.van-divider--right:before {
+  margin-right: var(--divider-content-padding, 16px);
+}
+.van-divider--center:after,
+.van-divider--left:after,
+.van-divider--right:after {
+  content: "";
+  margin-left: var(--divider-content-padding, 16px);
+}
+.van-divider--left:before {
+  max-width: var(--divider-content-left-width, 10%);
+}
+.van-divider--right:after {
+  max-width: var(--divider-content-right-width, 10%);
+}
+</style>

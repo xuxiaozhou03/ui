@@ -1,252 +1,153 @@
-
-    <template>
-    
-
-<view class="van-circle">
-  <canvas class="van-circle__canvas" type="{{ type }}" style="width: {{ utils.addUnit(size) }};height:{{ utils.addUnit(size) }}" id="van-circle" canvas-id="van-circle"></canvas>
-  <view wx:if="{{ !text }}" class="van-circle__text">
-    <slot></slot>
+<template>
+  <view class="van-circle">
+    <canvas
+      class="van-circle__canvas"
+      :width="size"
+      :height="size"
+      ref="canvasRef"
+    />
+    <view v-if="!text" class="van-circle__text">
+      <slot></slot>
+    </view>
+    <view v-else class="van-circle__text">{{ text }}</view>
   </view>
-  <cover-view wx:else class="van-circle__text">{{ text }}</cover-view>
-</view>
+</template>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { BLUE, WHITE } from '../common/color';
-import { VantComponent } from '../common/component';
-import { getSystemInfoSync } from '../common/utils';
-import { isObj } from '../common/validator';
-import { canIUseCanvas2d } from '../common/version';
-import { adaptor } from './canvas';
+<script setup lang="ts">
+import {
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  computed,
+  nextTick,
+} from "vue";
+import { circleProps, CircleProps } from "./props";
 
-function format(rate) {
-  return Math.min(Math.max(rate, 0), 100);
-}
+const props = defineProps<CircleProps>();
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+let interval: any = null;
+let currentValue = ref(props.modelValue);
+
 const PERIMETER = 2 * Math.PI;
 const BEGIN_ANGLE = -Math.PI / 2;
 const STEP = 1;
 
-VantComponent({
-  props: {
-    text: String,
-    lineCap: {
-      type: String,
-      value: 'round',
-    },
-    value: {
-      type: Number,
-      value: 0,
-      observer: 'reRender',
-    },
-    speed: {
-      type: Number,
-      value: 50,
-    },
-    size: {
-      type: Number,
-      value: 100,
-      observer() {
-        this.drawCircle(this.currentValue);
-      },
-    },
-    fill: String,
-    layerColor: {
-      type: String,
-      value: WHITE,
-    },
-    color: {
-      type: null,
-      value: BLUE,
-      observer() {
-        this.setHoverColor().then(() => {
-          this.drawCircle(this.currentValue);
-        });
-      },
-    },
-    type: {
-      type: String,
-      value: '',
-    },
-    strokeWidth: {
-      type: Number,
-      value: 4,
-    },
-    clockwise: {
-      type: Boolean,
-      value: true,
-    },
-  },
+function addUnit(value?: string | number) {
+  if (value == null) return undefined;
+  return typeof value === "number" ? `${value}px` : value;
+}
 
-  data: {
-    hoverColor: BLUE,
-  },
+function format(rate: number) {
+  return Math.min(Math.max(rate, 0), 100);
+}
 
-  methods: {
-    getContext(): Promise<WechatMiniprogram.CanvasContext> {
-      const { type, size } = this.data;
+function drawCircle(value: number) {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const size = props.size;
+  ctx.clearRect(0, 0, size, size);
+  // layer circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2 - props.strokeWidth / 2, 0, PERIMETER);
+  ctx.strokeStyle = props.layerColor || "#fff";
+  ctx.lineWidth = props.strokeWidth;
+  ctx.lineCap = props.lineCap;
+  ctx.stroke();
+  ctx.restore();
+  // progress circle
+  if (format(value) !== 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(
+      size / 2,
+      size / 2,
+      size / 2 - props.strokeWidth / 2,
+      BEGIN_ANGLE,
+      BEGIN_ANGLE + PERIMETER * (format(value) / 100),
+      !props.clockwise
+    );
+    ctx.strokeStyle = typeof props.color === "string" ? props.color : "#1989fa";
+    ctx.lineWidth = props.strokeWidth;
+    ctx.lineCap = props.lineCap;
+    ctx.stroke();
+    ctx.restore();
+  }
+}
 
-      if (type === '' || !canIUseCanvas2d()) {
-        const ctx = wx.createCanvasContext('van-circle', this);
-        return Promise.resolve(ctx);
-      }
-
-      const dpr = getSystemInfoSync().pixelRatio;
-
-      return new Promise((resolve) => {
-        wx.createSelectorQuery()
-          .in(this)
-          .select('#van-circle')
-          .node()
-          .exec((res) => {
-            const canvas = res[0].node;
-            const ctx = canvas.getContext(type);
-
-            if (!this.inited) {
-              this.inited = true;
-              canvas.width = size * dpr;
-              canvas.height = size * dpr;
-              ctx.scale(dpr, dpr);
-            }
-
-            resolve(adaptor(ctx));
-          });
-      });
-    },
-
-    setHoverColor() {
-      const { color, size } = this.data;
-
-      if (isObj(color)) {
-        return this.getContext().then((context) => {
-          if (!context) return;
-
-          const LinearColor = context.createLinearGradient(size, 0, 0, 0);
-          Object.keys(color)
-            .sort((a, b) => parseFloat(a) - parseFloat(b))
-            .map((key) =>
-              LinearColor.addColorStop(
-                parseFloat(key) / 100,
-                color[key] as string
-              )
-            );
-          this.hoverColor = LinearColor;
-        });
-      }
-
-      this.hoverColor = color;
-      return Promise.resolve();
-    },
-
-    presetCanvas(context, strokeStyle, beginAngle, endAngle, fill?: string) {
-      const { strokeWidth, lineCap, clockwise, size } = this.data;
-      const position = size / 2;
-      const radius = position - strokeWidth / 2;
-
-      context.setStrokeStyle(strokeStyle);
-      context.setLineWidth(strokeWidth);
-      context.setLineCap(lineCap);
-
-      context.beginPath();
-      context.arc(position, position, radius, beginAngle, endAngle, !clockwise);
-      context.stroke();
-
-      if (fill) {
-        context.setFillStyle(fill);
-        context.fill();
-      }
-    },
-
-    renderLayerCircle(context) {
-      const { layerColor, fill } = this.data;
-      this.presetCanvas(context, layerColor, 0, PERIMETER, fill);
-    },
-
-    renderHoverCircle(context, formatValue) {
-      const { clockwise } = this.data;
-      // 结束角度
-      const progress = PERIMETER * (formatValue / 100);
-      const endAngle = clockwise
-        ? BEGIN_ANGLE + progress
-        : 3 * Math.PI - (BEGIN_ANGLE + progress);
-
-      this.presetCanvas(context, this.hoverColor, BEGIN_ANGLE, endAngle);
-    },
-
-    drawCircle(currentValue) {
-      const { size } = this.data;
-
-      this.getContext().then((context) => {
-        if (!context) return;
-
-        context.clearRect(0, 0, size, size);
-        this.renderLayerCircle(context);
-
-        const formatValue = format(currentValue);
-        if (formatValue !== 0) {
-          this.renderHoverCircle(context, formatValue);
+function reRender() {
+  if (props.speed <= 0 || props.speed > 1000) {
+    currentValue.value = props.modelValue;
+    drawCircle(currentValue.value);
+    return;
+  }
+  clearMockInterval();
+  const run = () => {
+    interval = setTimeout(() => {
+      if (currentValue.value !== props.modelValue) {
+        if (Math.abs(currentValue.value - props.modelValue) < STEP) {
+          currentValue.value = props.modelValue;
+        } else if (currentValue.value < props.modelValue) {
+          currentValue.value += STEP;
+        } else {
+          currentValue.value -= STEP;
         }
-
-        context.draw();
-      });
-    },
-
-    reRender() {
-      // tofector 动画暂时没有想到好的解决方案
-      const { value, speed } = this.data;
-
-      if (speed <= 0 || speed > 1000) {
-        this.drawCircle(value);
-        return;
+        drawCircle(currentValue.value);
+        run();
+      } else {
+        clearMockInterval();
       }
+    }, 1000 / props.speed);
+  };
+  run();
+}
 
-      this.clearMockInterval();
-      this.currentValue = this.currentValue || 0;
-      const run = () => {
-        this.interval = setTimeout(() => {
-          if (this.currentValue !== value) {
-            if (Math.abs(this.currentValue - value) < STEP) {
-              this.currentValue = value;
-            } else if (this.currentValue < value) {
-              this.currentValue += STEP;
-            } else {
-              this.currentValue -= STEP;
-            }
-            this.drawCircle(this.currentValue);
-            run();
-          } else {
-            this.clearMockInterval();
-          }
-        }, 1000 / speed);
-      };
-      run();
-    },
+function clearMockInterval() {
+  if (interval) {
+    clearTimeout(interval);
+    interval = null;
+  }
+}
 
-    clearMockInterval() {
-      if (this.interval) {
-        clearTimeout(this.interval);
-        this.interval = null;
-      }
-    },
-  },
+watch(
+  () => props.modelValue,
+  () => {
+    reRender();
+  }
+);
 
-  mounted() {
-    this.currentValue = this.data.value;
+watch(
+  () => props.size,
+  () => {
+    nextTick(() => drawCircle(currentValue.value));
+  }
+);
 
-    this.setHoverColor().then(() => {
-      this.drawCircle(this.currentValue);
-    });
-  },
-
-  destroyed() {
-    this.clearMockInterval();
-  },
+onMounted(() => {
+  currentValue.value = props.modelValue;
+  nextTick(() => drawCircle(currentValue.value));
 });
 
+onBeforeUnmount(() => {
+  clearMockInterval();
+});
+</script>
 
-    
-    </script>
-    <style>
-    .van-circle{display:inline-block;position:relative;text-align:center}.van-circle__text{color:var(--circle-text-color,#323233);left:0;position:absolute;top:50%;transform:translateY(-50%);width:100%}
-    </style>
-  
+<style scoped>
+.van-circle {
+  display: inline-block;
+  position: relative;
+  text-align: center;
+}
+.van-circle__text {
+  color: var(--circle-text-color, #323233);
+  left: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+}
+</style>

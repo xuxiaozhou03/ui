@@ -1,168 +1,114 @@
-
-    <template>
-    
-
-<van-popup
-  show="{{ show }}"
-  position="bottom"
-  round="{{ round }}"
-  z-index="{{ zIndex }}"
-  overlay="{{ overlay }}"
-  custom-class="van-action-sheet custom-class"
-  safe-area-inset-bottom="{{ safeAreaInsetBottom }}"
-  close-on-click-overlay="{{ closeOnClickOverlay }}"
-  root-portal="{{ rootPortal }}"
-  bind:close="onClickOverlay"
->
-  <view wx:if="{{ title }}" class="van-action-sheet__header">
-    {{ title }}
-    <van-icon
-      name="cross"
-      custom-class="van-action-sheet__close"
-      bind:click="onClose"
-    />
-  </view>
-  <view wx:if="{{ description }}" class="van-action-sheet__description van-hairline--bottom">
-    {{ description }}
-  </view>
-  <view wx:if="{{ actions && actions.length }}" class="list-class">
-    <!-- button外包一层view，防止actions动态变化，导致渲染时button被打散 -->
-    <button
-      wx:for="{{ actions }}"
-      wx:key="index"
-      open-type="{{ item.disabled || item.loading || (canIUseGetUserProfile && item.openType === 'getUserInfo') ? '' : item.openType }}"
-      style="{{ item.color ? 'color: ' + item.color : '' }}"
-      class="{{ utils.bem('action-sheet__item', { disabled: item.disabled || item.loading }) }} {{ item.className || '' }}"
-      hover-class="van-action-sheet__item--hover"
-      data-index="{{ index }}"
-      bindtap="{{ item.disabled || item.loading ? '' : 'onSelect' }}"
-      bindgetuserinfo="onGetUserInfo"
-      bindcontact="onContact"
-      bindgetphonenumber="onGetPhoneNumber"
-      binderror="onError"
-      bindlaunchapp="onLaunchApp"
-      bindopensetting="onOpenSetting"
-      lang="{{ lang }}"
-      session-from="{{ sessionFrom }}"
-      send-message-title="{{ sendMessageTitle }}"
-      send-message-path="{{ sendMessagePath }}"
-      send-message-img="{{ sendMessageImg }}"
-      show-message-card="{{ showMessageCard }}"
-      app-parameter="{{ appParameter }}"
-    >
-      <block wx:if="{{ !item.loading }}">
-        {{ item.name }}
-        <view wx:if="{{ item.subname }}" class="van-action-sheet__subname" >{{ item.subname }}</view>
-      </block>
-      <van-loading wx:else custom-class="van-action-sheet__loading" size="22px" />
-    </button>
-  </view>
-  <slot />
-  <block wx:if="{{ cancelText }}">
-    <view class="van-action-sheet__gap" />
-    <view
-      class="van-action-sheet__cancel"
-      hover-class="van-action-sheet__cancel--hover"
-      hover-stay-time="70"
-      bind:tap="onCancel"
-    >
-      {{ cancelText }}
-    </view>
-  </block>
-</van-popup>
-
+<template>
+  <van-popup
+    v-model:show="show"
+    position="bottom"
+    :round="round"
+    :z-index="zIndex"
+    :overlay="overlay"
+    class="van-action-sheet"
+    :safe-area-inset-bottom="safeAreaInsetBottom"
+    :close-on-click-overlay="closeOnClickOverlay"
+    :root-portal="rootPortal"
+    @close="onClickOverlay"
+  >
+    <template v-if="title">
+      <view class="van-action-sheet__header">
+        {{ title }}
+        <van-icon
+          name="cross"
+          class="van-action-sheet__close"
+          @click="onClose"
+        />
+      </view>
     </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { button } from '../mixins/button';
+    <template v-if="description">
+      <view class="van-action-sheet__description van-hairline--bottom">
+        {{ description }}
+      </view>
+    </template>
+    <template v-if="actions && actions.length">
+      <view class="list-class">
+        <button
+          v-for="(item, index) in actions"
+          :key="index"
+          :open-type="item.disabled || item.loading ? '' : item.openType"
+          :style="item.color ? { color: item.color } : {}"
+          :class="
+            cn(
+              bem('action-sheet__item', {
+                disabled: item.disabled || item.loading,
+              }),
+              item.className
+            )
+          "
+          hover-class="van-action-sheet__item--hover"
+          @click="!item.disabled && !item.loading && onSelect(item)"
+        >
+          <template v-if="!item.loading">
+            {{ item.name }}
+            <view v-if="item.subname" class="van-action-sheet__subname">{{
+              item.subname
+            }}</view>
+          </template>
+          <van-loading v-else class="van-action-sheet__loading" size="22px" />
+        </button>
+      </view>
+    </template>
+    <slot />
+    <template v-if="cancelText">
+      <view class="van-action-sheet__gap" />
+      <view
+        class="van-action-sheet__cancel"
+        hover-class="van-action-sheet__cancel--hover"
+        hover-stay-time="70"
+        @click="onCancel"
+      >
+        {{ cancelText }}
+      </view>
+    </template>
+  </van-popup>
+</template>
+<script lang="ts" setup>
+import { computed } from "vue";
+import { cn, bem } from "../../utils";
+import {
+  actionSheetProps,
+  type ActionSheetProps,
+  type ActionSheetAction,
+} from "./props";
 
-VantComponent({
-  classes: ['list-class'],
+const props = defineProps(actionSheetProps);
+const emit = defineEmits<{
+  (e: "select", item: ActionSheetAction): void;
+  (e: "cancel"): void;
+  (e: "close"): void;
+  (e: "click-overlay"): void;
+}>();
 
-  mixins: [button],
-  props: {
-    show: Boolean,
-    title: String,
-    cancelText: String,
-    description: String,
-    round: {
-      type: Boolean,
-      value: true,
-    },
-    zIndex: {
-      type: Number,
-      value: 100,
-    },
-    actions: {
-      type: Array,
-      value: [],
-    },
-    overlay: {
-      type: Boolean,
-      value: true,
-    },
-    closeOnClickOverlay: {
-      type: Boolean,
-      value: true,
-    },
-    closeOnClickAction: {
-      type: Boolean,
-      value: true,
-    },
-    safeAreaInsetBottom: {
-      type: Boolean,
-      value: true,
-    },
-    rootPortal: {
-      type: Boolean,
-      value: false,
-    },
-  },
-
-  methods: {
-    onSelect(event: WechatMiniprogram.TouchEvent) {
-      const { index } = event.currentTarget.dataset;
-      const { actions, closeOnClickAction, canIUseGetUserProfile } = this.data;
-      const item = actions[index];
-      if (item) {
-        this.$emit('select', item);
-
-        if (closeOnClickAction) {
-          this.onClose();
-        }
-
-        if (item.openType === 'getUserInfo' && canIUseGetUserProfile) {
-          wx.getUserProfile({
-            desc: item.getUserProfileDesc || '  ',
-            complete: (userProfile) => {
-              this.$emit('getuserinfo', userProfile);
-            },
-          });
-        }
-      }
-    },
-
-    onCancel() {
-      this.$emit('cancel');
-    },
-
-    onClose() {
-      this.$emit('close');
-    },
-
-    onClickOverlay() {
-      this.$emit('click-overlay');
-      this.onClose();
-    },
-  },
+const show = computed({
+  get: () => props.show,
+  set: (val: boolean) => emit("close"),
 });
 
-
-    
-    </script>
-    <style>
-    @import "../common/index.wxss";
+function onSelect(item: ActionSheetAction) {
+  emit("select", item);
+  if (props.closeOnClickAction) {
+    emit("close");
+  }
+}
+function onCancel() {
+  emit("cancel");
+}
+function onClose() {
+  emit("close");
+}
+function onClickOverlay() {
+  emit("click-overlay");
+  emit("close");
+}
+</script>
+<style>
+@import "../common/index.wxss";
 .van-action-sheet {
   color: var(--action-sheet-item-text-color, #323233);
   max-height: var(--action-sheet-max-height, 90%) !important;
@@ -228,6 +174,4 @@ VantComponent({
 .van-action-sheet__loading {
   display: flex !important;
 }
-
-    </style>
-  
+</style>

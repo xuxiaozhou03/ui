@@ -1,37 +1,44 @@
-
-    <template>
-    
-
-<view
-  wx:if="{{ title }}"
-  class="{{ utils.bem('cell-group__title', { inset }) }}"
->
-  {{ title }}
-</view>
-<view class="custom-class {{ utils.bem('cell-group', { inset }) }} {{ border ? 'van-hairline--top-bottom' : '' }}">
-  <slot />
-</view>
-
+<template>
+  <view
+    :class="[
+      'van-cell-group',
+      { 'van-cell-group--inset': inset, 'van-hairline--top-bottom': border },
+      customClass,
+    ]"
+  >
+    <template v-if="title">
+      <view
+        :class="[
+          'van-cell-group__title',
+          { 'van-cell-group__title--inset': inset },
+        ]"
+      >
+        {{ title }}
+      </view>
     </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
+    <slot />
+  </view>
+</template>
 
-VantComponent({
-  props: {
-    title: String,
-    border: {
-      type: Boolean,
-      value: true,
-    },
-    inset: Boolean,
-  },
-});
+<script setup lang="ts">
+import { cellGroupProps, CellGroupProps } from "./props";
+const props = defineProps<CellGroupProps>();
+const { title, inset, border, customClass } = props;
+</script>
 
-
-    
-    </script>
-    <style>
-    .van-cell-group--inset{border-radius:var(--cell-group-inset-border-radius,8px);margin:var(--cell-group-inset-padding,0 16px);overflow:hidden}.van-cell-group__title{color:var(--cell-group-title-color,#969799);font-size:var(--cell-group-title-font-size,14px);line-height:var(--cell-group-title-line-height,16px);padding:var(--cell-group-title-padding,16px 16px 8px)}.van-cell-group__title--inset{padding:var(--cell-group-inset-title-padding,16px 16px 8px 32px)}
-    </style>
-  
+<style scoped>
+.van-cell-group--inset {
+  border-radius: var(--cell-group-inset-border-radius, 8px);
+  margin: var(--cell-group-inset-padding, 0 16px);
+  overflow: hidden;
+}
+.van-cell-group__title {
+  color: var(--cell-group-title-color, #969799);
+  font-size: var(--cell-group-title-font-size, 14px);
+  line-height: var(--cell-group-title-line-height, 16px);
+  padding: var(--cell-group-title-padding, 16px 16px 8px);
+}
+.van-cell-group__title--inset {
+  padding: var(--cell-group-inset-title-padding, 16px 16px 8px 32px);
+}
+</style>

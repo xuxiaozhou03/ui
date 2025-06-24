@@ -1,197 +1,147 @@
-
-    <template>
-    <demo-block title="基本用法">
-  <van-checkbox
-    value="{{ checkbox1 }}"
-    data-key="checkbox1"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="禁用状态">
-  <van-checkbox
-    disabled
-    value="{{ false }}"
-    custom-class="demo-checkbox"
-  >
-    复选框
-  </van-checkbox>
-  <van-checkbox
-    disabled
-    value="{{ true }}"
-    custom-class="demo-checkbox"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="自定义形状">
-  <van-checkbox
-    value="{{ checkboxShape }}"
-    data-key="checkboxShape"
-    shape="square"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="自定义颜色">
-  <van-checkbox
-    value="{{ checkbox2 }}"
-    data-key="checkbox2"
-    checked-color="#07c160"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="自定义大小">
-  <van-checkbox
-    icon-size="25px"
-    value="{{ checkboxSize }}"
-    data-key="checkboxSize"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="自定义图标">
-  <van-checkbox
-    use-icon-slot
-    value="{{ checkbox3 }}"
-    data-key="checkbox3"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    自定义图标
-    <image
-      slot="icon"
-      class="icon"
-      mode="widthFix"
-      src="{{ checkbox3 ? activeIcon : inactiveIcon }}"
-    />
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="禁用文本点击">
-  <van-checkbox
-    label-disabled
-    value="{{ checkboxLabel }}"
-    data-key="checkboxLabel"
-    custom-class="demo-checkbox"
-    bind:change="onChange"
-  >
-    复选框
-  </van-checkbox>
-</demo-block>
-
-<demo-block title="复选框组">
-  <van-checkbox-group value="{{ result }}" data-key="result" bind:change="onChange">
-    <van-checkbox
-      wx:for="{{ list }}"
-      wx:key="*this"
-      name="{{ item }}"
-      custom-class="demo-checkbox"
-    >
-      复选框 {{ item }}
+<template>
+  <demo-block title="基本用法">
+    <van-checkbox v-model="checkbox1" class="demo-checkbox">
+      复选框
     </van-checkbox>
-  </van-checkbox-group>
-</demo-block>
+  </demo-block>
 
-<demo-block title="水平排列">
-  <van-checkbox-group direction="horizontal" value="{{ result4 }}" data-key="result4" bind:change="onChange">
-    <van-checkbox
-      wx:for="{{ list }}"
-      wx:key="*this"
-      name="{{ item }}"
-      custom-class="demo-checkbox"
-    >
-      复选框 {{ item }}
+  <demo-block title="禁用状态">
+    <van-checkbox v-model="checkboxDisabled1" disabled class="demo-checkbox">
+      复选框
     </van-checkbox>
-  </van-checkbox-group>
-</demo-block>
-
-<demo-block title="限制最大可选数">
-  <van-checkbox-group value="{{ result2 }}" data-key="result2" max="2" bind:change="onChange">
-    <van-checkbox
-      wx:for="{{ list }}"
-      wx:key="*this"
-      name="{{ item }}"
-      custom-class="demo-checkbox"
-    >
-      复选框 {{ item }}
+    <van-checkbox v-model="checkboxDisabled2" disabled class="demo-checkbox">
+      复选框
     </van-checkbox>
-  </van-checkbox-group>
-</demo-block>
+  </demo-block>
 
-<demo-block title="搭配单元格组件使用">
-  <van-checkbox-group value="{{ result3 }}" data-key="result3" bind:change="onChange">
-    <van-cell-group >
-      <van-cell
-        wx:for="{{ list }}"
-        wx:key="*this"
-        title="复选框 {{ item }}"
-        value-class="value-class"
-        clickable
-        data-index="{{ index }}"
-        bind:click="toggle"
+  <demo-block title="自定义形状">
+    <van-checkbox v-model="checkboxShape" shape="square" class="demo-checkbox">
+      复选框
+    </van-checkbox>
+  </demo-block>
+
+  <demo-block title="自定义颜色">
+    <van-checkbox
+      v-model="checkbox2"
+      checked-color="#07c160"
+      class="demo-checkbox"
+    >
+      复选框
+    </van-checkbox>
+  </demo-block>
+
+  <demo-block title="自定义大小">
+    <van-checkbox v-model="checkboxSize" icon-size="25px" class="demo-checkbox">
+      复选框
+    </van-checkbox>
+  </demo-block>
+
+  <demo-block title="自定义图标">
+    <van-checkbox v-model="checkbox3" use-icon-slot class="demo-checkbox">
+      自定义图标
+      <template #icon>
+        <img class="icon" :src="checkbox3 ? activeIcon : inactiveIcon" />
+      </template>
+    </van-checkbox>
+  </demo-block>
+
+  <demo-block title="禁用文本点击">
+    <van-checkbox v-model="checkboxLabel" label-disabled class="demo-checkbox">
+      复选框
+    </van-checkbox>
+  </demo-block>
+
+  <demo-block title="复选框组">
+    <van-checkbox-group v-model="result">
+      <van-checkbox
+        v-for="item in list"
+        :key="item"
+        :name="item"
+        class="demo-checkbox"
       >
-        <van-checkbox catch:tap="noop" class="checkboxes-{{ index }}" name="{{ item }}" />
-      </van-cell>
-    </van-cell-group>
-  </van-checkbox-group>
-</demo-block>
+        复选框 {{ item }}
+      </van-checkbox>
+    </van-checkbox-group>
+  </demo-block>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+  <demo-block title="水平排列">
+    <van-checkbox-group v-model="result4" direction="horizontal">
+      <van-checkbox
+        v-for="item in list"
+        :key="item"
+        :name="item"
+        class="demo-checkbox"
+      >
+        复选框 {{ item }}
+      </van-checkbox>
+    </van-checkbox-group>
+  </demo-block>
 
-VantComponent({
-  data: {
-    checkbox1: true,
-    checkbox2: true,
-    checkbox3: true,
-    checkboxLabel: true,
-    checkboxSize: true,
-    checkboxShape: true,
-    list: ['a', 'b', 'c'],
-    result: ['a', 'b'],
-    result2: [],
-    result3: [],
-    result4: [],
-    activeIcon: 'https://img.yzcdn.cn/vant/user-active.png',
-    inactiveIcon: 'https://img.yzcdn.cn/vant/user-inactive.png',
-  },
+  <demo-block title="限制最大可选数">
+    <van-checkbox-group v-model="result2" :max="2">
+      <van-checkbox
+        v-for="item in list"
+        :key="item"
+        :name="item"
+        class="demo-checkbox"
+      >
+        复选框 {{ item }}
+      </van-checkbox>
+    </van-checkbox-group>
+  </demo-block>
 
-  methods: {
-    onChange(event) {
-      const { key } = event.currentTarget.dataset;
-      this.setData({ [key]: event.detail });
-    },
+  <demo-block title="搭配单元格组件使用">
+    <van-checkbox-group v-model="result3">
+      <van-cell-group>
+        <van-cell
+          v-for="(item, index) in list"
+          :key="item"
+          :title="`复选框 ${item}`"
+          value-class="value-class"
+          clickable
+          @click="toggle(index)"
+        >
+          <template #default>
+            <van-checkbox
+              :ref="(el) => (checkboxRefs[index] = el)"
+              :name="item"
+            />
+          </template>
+        </van-cell>
+      </van-cell-group>
+    </van-checkbox-group>
+  </demo-block>
+</template>
+<script lang="ts" setup>
+import { ref, reactive } from "vue";
 
-    toggle(event) {
-      const { index } = event.currentTarget.dataset;
-      const checkbox = this.selectComponent(`.checkboxes-${index}`);
-      checkbox.toggle();
-    },
+const checkbox1 = ref(true);
+const checkbox2 = ref(true);
+const checkbox3 = ref(true);
+const checkboxLabel = ref(true);
+const checkboxSize = ref(true);
+const checkboxShape = ref(true);
+const checkboxDisabled1 = ref(false);
+const checkboxDisabled2 = ref(true);
+const list = ref(["a", "b", "c"]);
+const result = ref(["a", "b"]);
+const result2 = ref([]);
+const result3 = ref([]);
+const result4 = ref([]);
+const activeIcon = "https://img.yzcdn.cn/vant/user-active.png";
+const inactiveIcon = "https://img.yzcdn.cn/vant/user-inactive.png";
 
-    noop() {},
-  },
-});
+const checkboxRefs = reactive<any[]>([]);
 
-    </script>
-    <style>
-    .demo-checkbox-group {
+function toggle(index: number) {
+  const checkbox = checkboxRefs[index];
+  if (checkbox && typeof checkbox.toggle === "function") {
+    checkbox.toggle();
+  }
+}
+</script>
+<style>
+.demo-checkbox-group {
   margin: 10px 0 0 20px;
 }
 
@@ -206,6 +156,4 @@ VantComponent({
 .icon {
   width: 20px;
 }
-
-    </style>
-  
+</style>
