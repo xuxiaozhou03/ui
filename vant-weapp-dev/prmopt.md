@@ -55,35 +55,42 @@
      ```
      在组件中：
      ```ts
-     import { buttonProps, type ButtonProps } from "./props";
-     const props = defineProps<ButtonProps>();
+     import { buttonProps } from "./props";
+     const props = defineProps(buttonProps);
      ```
    - 这样可实现 props 类型的集中管理、自动类型推断和多组件复用。
 
-**props.ts 拆分强制要求**
-所有组件的 props 对象（即 defineProps 的参数）必须单独抽离到同级目录的 props.ts 文件，并导出 props 对象和类型。例如：
+**props 类型精确化与 props.ts 强制要求**
+
+1. 所有 props 字段类型必须尽量精确（如 type: 'circular' | 'spinner'），避免用 any 或 null，提升类型安全和 IDE 智能提示。
+2. 所有组件的 props 对象（即 defineProps 的参数）必须强制单独抽离到同级目录的 props.ts 文件，并导出 props 对象和类型，组件内必须用类型导入，不允许遗漏或遗漏部分 props。
+
+示例：
 
 ```ts
 // props.ts
 import { commonProps } from "../../utils";
 import type { PropType, ExtractPropTypes } from "vue";
-export const radioGroupProps = {
+export type LoadingType = "circular" | "spinner";
+export const loadingProps = {
   ...commonProps,
-  value: { type: null, default: undefined },
-  direction: String,
-  disabled: { type: Boolean, default: false },
+  color: String,
+  vertical: Boolean,
+  type: { type: String as PropType<LoadingType>, default: "circular" },
+  size: String,
+  textSize: String,
 };
-export type RadioGroupProps = ExtractPropTypes<typeof radioGroupProps>;
+export type LoadingProps = ExtractPropTypes<typeof loadingProps>;
 ```
 
-组件中必须这样用：
+组件中：
 
 ```ts
-import { radioGroupProps, type RadioGroupProps } from "./props";
-const props = defineProps<RadioGroupProps>();
+import { loadingProps, type LoadingProps } from "./props";
+const props = defineProps<LoadingProps>();
 ```
 
-这样可确保 props 结构统一、类型安全、便于团队协作和自动化迁移。
+这样可确保 props 类型精确、结构统一、类型安全、便于团队协作和自动化迁移。
 
 10. **样式保留**  
     原样式可直接放在 `<style>`。**注意：禁止 `@import "../common/index.wxss";` 等全局 wxss，避免全局样式污染，所有样式应局部隔离。**

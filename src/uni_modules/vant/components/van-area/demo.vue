@@ -14,7 +14,7 @@
 
     </template>
     <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
+    import { cn, bem, commonProps, addUnit } from "../../utils";
     import { VantComponent } from '../../common/component';
 import Toast from '../../toast/toast';
 
