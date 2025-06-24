@@ -1,6 +1,6 @@
 <template>
-  <view class="content">
-    <div class="text-red-500">11</div>
+  <view class="content text-black">
+    <div class="text-red-500 bg-white">11</div>
     <image class="logo" src="/static/logo.png" />
     <view class="text-area">
       <text class="title">{{ title }}</text>
