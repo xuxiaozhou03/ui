@@ -1,87 +1,47 @@
+<template>
+  <van-tabs v-model:active="activeTab">
+    <van-tab title="基础用法">
+      <van-index-bar v-if="activeTab === 0" :scroll-top="scrollTop">
+        <template v-for="item in indexList" :key="item">
+          <van-index-anchor :index="item" />
+          <van-cell title="文本" />
+          <van-cell title="文本" />
+          <van-cell title="文本" />
+        </template>
+      </van-index-bar>
+    </van-tab>
 
-    <template>
-    <van-tabs
-  active="{{ activeTab }}"
-  bind:change="onChange"
->
-  <van-tab title="基础用法">
-    <van-index-bar
-      wx:if="{{ activeTab === 0 }}"
-      scroll-top="{{ scrollTop }}"
-    >
-      <view
-        wx:for="{{ indexList }}"
-        wx:for-item="item"
-        wx:key="item"
+    <van-tab title="自定义索引列表">
+      <van-index-bar
+        v-if="activeTab === 1"
+        :index-list="customIndexList"
+        :scroll-top="scrollTop"
       >
-        <van-index-anchor index="{{ item }}" />
-        <van-cell title="文本" />
-        <van-cell title="文本" />
-        <van-cell title="文本" />
-      </view>
-    </van-index-bar>
-  </van-tab>
+        <template v-for="item in customIndexList" :key="item">
+          <van-index-anchor use-slot :index="item">
+            <span>标题{{ item }}</span>
+          </van-index-anchor>
+          <van-cell title="文本" />
+          <van-cell title="文本" />
+          <van-cell title="文本" />
+        </template>
+      </van-index-bar>
+    </van-tab>
+  </van-tabs>
+</template>
 
-  <van-tab title="自定义索引列表">
-    <van-index-bar
-      wx:if="{{ activeTab === 1 }}"
-      index-list="{{ customIndexList }}"
-      scroll-top="{{ scrollTop }}"
-    >
-      <view
-        wx:for="{{ customIndexList }}"
-        wx:key="index"
-      >
-        <van-index-anchor
-          use-slot
-          index="{{ item }}"
-        >
-          <text>标题{{ item }}</text>
-        </van-index-anchor>
-        <van-cell title="文本" />
-        <van-cell title="文本" />
-        <van-cell title="文本" />
-      </view>
-    </van-index-bar>
-  </van-tab>
-</van-tabs>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+<script setup lang="ts">
+import { ref } from "vue";
 
 const indexList: string[] = [];
-const charCodeOfA = 'A'.charCodeAt(0);
+const charCodeOfA = "A".charCodeAt(0);
 for (let i = 0; i < 26; i++) {
   indexList.push(String.fromCharCode(charCodeOfA + i));
 }
 
-VantComponent({
-  data: {
-    activeTab: 0,
-    indexList,
-    customIndexList: [1, 2, 3, 4, 5, 6, 8, 9, 10],
-    scrollTop: 0,
-  },
+const activeTab = ref(0);
+const customIndexList = ref([1, 2, 3, 4, 5, 6, 8, 9, 10]);
+const scrollTop = ref(0);
+</script>
 
-  methods: {
-    onChange(event) {
-      this.setData({
-        activeTab: event.detail.name,
-      });
-    },
-
-    onPageScroll(event) {
-      this.setData({
-        scrollTop: event.scrollTop,
-      });
-    },
-  },
-});
-
-    </script>
-    <style>
-    
-    </style>
-  
+<style></style>

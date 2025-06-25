@@ -1,84 +1,77 @@
 <template>
   <demo-block title="基础用法" padding>
     <van-row>
-      <van-image width="100" height="100" src="{{ src }}" />
+      <van-image width="100" height="100" :src="src" />
     </van-row>
   </demo-block>
 
   <demo-block title="填充模式" padding>
     <van-row gutter="20">
-      <van-col wx:for="{{ fits }}" wx:for-item="fit" wx:key="fit" span="8">
-        <van-image fit="{{ fit }}" width="100%" height="27vw" src="{{ src }}" />
-        <view class="text">{{ fit }}</view>
+      <van-col v-for="fit in fits" :key="fit" :span="8">
+        <van-image :fit="fit" width="100%" height="27vw" :src="src" />
+        <div class="text">{{ fit }}</div>
       </van-col>
     </van-row>
   </demo-block>
 
   <demo-block title="圆形图片" padding>
     <van-row gutter="20">
-      <van-col wx:for="{{ fits }}" wx:for-item="fit" wx:key="fit" span="8">
-        <van-image
-          round
-          fit="{{ fit }}"
-          width="100%"
-          height="27vw"
-          src="{{ src }}"
-        />
-        <view class="text">{{ fit }}</view>
+      <van-col v-for="fit in fits" :key="fit" :span="8">
+        <van-image round :fit="fit" width="100%" height="27vw" :src="src" />
+        <div class="text">{{ fit }}</div>
       </van-col>
     </van-row>
   </demo-block>
 
   <demo-block title="加载中提示" padding>
     <van-row gutter="20">
-      <van-col span="8">
+      <van-col :span="8">
         <van-image width="100%" height="27vw" />
-        <view class="text">默认提示</view>
+        <div class="text">默认提示</div>
       </van-col>
 
-      <van-col span="8">
+      <van-col :span="8">
         <van-image width="100%" height="27vw" use-loading-slot>
-          <van-loading slot="loading" type="spinner" size="20" vertical />
+          <template #loading>
+            <van-loading type="spinner" size="20" vertical />
+          </template>
         </van-image>
-        <view class="text">自定义提示</view>
+        <div class="text">自定义提示</div>
       </van-col>
     </van-row>
   </demo-block>
 
   <demo-block title="加载失败提示" padding>
     <van-row gutter="20">
-      <van-col span="8">
+      <van-col :span="8">
         <van-image width="100%" height="27vw" src="x" />
-        <view class="text">默认提示</view>
+        <div class="text">默认提示</div>
       </van-col>
 
-      <van-col span="8">
+      <van-col :span="8">
         <van-image width="100%" height="27vw" src="x" use-error-slot>
-          <text slot="error">加载失败</text>
+          <template #error>
+            <span>加载失败</span>
+          </template>
         </van-image>
-        <view class="text">自定义提示</view>
+        <div class="text">自定义提示</div>
       </van-col>
     </van-row>
   </demo-block>
 </template>
-<script lang="ts" setup>
-import { cn, bem, commonProps, addUnit } from "../../utils";
-import { VantComponent } from "../../common/component";
+<script setup lang="ts">
+import { ref } from "vue";
 
-VantComponent({
-  data: {
-    fits: [
-      "contain",
-      "cover",
-      "fill",
-      "none",
-      "scale-down",
-      "widthFix",
-      "heightFix",
-    ],
-    src: "https://img.yzcdn.cn/vant/cat.jpeg",
-  },
-});
+const fits = ref([
+  "contain",
+  "cover",
+  "fill",
+  "none",
+  "scale-down",
+  "widthFix",
+  "heightFix",
+]);
+const src = ref("https://img.yzcdn.cn/vant/cat.jpeg");
 </script>
 <style>
 .text {

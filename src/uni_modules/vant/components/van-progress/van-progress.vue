@@ -1,126 +1,65 @@
-
-    <template>
-    
-
-
-<view
-  class="van-progress custom-class"
-  style="{{ computed.rootStyle({ strokeWidth, trackColor }) }}"
->
-  <view
-    class="van-progress__portion"
-    style="{{ computed.portionStyle({ percentage, inactive, color }) }}"
+<template>
+  <div
+    class="van-progress custom-class"
+    :style="rootStyle"
   >
-    <view
-      wx:if="{{ showPivot && computed.pivotText(pivotText, percentage) }}"
-      style="{{ computed.pivotStyle({ textColor, pivotColor, inactive, color, right }) }}"
-      class="van-progress__pivot"
+    <div
+      class="van-progress__portion"
+      :style="portionStyle"
     >
-      {{ computed.pivotText(pivotText, percentage) }}
-    </view>
-  </view>
-</view>
+      <div
+        v-if="showPivot && pivotTextValue"
+        :style="pivotStyle"
+        class="van-progress__pivot"
+      >
+        {{ pivotTextValue }}
+      </div>
+    </div>
+  </div>
+</template>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { BLUE } from '../common/color';
-import { getRect } from '../common/utils';
+<script setup lang="ts">
+import { ref, computed, watch, nextTick } from 'vue';
+import { progressProps } from './props';
+import { addUnit } from '../../utils';
 
-VantComponent({
-  props: {
-    inactive: Boolean,
-    percentage: {
-      type: Number,
-      observer: 'setLeft',
-    },
-    pivotText: String,
-    pivotColor: String,
-    trackColor: String,
-    showPivot: {
-      type: Boolean,
-      value: true,
-    },
-    color: {
-      type: String,
-      value: BLUE,
-    },
-    textColor: {
-      type: String,
-      value: '#fff',
-    },
-    strokeWidth: {
-      type: null,
-      value: 4,
-    },
-  },
+const props = defineProps(progressProps);
 
-  data: {
-    right: 0,
-  },
+const right = ref(0);
+const portionRef = ref<HTMLElement | null>(null);
+const pivotRef = ref<HTMLElement | null>(null);
 
-  mounted() {
-    this.setLeft();
-  },
+const pivotTextValue = computed(() => props.pivotText || `${props.percentage}%`);
 
-  methods: {
-    setLeft() {
-      Promise.all([
-        getRect(this, '.van-progress'),
-        getRect(this, '.van-progress__pivot'),
-      ]).then(([portion, pivot]) => {
-        if (portion && pivot) {
-          this.setData({
-            right: (pivot.width * (this.data.percentage - 100)) / 100,
-          });
-        }
-      });
-    },
-  },
-});
+const rootStyle = computed(() => ({
+  height: props.strokeWidth ? addUnit(props.strokeWidth) : '',
+  background: props.trackColor,
+}));
 
+const portionStyle = computed(() => ({
+  background: props.inactive ? '#cacaca' : props.color,
+  width: props.percentage ? props.percentage + '%' : '',
+}));
 
-    // 把下面代码变成 computed 属性
-    
-var utils = require('../wxs/utils.wxs');
+const pivotStyle = computed(() => ({
+  color: props.textColor,
+  right: right.value + 'px',
+  background: props.pivotColor ? props.pivotColor : props.inactive ? '#cacaca' : props.color,
+}));
 
-
-function pivotText(pivotText, percentage) {
-  return pivotText || percentage + '%';
-}
-
-function rootStyle(data) {
-  return style({
-    'height': data.strokeWidth ? utils.addUnit(data.strokeWidth) : '',
-    'background': data.trackColor,
+function setLeft() {
+  nextTick(() => {
+    const portion = portionRef.value;
+    const pivot = pivotRef.value;
+    if (portion && pivot) {
+      right.value = (pivot.offsetWidth * (props.percentage - 100)) / 100;
+    }
   });
 }
 
-function portionStyle(data) {
-  return style({
-    background: data.inactive ? '#cacaca' : data.color,
-    width: data.percentage ? data.percentage + '%' : '',
-  });
-}
+watch(() => props.percentage, setLeft, { immediate: true });
+</script>
 
-function pivotStyle(data) {
-  return style({
-    color: data.textColor,
-    right: data.right + 'px',
-    background: data.pivotColor ? data.pivotColor : data.inactive ? '#cacaca' : data.color,
-  });
-}
-
-module.exports = {
-  pivotText: pivotText,
-  rootStyle: rootStyle,
-  portionStyle: portionStyle,
-  pivotStyle: pivotStyle,
-};
-
-    </script>
-    <style>
-    .van-progress{background:var(--progress-background-color,#ebedf0);border-radius:var(--progress-height,4px);height:var(--progress-height,4px);position:relative}.van-progress__portion{background:var(--progress-color,#1989fa);border-radius:inherit;height:100%;left:0;position:absolute}.van-progress__pivot{background-color:var(--progress-pivot-background-color,#1989fa);border-radius:1em;box-sizing:border-box;color:var(--progress-pivot-text-color,#fff);font-size:var(--progress-pivot-font-size,10px);line-height:var(--progress-pivot-line-height,1.6);min-width:3.6em;padding:var(--progress-pivot-padding,0 5px);position:absolute;text-align:center;top:50%;transform:translateY(-50%);word-break:keep-all}
-    </style>
-  
+<style>
+.van-progress{background:var(--progress-background-color,#ebedf0);border-radius:var(--progress-height,4px);height:var(--progress-height,4px);position:relative}.van-progress__portion{background:var(--progress-color,#1989fa);border-radius:inherit;height:100%;left:0;position:absolute}.van-progress__pivot{background-color:var(--progress-pivot-background-color,#1989fa);border-radius:1em;box-sizing:border-box;color:var(--progress-pivot-text-color,#fff);font-size:var(--progress-pivot-font-size,10px);line-height:var(--progress-pivot-line-height,1.6);min-width:3.6em;padding:var(--progress-pivot-padding,0 5px);position:absolute;text-align:center;top:50%;transform:translateY(-50%);word-break:keep-all}
+</style>

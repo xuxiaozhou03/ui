@@ -1,94 +1,34 @@
+<template>
+  <div
+    :class="[
+      'van-grid',
+      props.customClass,
+      props.border && !props.gutter ? 'van-hairline--top' : '',
+    ]"
+    :style="rootStyle"
+  >
+    <slot />
+  </div>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { computed } from "vue";
+import { gridProps } from "./props";
+import { addUnit } from "../../utils";
 
-<view
-  class="van-grid custom-class {{ border && !gutter ? 'van-hairline--top' : '' }}"
-  style="{{ computed.rootStyle({ gutter }) }}"
->
-  <slot />
-</view>
+const props = defineProps(gridProps);
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useChildren } from '../common/relation';
-
-VantComponent({
-  relation: useChildren('grid-item'),
-
-  props: {
-    square: {
-      type: Boolean,
-      observer: 'updateChildren',
-    },
-    gutter: {
-      type: null,
-      value: 0,
-      observer: 'updateChildren',
-    },
-    clickable: {
-      type: Boolean,
-      observer: 'updateChildren',
-    },
-    columnNum: {
-      type: Number,
-      value: 4,
-      observer: 'updateChildren',
-    },
-    center: {
-      type: Boolean,
-      value: true,
-      observer: 'updateChildren',
-    },
-    border: {
-      type: Boolean,
-      value: true,
-      observer: 'updateChildren',
-    },
-    direction: {
-      type: String,
-      observer: 'updateChildren',
-    },
-    iconSize: {
-      type: String,
-      observer: 'updateChildren',
-    },
-    reverse: {
-      type: Boolean,
-      value: false,
-      observer: 'updateChildren',
-    },
-  },
-
-  methods: {
-    updateChildren() {
-      this.children.forEach((child) => {
-        child.updateStyle();
-      });
-    },
-  },
+const rootStyle = computed(() => {
+  return {
+    paddingLeft: props.gutter ? addUnit(props.gutter) : undefined,
+  };
 });
+</script>
 
-
-    // 把下面代码变成 computed 属性
-    
-
-
-
-function rootStyle(data) {
-  return style({
-    'padding-left': addUnit(data.gutter),
-  });
+<style>
+.van-grid {
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
 }
-
-module.exports = {
-  rootStyle: rootStyle,
-};
-
-    </script>
-    <style>
-    .van-grid{box-sizing:border-box;overflow:hidden;position:relative}
-    </style>
-  
+</style>
