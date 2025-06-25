@@ -1,22 +1,22 @@
 <template>
-  <teleport to="body" v-if="rootPortal">
-    <div
-      v-if="show"
-      class="van-overlay"
-      :style="customStyle"
-      @click="onClick"
-    ></div>
-  </teleport>
-  <div
-    v-else-if="show"
-    class="van-overlay"
-    :style="customStyle"
+  <van-transition
+    :show="show"
+    :custom-class="cn('van-overlay', customClass)"
+    :custom-style="{
+      zIndex,
+      ...customStyle,
+    }"
+    :duration="duration"
     @click="onClick"
-  ></div>
+  >
+    <slot></slot>
+  </van-transition>
 </template>
 
 <script setup lang="ts">
 import { overlayProps } from "./props";
+import { cn } from "../../utils";
+// catch:touchmove="{{ lockScroll ? 'noop' : ''}}"
 
 defineProps(overlayProps);
 const emit = defineEmits(["click"]);

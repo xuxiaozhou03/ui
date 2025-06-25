@@ -1,7 +1,7 @@
 import type { ExtractPropTypes } from "vue";
 import { commonProps } from "../../utils";
 
-export const baseTransitionProps = {
+export const transitionProps = {
   ...commonProps,
   show: {
     type: Boolean,
@@ -15,12 +15,6 @@ export const baseTransitionProps = {
     type: String,
     default: "fade",
   },
-};
-
-export type TransitionProps = ExtractPropTypes<typeof baseTransitionProps>;
-
-export const transitionProps = {
-  ...baseTransitionProps,
   enterClass: String,
   enterActiveClass: String,
   enterToClass: String,
@@ -28,3 +22,5 @@ export const transitionProps = {
   leaveActiveClass: String,
   leaveToClass: String,
 };
+
+export type TransitionProps = ExtractPropTypes<typeof transitionProps>;

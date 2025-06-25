@@ -16,17 +16,12 @@
   <demo-block custom-class="white" title="自定义样式" padding>
     <van-divider
       content-position="center"
-      custom-style="color: #1989fa;border-color: #1989fa;font-size: 18px;"
+      :customStyle="{
+        color: '#1989fa',
+        borderColor: '#1989fa',
+        fontSize: '18px',
+      }"
       >文本</van-divider
     >
   </demo-block>
 </template>
-
-<script lang="ts" setup>
-import { vanDividerProps } from "./props";
-import { cn } from "../../utils";
-
-const props = defineProps(vanDividerProps);
-</script>
-
-<style></style>

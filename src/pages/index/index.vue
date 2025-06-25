@@ -22,7 +22,17 @@
   </view>
 </template>
 <script lang="ts" setup>
-const ok = ["icon", "loading", "tag", "button", "empty", "cell", "transition"];
+const ok = [
+  "icon",
+  "loading",
+  "tag",
+  "button",
+  "empty",
+  "divider",
+  "cell",
+  "transition",
+  "overlay",
+];
 const needHandle = [
   "action-sheet",
   "area",
@@ -37,7 +47,6 @@ const needHandle = [
   "count-down",
   "datetime-picker",
   "dialog",
-  "divider",
   "dropdown-menu",
   "field",
   "goods-action",
@@ -47,7 +56,6 @@ const needHandle = [
   "nav-bar",
   "notice-bar",
   "notify",
-  "overlay",
   "panel",
   "picker",
   "popup",

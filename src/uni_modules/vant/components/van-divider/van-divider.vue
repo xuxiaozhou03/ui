@@ -14,31 +14,18 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { dividerProps, DividerProps } from "./props";
+import { dividerProps } from "./props";
+import { addUnit } from "../../utils";
 
-const props = defineProps<DividerProps>();
-const {
-  dashed,
-  hairline,
-  contentPosition,
-  fontSize,
-  borderColor,
-  textColor,
-  customStyle,
-} = props;
-const customClass = "";
-
-function addUnit(value?: string | number) {
-  if (value == null) return undefined;
-  return typeof value === "number" ? `${value}px` : value;
-}
+const props = defineProps(dividerProps);
 
 const rootStyle = computed(() => {
+  const { fontSize, borderColor, textColor, customStyle } = props;
   return {
     "border-color": borderColor,
     color: textColor,
     "font-size": addUnit(fontSize),
-    ...(customStyle && typeof customStyle === "object" ? customStyle : {}),
+    ...customStyle,
   };
 });
 </script>

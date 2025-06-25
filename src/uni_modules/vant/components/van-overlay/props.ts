@@ -1,12 +1,11 @@
-import type { ExtractPropTypes, PropType } from "vue";
+import type { ExtractPropTypes } from "vue";
+import { commonProps } from "../../utils";
+import { transitionProps } from "../van-transition/props";
 
 export const overlayProps = {
-  show: Boolean,
-  customStyle: String,
-  duration: {
-    type: [Number, String],
-    default: 300,
-  },
+  ...commonProps,
+  show: transitionProps.show,
+  duration: transitionProps.duration,
   zIndex: {
     type: Number,
     default: 1,
@@ -14,10 +13,6 @@ export const overlayProps = {
   lockScroll: {
     type: Boolean,
     default: true,
-  },
-  rootPortal: {
-    type: Boolean,
-    default: false,
   },
 };
 
