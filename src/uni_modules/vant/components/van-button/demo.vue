@@ -90,10 +90,7 @@
     >
   </demo-block>
 </template>
-<script lang="ts" setup>
-// 该 demo 仅为展示按钮用法，无需定义 props、emits、data 等
-// 保留样式和 class 结构，移除 VantComponent
-</script>
+<script lang="ts" setup></script>
 <style>
 .row {
   height: 44px;
@@ -109,7 +106,6 @@
 }
 
 .demo-margin-bottom {
-  display: block;
   margin-bottom: 15px;
 }
 </style>

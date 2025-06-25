@@ -1,3 +1,7 @@
+import {
+  type CommonButtonEmits,
+  commonButtonProps,
+} from "../../composables/useButton";
 import { commonProps } from "../../utils";
 import type { PropType, ExtractPropTypes } from "vue";
 
@@ -7,6 +11,7 @@ export type LoadingType = "circular" | "spinner";
 
 export const buttonProps = {
   ...commonProps,
+  ...commonButtonProps,
   formType: String,
   icon: String,
   classPrefix: { type: String, default: "van-icon" },
@@ -18,7 +23,6 @@ export const buttonProps = {
   hairline: Boolean,
   disabled: Boolean,
   loadingText: String,
-  customStyle: String,
   loadingType: { type: String as PropType<LoadingType>, default: "circular" },
   type: { type: String as PropType<ButtonType>, default: "default" },
   dataset: null as any,
@@ -28,3 +32,6 @@ export const buttonProps = {
 };
 
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
+export type ButtonEmits = CommonButtonEmits & {
+  (e: "click", event: MouseEvent): void;
+};

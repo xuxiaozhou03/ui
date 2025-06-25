@@ -63,8 +63,10 @@
         size="1.2em"
         :name="icon"
         :class-prefix="classPrefix"
-        class="van-button__icon"
-        custom-style="line-height: inherit;"
+        customClass="van-button__icon"
+        :custom-style="{
+          lineHeight: 'inherit',
+        }"
       />
       <view class="van-button__text">
         <slot />
@@ -74,22 +76,12 @@
 </template>
 <script lang="ts" setup>
 import { computed } from "vue";
-import { cn, bem, addUnit, style } from "../../utils";
-import { buttonProps } from "./props";
+import { cn, bem } from "../../utils";
+import { type ButtonEmits, buttonProps } from "./props";
+import { useButton } from "../../composables/useButton";
 
 const props = defineProps(buttonProps);
-const emit = defineEmits([
-  "click",
-  "getuserinfo",
-  "contact",
-  "getphonenumber",
-  "getrealtimephonenumber",
-  "agreeprivacyauthorization",
-  "error",
-  "launchapp",
-  "opensetting",
-  "chooseavatar",
-]);
+const emit = defineEmits<ButtonEmits>();
 
 const rootStyle = computed(() => {
   if (!props.color) return props.customStyle;
@@ -102,7 +94,10 @@ const rootStyle = computed(() => {
   } else {
     properties["border-color"] = props.color;
   }
-  return style([properties, props.customStyle]);
+  return {
+    ...properties,
+    ...props.customStyle,
+  };
 });
 
 const loadingColor = computed(() => {
@@ -115,38 +110,22 @@ const loadingColor = computed(() => {
   return "#fff";
 });
 
-function onClick(event: Event) {
+function onClick(event: MouseEvent) {
   if (!props.disabled && !props.loading) {
     emit("click", event);
   }
 }
-function onGetUserInfo(e: any) {
-  emit("getuserinfo", e);
-}
-function onContact(e: any) {
-  emit("contact", e);
-}
-function onGetPhoneNumber(e: any) {
-  emit("getphonenumber", e);
-}
-function onGetRealTimePhoneNumber(e: any) {
-  emit("getrealtimephonenumber", e);
-}
-function onAgreePrivacyAuthorization(e: any) {
-  emit("agreeprivacyauthorization", e);
-}
-function onError(e: any) {
-  emit("error", e);
-}
-function onLaunchApp(e: any) {
-  emit("launchapp", e);
-}
-function onOpenSetting(e: any) {
-  emit("opensetting", e);
-}
-function onChooseAvatar(e: any) {
-  emit("chooseavatar", e);
-}
+const {
+  onGetUserInfo,
+  onContact,
+  onGetPhoneNumber,
+  onGetRealTimePhoneNumber,
+  onAgreePrivacyAuthorization,
+  onError,
+  onLaunchApp,
+  onOpenSetting,
+  onChooseAvatar,
+} = useButton(emit);
 </script>
 <style>
 .van-button {

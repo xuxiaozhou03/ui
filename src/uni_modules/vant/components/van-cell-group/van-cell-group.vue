@@ -21,9 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { cellGroupProps, CellGroupProps } from "./props";
-const props = defineProps<CellGroupProps>();
-const { title, inset, border, customClass } = props;
+import { cellGroupProps } from "./props";
+defineProps(cellGroupProps);
 </script>
 
 <style scoped>

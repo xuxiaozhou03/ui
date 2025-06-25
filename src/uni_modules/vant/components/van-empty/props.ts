@@ -3,7 +3,7 @@ import type { ExtractPropTypes } from "vue";
 export const emptyProps = {
   description: String,
   image: {
-    type: String,
+    type: String as () => "error" | "search" | "default" | "network" | string,
     default: "default",
   },
 };

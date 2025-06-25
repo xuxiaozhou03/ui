@@ -66,45 +66,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRouter } from "vue-router";
-import { cellProps, CellProps } from "./props";
-import VanIcon from "../icon/van-icon.vue";
+import { computed, type CSSProperties } from "vue";
+import { cellProps } from "./props";
+import { addUnit, jumpLink } from "../../utils";
 
-const props = defineProps<CellProps>();
+const props = defineProps(cellProps);
 const emit = defineEmits(["click"]);
-
-const router = useRouter();
 
 const onClick = (event: Event) => {
   emit("click", event);
   if (props.isLink || props.clickable) {
-    jumpLink();
+    jumpLink(props.url!, props.linkType);
   }
 };
 
-function addUnit(value?: string | number) {
-  if (value == null) return undefined;
-  return typeof value === "number" ? `${value}px` : value;
-}
-
 const titleStyleComputed = computed(() => {
-  const style: Record<string, string | undefined> = {};
-  if (props.titleStyle) Object.assign(style, props.titleStyle);
+  const style: CSSProperties = {
+    ...props.titleStyle,
+  };
   if (props.titleWidth) {
     style["max-width"] = addUnit(props.titleWidth);
     style["min-width"] = addUnit(props.titleWidth);
   }
   return style;
 });
-
-function jumpLink() {
-  if (props.url) {
-    window.location.href = props.url;
-  } else if (props.to && router) {
-    router[props.replace ? "replace" : "push"](props.to);
-  }
-}
 </script>
 
 <style scoped>

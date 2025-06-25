@@ -1,7 +1,7 @@
 <template>
   <view
     :class="cn(bem('loading', { vertical }), customClass)"
-    :style="rootStyle"
+    :style="customStyle"
   >
     <view
       :class="['van-loading__spinner', `van-loading__spinner--${type}`]"
@@ -21,31 +21,23 @@
   </view>
 </template>
 <script lang="ts" setup>
-import { computed } from "vue";
-import { cn, bem, addUnit, style } from "../../utils";
+import { computed, type CSSProperties } from "vue";
+import { cn, bem, addUnit } from "../../utils";
 import { loadingProps } from "./props";
 
-const props = defineProps(loadingProps); // 推荐：类型推断和运行时校验、默认值都生效
+const props = defineProps(loadingProps);
 
 const array12 = computed(() => Array.from({ length: 12 }));
 
-const rootStyle = computed(() => ({
-  ...props.customStyle,
+const spinnerStyle = computed<CSSProperties>(() => ({
+  color: props.color,
+  width: addUnit(props.size),
+  height: addUnit(props.size),
 }));
 
-const spinnerStyle = computed(() =>
-  style({
-    color: props.color,
-    width: addUnit(props.size),
-    height: addUnit(props.size),
-  })
-);
-
-const textStyle = computed(() =>
-  style({
-    fontSize: addUnit(props.textSize),
-  })
-);
+const textStyle = computed<CSSProperties>(() => ({
+  fontSize: addUnit(props.textSize),
+}));
 </script>
 <style>
 :host {

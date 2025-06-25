@@ -16,12 +16,13 @@ export const commonButtonProps = {
   ariaLabel: String,
   openType: String,
   getUserProfileDesc: String,
+  hoverClass: String,
 };
 
 export type CommonButtonProps = ExtractPropTypes<typeof commonButtonProps>;
 
 // 事件类型声明，便于类型安全
-export type ButtonEmits = {
+export type CommonButtonEmits = {
   (e: "getuserinfo", detail: any): void;
   (e: "contact", detail: any): void;
   (e: "getphonenumber", detail: any): void;
@@ -34,7 +35,7 @@ export type ButtonEmits = {
 };
 
 // useButton 组合式函数参数类型
-export function useButton(emit: ButtonEmits) {
+export function useButton(emit: CommonButtonEmits) {
   const canIUseGetUserProfileRef = ref(true);
 
   function onGetUserInfo(event: any) {

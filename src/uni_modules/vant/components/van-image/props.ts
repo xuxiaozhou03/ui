@@ -1,4 +1,5 @@
 import type { ExtractPropTypes, PropType } from "vue";
+import { commonProps } from "../../utils";
 
 export type ImageFit =
   | "none"
@@ -9,6 +10,7 @@ export type ImageFit =
   | "heightFix";
 
 export const imageProps = {
+  ...commonProps,
   src: String,
   round: Boolean,
   width: [String, Number],

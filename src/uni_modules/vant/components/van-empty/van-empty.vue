@@ -20,9 +20,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { emptyProps, EmptyProps } from "./props";
+import { emptyProps } from "./props";
 
-const props = defineProps<EmptyProps>();
+const props = defineProps(emptyProps);
 
 const PRESETS = ["error", "search", "default", "network"];
 const imageUrlComputed = computed(() => {

@@ -1,11 +1,12 @@
-import { commonProps } from "../../utils";
+import { commonProps, presetProps } from "../../utils";
 import type { PropType, ExtractPropTypes } from "vue";
+import { iconProps } from "../van-icon/props";
 
 export type CellSize = "large" | "normal";
 
 export const cellProps = {
   ...commonProps,
-  icon: String,
+  icon: iconProps.name,
   size: String as PropType<CellSize>,
   title: [String, Number],
   value: [String, Number],
@@ -16,20 +17,16 @@ export const cellProps = {
   clickable: Boolean,
   arrowDirection: String as PropType<"up" | "down" | "left" | "right">,
   border: { type: Boolean, default: true },
-  titleStyle: [String, Object, Array],
-  titleClass: [String, Object, Array],
-  valueClass: [String, Object, Array],
-  labelClass: [String, Object, Array],
-  url: String,
-  to: [String, Object],
-  replace: Boolean,
-  openType: String,
-  linkType: { type: String, default: "navigateTo" },
-  appParameter: String,
+  titleStyle: commonProps.customStyle,
+  titleWidth: [String, Number],
+  titleClass: commonProps.customClass,
+  valueClass: commonProps.customClass,
+  labelClass: commonProps.customClass,
+  url: presetProps.url,
+  linkType: presetProps.linkType,
   useLabelSlot: Boolean,
   useIconSlot: Boolean,
   useRightIconSlot: Boolean,
-  clickableClass: [String, Object, Array],
 };
 
 export type CellProps = ExtractPropTypes<typeof cellProps>;

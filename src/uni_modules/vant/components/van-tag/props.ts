@@ -1,18 +1,14 @@
 import type { ExtractPropTypes } from "vue";
+import { commonProps } from "../../utils";
 
 export const tagProps = {
-  size: {
-    type: String,
-    default: "",
-  },
+  ...commonProps,
+  size: String,
   mark: {
     type: Boolean,
     default: false,
   },
-  color: {
-    type: String,
-    default: "",
-  },
+  color: String,
   plain: {
     type: Boolean,
     default: false,
@@ -21,12 +17,15 @@ export const tagProps = {
     type: Boolean,
     default: false,
   },
-  textColor: {
-    type: String,
-    default: "",
-  },
+  textColor: String,
   type: {
-    type: String,
+    type: String as () =>
+      | "primary"
+      | "success"
+      | "warning"
+      | "danger"
+      | "info"
+      | "default",
     default: "default",
   },
   closeable: {

@@ -1,101 +1,42 @@
 <template>
-  <Transition
-    :name="name"
-    :duration="duration"
-    :enter-from-class="enterClass"
-    :enter-active-class="enterActiveClass"
-    :enter-to-class="enterToClass"
-    :leave-from-class="leaveClass"
-    :leave-active-class="leaveActiveClass"
-    :leave-to-class="leaveToClass"
-    @before-enter="onBeforeEnter"
-    @enter="onEnter"
-    @after-enter="onAfterEnter"
-    @before-leave="onBeforeLeave"
-    @leave="onLeave"
-    @after-leave="onAfterLeave"
+  <div
+    v-if="inited"
+    :class="cn('van-transition', classes, customClass)"
+    :style="rootStyle"
+    @transitionend="onTransitionEnd"
   >
-    <div
-      v-if="show || inited"
-      :class="['van-transition', customClass, classes]"
-      :style="rootStyle"
-      @transitionend="onTransitionEnd"
-    >
-      <slot />
-    </div>
-  </Transition>
+    <slot />
+  </div>
 </template>
-<script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { transitionProps } from "./props";
 
-const props = defineProps({
-  ...transitionProps,
-  show: Boolean,
-  name: {
-    type: String,
-    default: "fade",
-  },
-  duration: {
-    type: [Number, Object],
-    default: 300,
-  },
-  customClass: String,
-  enterClass: String,
-  enterActiveClass: String,
-  enterToClass: String,
-  leaveClass: String,
-  leaveActiveClass: String,
-  leaveToClass: String,
+<script lang="ts" setup>
+import { computed, defineProps, reactive, toRef } from "vue";
+import { transitionProps } from "./props";
+import { type TransitionEmit, useTransition } from "./useTransition";
+import { cn } from "../../utils";
+
+const props = defineProps(transitionProps);
+
+const computedTransitionProps = reactive({
+  name: toRef(props, "name"),
+  show: toRef(props, "show"),
+  duration: toRef(props, "duration"),
 });
 
-const inited = ref(false);
-const display = ref(false);
-const currentDuration = ref(300);
-const classes = ref("");
+const emit = defineEmits<TransitionEmit>();
+
+const { inited, display, classes, currentDuration, onTransitionEnd } =
+  useTransition(computedTransitionProps, emit);
 
 const rootStyle = computed(() => ({
-  WebkitTransitionDuration: currentDuration.value + "ms",
-  transitionDuration: currentDuration.value + "ms",
-  display: display.value ? "" : "none",
+  "-webkit-transition-duration": currentDuration.value + "ms",
+  "transition-duration": currentDuration.value + "ms",
+  ...(display.value ? {} : { display: "none" }),
+  ...props.customStyle,
 }));
-
-watch(
-  () => props.show,
-  (val) => {
-    if (val) {
-      inited.value = true;
-      display.value = true;
-    } else {
-      display.value = false;
-    }
-  },
-  { immediate: true }
-);
-
-function onBeforeEnter(el: Element) {
-  // 可扩展
-}
-function onEnter(el: Element) {
-  // 可扩展
-}
-function onAfterEnter(el: Element) {
-  // 可扩展
-}
-function onBeforeLeave(el: Element) {
-  // 可扩展
-}
-function onLeave(el: Element) {
-  // 可扩展
-}
-function onAfterLeave(el: Element) {
-  // 可扩展
-}
-function onTransitionEnd() {
-  // 可扩展
-}
 </script>
-<style scoped>
+
+<style>
 .van-transition {
   transition-timing-function: ease;
 }

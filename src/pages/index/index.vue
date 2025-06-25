@@ -1,13 +1,11 @@
-
 <template>
   <view class="index">
-    <view class="index-title">vant-weapp</view>
     <view class="p-2 space-y-2">
       <navigator
         v-for="item in needHandle"
         :key="item"
         class="p-2 bg-white rounded-lg border border-solid border-slate-400"
-        :url="'/pages/'+item+'/index'"
+        :url="'/pages/' + item + '/index'"
       >
         {{ item }}
       </navigator>
@@ -15,24 +13,22 @@
       <navigator
         v-for="item in ok"
         :key="item"
-       class="p-2 bg-white rounded-lg border border-solid border-slate-400"
-        :url="'/pages/'+item+'/index'"
+        class="p-2 bg-white rounded-lg border border-solid border-slate-400"
+        :url="'/pages/' + item + '/index'"
       >
-       {{ item }}
+        {{ item }}
       </navigator>
-      </view>
     </view>
+  </view>
 </template>
 <script lang="ts" setup>
-const ok = []
+const ok = ["icon", "loading", "tag", "button", "empty", "cell", "transition"];
 const needHandle = [
   "action-sheet",
   "area",
-  "button",
   "calendar",
   "card",
   "cascader",
-  "cell",
   "checkbox",
   "circle",
   "col",
@@ -43,14 +39,11 @@ const needHandle = [
   "dialog",
   "divider",
   "dropdown-menu",
-  "empty",
   "field",
   "goods-action",
   "grid",
-  "icon",
   "image",
   "index-bar",
-  "loading",
   "nav-bar",
   "notice-bar",
   "notify",
@@ -74,11 +67,8 @@ const needHandle = [
   "switch",
   "tab",
   "tabbar",
-  "tag",
   "toast",
-  "transition",
   "tree-select",
-  "uploader"
+  "uploader",
 ];
 </script>
-     

@@ -77,4 +77,3 @@ function onClose(type: "primary" | "success") {
   show[type] = false;
 }
 </script>
-<style scoped></style>

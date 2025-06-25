@@ -4,17 +4,17 @@
   </demo-block>
 
   <demo-block title="图片类型">
-    <van-tabs v-model:active="activeTab" @change="onChange">
-      <van-tab title="通用错误">
+    <div>
+      <div title="通用错误">
         <van-empty image="error" description="描述文字" />
-      </van-tab>
-      <van-tab title="网络错误">
+      </div>
+      <div title="网络错误">
         <van-empty image="network" description="描述文字" />
-      </van-tab>
-      <van-tab title="搜索提示">
+      </div>
+      <div title="搜索提示">
         <van-empty image="search" description="描述文字" />
-      </van-tab>
-    </van-tabs>
+      </div>
+    </div>
   </demo-block>
 
   <demo-block title="自定义图片" padding>
