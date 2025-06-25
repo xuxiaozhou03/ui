@@ -1,65 +1,40 @@
+<template>
+  <div class="van-row custom-class" :style="rootStyle">
+    <slot />
+  </div>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { computed, provide } from "vue";
+import { rowProps, RowProps } from "./props";
 
-<view class="van-row custom-class" style="{{ computed.rootStyle({ gutter }) }}">
-  <slot />
-</view>
+const props = defineProps<RowProps>();
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useChildren } from '../common/relation';
+// 提供 gutter 给 col 子组件
+provide(
+  "vanRowGutter",
+  computed(() => props.gutter)
+);
 
-VantComponent({
-  relation: useChildren('col', function (target) {
-    const { gutter } = this.data;
-
-    if (gutter) {
-      target.setData({ gutter });
-    }
-  }),
-
-  props: {
-    gutter: {
-      type: Number,
-      observer: 'setGutter',
-    },
-  },
-
-  methods: {
-    setGutter() {
-      this.children.forEach((col) => {
-        col.setData(this.data);
-      });
-    },
-  },
-});
-
-
-    // 把下面代码变成 computed 属性
-    
-
-
-
-function rootStyle(data) {
-  if (!data.gutter) {
-    return '';
-  }
-
-  return style({
-    'margin-right': addUnit(-data.gutter / 2),
-    'margin-left': addUnit(-data.gutter / 2),
-  });
+function addUnit(val?: number) {
+  if (val == null) return undefined;
+  return typeof val === "number" ? `${val}px` : val;
 }
 
-module.exports = {
-  rootStyle: rootStyle,
-};
+const rootStyle = computed(() => {
+  if (!props.gutter) return "";
+  const margin = addUnit(-props.gutter / 2);
+  return {
+    marginRight: margin,
+    marginLeft: margin,
+  };
+});
+</script>
 
-    </script>
-    <style>
-    .van-row:after{clear:both;content:"";display:table}
-    </style>
-  
+<style>
+.van-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+</style>

@@ -1,90 +1,92 @@
+<template>
+  <demo-block title="基础用法">
+    <van-swipe-cell :right-width="65" :left-width="65">
+      <template #left>
+        <div class="van-swipe-cell__left">选择</div>
+      </template>
+      <van-cell-group>
+        <van-cell title="单元格" value="内容" />
+      </van-cell-group>
+      <template #right>
+        <div class="van-swipe-cell__right">删除</div>
+      </template>
+    </van-swipe-cell>
+  </demo-block>
 
-    <template>
-    <demo-block title="基础用法">
-  <van-swipe-cell right-width="{{ 65 }}" left-width="{{ 65 }}">
-    <view slot="left" class="van-swipe-cell__left">选择</view>
-    <van-cell-group>
-      <van-cell title="单元格" value="内容" />
-    </van-cell-group>
-    <view slot="right" class="van-swipe-cell__right">删除</view>
-  </van-swipe-cell>
-</demo-block>
+  <demo-block title="异步关闭">
+    <van-swipe-cell
+      :right-width="65"
+      :left-width="65"
+      async-close
+      @close="onClose"
+    >
+      <template #left>
+        <div class="van-swipe-cell__left">选择</div>
+      </template>
+      <van-cell-group>
+        <van-cell title="单元格" value="内容" />
+      </van-cell-group>
+      <template #right>
+        <div class="van-swipe-cell__right">删除</div>
+      </template>
+    </van-swipe-cell>
+  </demo-block>
 
-<demo-block title="异步关闭">
-  <van-swipe-cell id="swipe-cell" right-width="{{ 65 }}" left-width="{{ 65 }}" async-close bind:close="onClose">
-    <view slot="left" class="van-swipe-cell__left">选择</view>
-    <van-cell-group>
-      <van-cell title="单元格" value="内容" />
-    </van-cell-group>
-    <view slot="right" class="van-swipe-cell__right">删除</view>
-  </van-swipe-cell>
-</demo-block>
+  <demo-block title="主动打开">
+    <van-swipe-cell
+      :right-width="65"
+      :left-width="65"
+      name="示例"
+      @open="onOpen"
+    >
+      <template #left>
+        <div class="van-swipe-cell__left">选择</div>
+      </template>
+      <van-cell-group>
+        <van-cell title="单元格" value="内容" />
+      </van-cell-group>
+      <template #right>
+        <div class="van-swipe-cell__right">删除</div>
+      </template>
+    </van-swipe-cell>
+  </demo-block>
 
-<demo-block title="主动打开">
-  <van-swipe-cell id="swipe-cell2" right-width="{{ 65 }}" left-width="{{ 65 }}" name="示例" bind:open="onOpen" >
-    <view slot="left" class="van-swipe-cell__left">选择</view>
-    <van-cell-group>
-      <van-cell title="单元格" value="内容" />
-    </van-cell-group>
-    <view slot="right" class="van-swipe-cell__right">删除</view>
-  </van-swipe-cell>
-</demo-block>
+  <van-dialog id="van-dialog" />
+  <van-notify id="van-notify" />
+</template>
 
-<van-dialog id="van-dialog" />
-<van-notify id="van-notify" />
+<script setup lang="ts">
+// @ts-ignore
+const Dialog = window.Dialog || {};
+// @ts-ignore
+const Notify = window.Notify || {};
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
-import Dialog from '../../dialog/dialog';
-import Notify from '../../notify/notify';
+function onClose(event: any) {
+  const { position, instance } = event.detail || {};
+  if (!position || !instance) return;
+  if (position === "left" || position === "cell") {
+    instance.close();
+  } else if (position === "right") {
+    // @ts-ignore
+    Dialog.confirm({ message: "确定删除吗？" }).then(() => {
+      instance.close();
+    });
+  }
+}
 
-VantComponent({
-  methods: {
-    onClose(event) {
-      const { position, instance } = event.detail;
-      switch (position) {
-        case 'left':
-        case 'cell':
-          instance.close();
-          break;
-        case 'right':
-          Dialog.confirm({
-            context: this,
-            message: '确定删除吗？',
-          }).then(() => {
-            instance.close();
-          });
-          break;
-      }
-    },
+function onOpen(event: any) {
+  const { position, name } = event.detail || {};
+  if (!position) return;
+  // @ts-ignore
+  Notify({
+    type: "primary",
+    message: `${name || ""}${position}部分展示open事件被触发`,
+  });
+}
+</script>
 
-    onOpen(event) {
-      const { position, name } = event.detail;
-      switch (position) {
-        case 'left':
-          Notify({
-            context: this,
-            type: 'primary',
-            message: `${name}${position}部分展示open事件被触发`,
-          });
-          break;
-        case 'right':
-          Notify({
-            context: this,
-            type: 'primary',
-            message: `${name}${position}部分展示open事件被触发`,
-          });
-          break;
-      }
-    },
-  },
-});
-
-    </script>
-    <style>
-    .demo-swipe-cell {
+<style scoped>
+.demo-swipe-cell {
   user-select: none;
 }
 
@@ -99,6 +101,4 @@ VantComponent({
   text-align: center;
   background-color: #ee0a24;
 }
-
-    </style>
-  
+</style>

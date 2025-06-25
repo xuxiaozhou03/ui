@@ -1,15 +1,17 @@
 <template>
   <div
-    class="van-tag custom-class"
-    :class="[
-      type,
-      size,
-      {
-        'van-tag--mark': mark,
-        'van-tag--plain': plain,
-        'van-tag--round': round,
-      },
-    ]"
+    class="custom-class"
+    :class="
+      bem('tag', [
+        type,
+        size,
+        {
+          'van-tag--mark': mark,
+          'van-tag--plain': plain,
+          'van-tag--round': round,
+        },
+      ])
+    "
     :style="rootStyle"
   >
     <slot />
@@ -25,6 +27,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { tagProps } from "./props";
+import { bem } from "../../utils/bem";
 
 const props = defineProps(tagProps);
 const rootStyle = computed(() => ({

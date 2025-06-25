@@ -1,31 +1,22 @@
 <template>
-  <view
-    class="custom-class {{ utils.bem('goods-action', { safe: safeAreaInsetBottom }) }}"
-  >
+  <div :class="rootClass">
     <slot />
-  </view>
+  </div>
 </template>
-<script lang="ts" setup>
-import { cn, bem, commonProps } from "../../utils";
-import { VantComponent } from "../common/component";
-import { useChildren } from "../common/relation";
 
-VantComponent({
-  relation: useChildren("goods-action-button", function () {
-    this.children.forEach((item) => {
-      item.updateStyle();
-    });
-  }),
+<script setup lang="ts">
+import { computed } from "vue";
+import { goodsActionProps } from "./props";
 
-  props: {
-    safeAreaInsetBottom: {
-      type: Boolean,
-      value: true,
-    },
-  },
-});
+const props = defineProps(goodsActionProps);
+
+const rootClass = computed(() => [
+  "van-goods-action",
+  { "van-goods-action--safe": props.safeAreaInsetBottom },
+]);
 </script>
-<style>
+
+<style scoped>
 .van-goods-action {
   align-items: center;
   background-color: var(--goods-action-background-color, #fff);

@@ -1,5 +1,5 @@
 <template>
-  <div class="van-sticky" :style="containerStyle">
+  <div class="van-sticky" :style="containerStyle" ref="root">
     <div
       :class="['van-sticky-wrap', { 'van-sticky-wrap--fixed': fixed }]"
       :style="wrapStyle"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { stickyProps } from "./props";
 
 const emit = defineEmits<{
@@ -24,20 +24,16 @@ const height = ref(0);
 const transform = ref(0);
 const root = ref<HTMLElement | null>(null);
 
-const containerStyle = computed(() => {
-  return {
-    height: fixed.value ? `${height.value}px` : "",
-    zIndex: props.zIndex,
-  };
-});
+const containerStyle = computed(() => ({
+  height: fixed.value ? `${height.value}px` : "",
+  zIndex: props.zIndex,
+}));
 
-const wrapStyle = computed(() => {
-  return {
-    transform: transform.value ? `translate3d(0, ${transform.value}px, 0)` : "",
-    top: fixed.value ? `${props.offsetTop}px` : "",
-    zIndex: props.zIndex,
-  };
-});
+const wrapStyle = computed(() => ({
+  transform: transform.value ? `translate3d(0, ${transform.value}px, 0)` : "",
+  top: fixed.value ? `${props.offsetTop}px` : "",
+  zIndex: props.zIndex,
+}));
 
 function getContainerRect(): Promise<DOMRect> {
   if (typeof props.container === "function") {
@@ -110,9 +106,17 @@ watch(
   }
 );
 
+function handleWindowScroll() {
+  onScroll();
+}
+
 onMounted(() => {
   onScroll(props.scrollTop);
-  window.addEventListener("scroll", () => onScroll(), { passive: true });
+  window.addEventListener("scroll", handleWindowScroll, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", handleWindowScroll);
 });
 </script>
 

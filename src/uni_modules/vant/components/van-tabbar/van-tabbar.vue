@@ -1,98 +1,65 @@
+<template>
+  <div
+    ref="rootRef"
+    :class="[
+      border ? 'van-hairline--top-bottom' : '',
+      'van-tabbar',
+      { 'van-tabbar--fixed': fixed, 'van-tabbar--safe': safeAreaInsetBottom },
+      'custom-class',
+    ]"
+    :style="zIndex ? { zIndex } : {}"
+  >
+    <slot />
+  </div>
+  <div v-if="fixed && placeholder" :style="{ height: height + 'px' }"></div>
+</template>
 
-    <template>
-    
+<script setup lang="ts">
+import { ref, computed, watch, nextTick, provide, onMounted } from "vue";
+import { tabbarProps } from "./props";
 
-<view
-  class="{{ border ? 'van-hairline--top-bottom' : '' }} {{ utils.bem('tabbar', { fixed, safe: safeAreaInsetBottom }) }} custom-class"
-  style="{{ zIndex ? 'z-index: ' + zIndex : '' }}"
->
-  <slot />
-</view>
+const props = defineProps(tabbarProps);
+const rootRef = ref<HTMLElement | null>(null);
+const height = ref(50);
 
-<view wx:if="{{ fixed && placeholder }}" style="height: {{ height }}px;"></view>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useChildren } from '../common/relation';
-import { getRect } from '../common/utils';
-
-type TrivialInstance = WechatMiniprogram.Component.TrivialInstance;
-
-VantComponent({
-  relation: useChildren('tabbar-item', function () {
-    this.updateChildren();
-  }),
-
-  props: {
-    active: {
-      type: null,
-      observer: 'updateChildren',
-    },
-    activeColor: {
-      type: String,
-      observer: 'updateChildren',
-    },
-    inactiveColor: {
-      type: String,
-      observer: 'updateChildren',
-    },
-    fixed: {
-      type: Boolean,
-      value: true,
-      observer: 'setHeight',
-    },
-    placeholder: {
-      type: Boolean,
-      observer: 'setHeight',
-    },
-    border: {
-      type: Boolean,
-      value: true,
-    },
-    zIndex: {
-      type: Number,
-      value: 1,
-    },
-    safeAreaInsetBottom: {
-      type: Boolean,
-      value: true,
-    },
-  },
-
-  data: {
-    height: 50,
-  },
-
-  methods: {
-    updateChildren() {
-      const { children } = this;
-      if (!Array.isArray(children) || !children.length) {
-        return;
-      }
-
-      children.forEach((child: TrivialInstance) => child.updateFromParent());
-    },
-
-    setHeight() {
-      if (!this.data.fixed || !this.data.placeholder) {
-        return;
-      }
-
-      wx.nextTick(() => {
-        getRect(this, '.van-tabbar').then((res) => {
-          this.setData({ height: res.height });
-        });
-      });
-    },
-  },
+provide("vanTabbar", {
+  active: computed(() => props.active),
+  activeColor: computed(() => props.activeColor),
+  inactiveColor: computed(() => props.inactiveColor),
+  fixed: computed(() => props.fixed),
+  safeAreaInsetBottom: computed(() => props.safeAreaInsetBottom),
 });
 
+function setHeight() {
+  if (!props.fixed || !props.placeholder) return;
+  nextTick(() => {
+    if (rootRef.value) {
+      height.value = rootRef.value.getBoundingClientRect().height;
+    }
+  });
+}
 
-    
-    </script>
-    <style>
-    .van-tabbar{background-color:var(--tabbar-background-color,#fff);box-sizing:initial;display:flex;height:var(--tabbar-height,50px);width:100%}.van-tabbar--fixed{bottom:0;left:0;position:fixed}.van-tabbar--safe{padding-bottom:env(safe-area-inset-bottom)}
-    </style>
-  
+watch(() => [props.fixed, props.placeholder], setHeight);
+
+onMounted(() => {
+  setHeight();
+});
+</script>
+
+<style scoped>
+.van-tabbar {
+  background-color: var(--tabbar-background-color, #fff);
+  box-sizing: initial;
+  display: flex;
+  height: var(--tabbar-height, 50px);
+  width: 100%;
+}
+.van-tabbar--fixed {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+}
+.van-tabbar--safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+</style>

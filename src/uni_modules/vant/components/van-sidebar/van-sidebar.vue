@@ -1,61 +1,44 @@
+<template>
+  <div class="van-sidebar custom-class">
+    <slot />
+  </div>
+</template>
 
-    <template>
-    <view class="van-sidebar custom-class">
-  <slot />
-</view>
+<script setup lang="ts">
+import { ref, provide, watch, defineProps, defineEmits } from "vue";
+import { sidebarProps, SidebarProps } from "./props";
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useChildren } from '../common/relation';
+const props = defineProps<SidebarProps>();
+const emit = defineEmits<{
+  (e: "update:activeKey", value: number): void;
+  (e: "change", value: number): void;
+}>();
 
-VantComponent({
-  relation: useChildren('sidebar-item', function () {
-    this.setActive(this.data.activeKey);
-  }),
+const currentActive = ref(props.activeKey ?? 0);
 
-  props: {
-    activeKey: {
-      type: Number,
-      value: 0,
-      observer: 'setActive',
-    },
-  },
+watch(
+  () => props.activeKey,
+  (val) => {
+    if (val !== currentActive.value) {
+      setActive(val ?? 0);
+    }
+  }
+);
 
-  beforeCreate() {
-    this.currentActive = -1;
-  },
+function setActive(activeKey: number) {
+  currentActive.value = activeKey;
+  emit("update:activeKey", activeKey);
+  emit("change", activeKey);
+}
 
-  methods: {
-    setActive(activeKey: number) {
-      const { children, currentActive } = this;
-
-      if (!children.length) {
-        return Promise.resolve();
-      }
-
-      this.currentActive = activeKey;
-
-      const stack: Promise<unknown>[] = [];
-
-      if (currentActive !== activeKey && children[currentActive]) {
-        stack.push(children[currentActive].setActive(false));
-      }
-
-      if (children[activeKey]) {
-        stack.push(children[activeKey].setActive(true));
-      }
-
-      return Promise.all(stack);
-    },
-  },
+provide("vanSidebar", {
+  currentActive,
+  setActive,
 });
+</script>
 
-
-    
-    </script>
-    <style>
-    .van-sidebar{width:var(--sidebar-width,80px)}
-    </style>
-  
+<style>
+.van-sidebar {
+  width: var(--sidebar-width, 80px);
+}
+</style>

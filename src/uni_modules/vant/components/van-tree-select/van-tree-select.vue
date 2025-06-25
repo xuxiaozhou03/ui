@@ -1,72 +1,70 @@
+<template>
+  <wxs src="./index.wxs" module="wxs" />
 
-    <template>
-    
-<wxs src="./index.wxs" module="wxs" />
-
-<view
-  class="van-tree-select"
-  style="height: {{ utils.addUnit(height) }}"
->
-  <scroll-view scroll-y class="van-tree-select__nav">
-    <van-sidebar active-key="{{ mainActiveIndex }}" bind:change="onClickNav" custom-class="van-tree-select__nav__inner">
-      <van-sidebar-item
-        wx:for="{{ items }}"
-        wx:key="index"
-        custom-class="main-item-class"
-        active-class="main-active-class"
-        disabled-class="main-disabled-class"
-        badge="{{ item.badge }}"
-        dot="{{ item.dot }}"
-        title="{{ item.text }}"
-        disabled="{{ item.disabled }}"
-      />
-    </van-sidebar>
-  </scroll-view>
-  <scroll-view scroll-y class="van-tree-select__content">
-    <slot name="content" />
-    <view
-      wx:for="{{ subItems }}"
-      wx:key="id"
-      class="van-ellipsis content-item-class {{ utils.bem('tree-select__item', { active: wxs.isActive(activeId, item.id), disabled: item.disabled }) }} {{ wxs.isActive(activeId, item.id) ? 'content-active-class' : '' }} {{ item.disabled ? 'content-disabled-class' : '' }}"
-      data-item="{{ item }}"
-      bind:tap="onSelectItem"
-    >
-      {{ item.text }}
-      <van-icon
-        wx:if="{{ wxs.isActive(activeId, item.id) }}"
-        name="{{ selectedIcon }}"
-        size="16px"
-        class="van-tree-select__selected"
-      />
-    </view>
-  </scroll-view>
-</view>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
+  <view class="van-tree-select" style="height: {{ utils.addUnit(height) }}">
+    <scroll-view scroll-y class="van-tree-select__nav">
+      <van-sidebar
+        active-key="{{ mainActiveIndex }}"
+        bind:change="onClickNav"
+        custom-class="van-tree-select__nav__inner"
+      >
+        <van-sidebar-item
+          wx:for="{{ items }}"
+          wx:key="index"
+          custom-class="main-item-class"
+          active-class="main-active-class"
+          disabled-class="main-disabled-class"
+          badge="{{ item.badge }}"
+          dot="{{ item.dot }}"
+          title="{{ item.text }}"
+          disabled="{{ item.disabled }}"
+        />
+      </van-sidebar>
+    </scroll-view>
+    <scroll-view scroll-y class="van-tree-select__content">
+      <slot name="content" />
+      <view
+        wx:for="{{ subItems }}"
+        wx:key="id"
+        class="van-ellipsis content-item-class {{ utils.bem('tree-select__item', { active: wxs.isActive(activeId, item.id), disabled: item.disabled }) }} {{ wxs.isActive(activeId, item.id) ? 'content-active-class' : '' }} {{ item.disabled ? 'content-disabled-class' : '' }}"
+        data-item="{{ item }}"
+        bind:tap="onSelectItem"
+      >
+        {{ item.text }}
+        <van-icon
+          wx:if="{{ wxs.isActive(activeId, item.id) }}"
+          name="{{ selectedIcon }}"
+          size="16px"
+          class="van-tree-select__selected"
+        />
+      </view>
+    </scroll-view>
+  </view>
+</template>
+<script lang="ts" setup>
+import { cn, bem, commonProps } from "../../utils";
+import { VantComponent } from "../common/component";
 
 VantComponent({
   classes: [
-    'main-item-class',
-    'content-item-class',
-    'main-active-class',
-    'content-active-class',
-    'main-disabled-class',
-    'content-disabled-class',
+    "main-item-class",
+    "content-item-class",
+    "main-active-class",
+    "content-active-class",
+    "main-disabled-class",
+    "content-disabled-class",
   ],
 
   props: {
     items: {
       type: Array,
-      observer: 'updateSubItems',
+      observer: "updateSubItems",
     },
     activeId: null,
     mainActiveIndex: {
       type: Number,
       value: 0,
-      observer: 'updateSubItems',
+      observer: "updateSubItems",
     },
     height: {
       type: null,
@@ -78,7 +76,7 @@ VantComponent({
     },
     selectedIcon: {
       type: String,
-      value: 'success',
+      value: "success",
     },
   },
 
@@ -99,16 +97,16 @@ VantComponent({
         : this.data.activeId === item.id;
 
       if (!item.disabled && (!isOverMax || isSelected)) {
-        this.$emit('click-item', item);
+        this.$emit("click-item", item);
       }
     },
 
     // 当一个导航被点击时
     onClickNav(event: WechatMiniprogram.CustomEvent) {
-      const index = (event.detail as unknown) as number;
+      const index = event.detail as unknown as number;
       const item = this.data.items[index];
       if (!item.disabled) {
-        this.$emit('click-nav', { index });
+        this.$emit("click-nav", { index });
       }
     },
 
@@ -122,12 +120,11 @@ VantComponent({
   },
 });
 
+// 把下面代码变成 computed 属性
 
-    // 把下面代码变成 computed 属性
-    
-var array = require('../wxs/array.wxs');
+var array = require("../wxs/array.wxs");
 
-function isActive (activeList, itemId) {
+function isActive(activeList, itemId) {
   if (array.isArray(activeList)) {
     return activeList.indexOf(itemId) > -1;
   }
@@ -136,9 +133,44 @@ function isActive (activeList, itemId) {
 }
 
 module.exports.isActive = isActive;
-
-    </script>
-    <style>
-    .van-tree-select{display:flex;font-size:var(--tree-select-font-size,14px);position:relative;-webkit-user-select:none;user-select:none}.van-tree-select__nav{--sidebar-padding:12px 8px 12px 12px;background-color:var(--tree-select-nav-background-color,#f7f8fa);flex:1}.van-tree-select__nav__inner{height:100%;width:100%!important}.van-tree-select__content{background-color:var(--tree-select-content-background-color,#fff);flex:2}.van-tree-select__item{font-weight:700;line-height:var(--tree-select-item-height,44px);padding:0 32px 0 var(--padding-md,16px);position:relative}.van-tree-select__item--active{color:var(--tree-select-item-active-color,#ee0a24)}.van-tree-select__item--disabled{color:var(--tree-select-item-disabled-color,#c8c9cc)}.van-tree-select__selected{position:absolute;right:var(--padding-md,16px);top:50%;transform:translateY(-50%)}
-    </style>
-  
+</script>
+<style>
+.van-tree-select {
+  display: flex;
+  font-size: var(--tree-select-font-size, 14px);
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.van-tree-select__nav {
+  --sidebar-padding: 12px 8px 12px 12px;
+  background-color: var(--tree-select-nav-background-color, #f7f8fa);
+  flex: 1;
+}
+.van-tree-select__nav__inner {
+  height: 100%;
+  width: 100% !important;
+}
+.van-tree-select__content {
+  background-color: var(--tree-select-content-background-color, #fff);
+  flex: 2;
+}
+.van-tree-select__item {
+  font-weight: 700;
+  line-height: var(--tree-select-item-height, 44px);
+  padding: 0 32px 0 var(--padding-md, 16px);
+  position: relative;
+}
+.van-tree-select__item--active {
+  color: var(--tree-select-item-active-color, #ee0a24);
+}
+.van-tree-select__item--disabled {
+  color: var(--tree-select-item-disabled-color, #c8c9cc);
+}
+.van-tree-select__selected {
+  position: absolute;
+  right: var(--padding-md, 16px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+</style>

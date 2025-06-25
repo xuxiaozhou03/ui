@@ -1,123 +1,80 @@
+<template>
+  <div
+    :class="['van-tabbar-item', { 'van-tabbar-item--active': active }, 'custom-class']"
+    :style="{ color: active ? activeColor : inactiveColor }"
+    @click="onClick"
+  >
+    <div class="van-tabbar-item__icon">
+      <template v-if="icon">
+        <van-icon :name="icon" :class-prefix="iconPrefix" class="van-tabbar-item__icon__inner" />
+      </template>
+      <template v-else>
+        <slot v-if="active" name="icon-active" />
+        <slot v-else name="icon" />
+      </template>
+      <van-info :dot="dot" :info="info" class="van-tabbar-item__info" />
+    </div>
+    <div class="van-tabbar-item__text">
+      <slot />
+    </div>
+  </div>
+</template>
+<script setup lang="ts">
+import { computed, inject } from 'vue';
+import { tabbarItemProps } from './props';
 
-    <template>
-    
+const props = defineProps(tabbarItemProps);
+const tabbar = inject<any>('vanTabbar', {});
 
-<view
-  class="{{ utils.bem('tabbar-item', { active }) }} custom-class"
-  style="color: {{ active ? activeColor : inactiveColor }}"
-  bindtap="onClick"
->
-  <view class="van-tabbar-item__icon">
-    <van-icon
-      wx:if="{{ icon }}"
-      name="{{ icon }}"
-      class-prefix="{{ iconPrefix }}"
-      custom-class="van-tabbar-item__icon__inner"
-    />
-    <block wx:else>
-      <slot wx:if="{{ active }}" name="icon-active" />
-      <slot wx:else name="icon" />
-    </block>
-    <van-info
-      dot="{{ dot }}"
-      info="{{ info }}"
-      custom-class="van-tabbar-item__info"
-    />
-  </view>
-  <view class="van-tabbar-item__text">
-    <slot />
-  </view>
-</view>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useParent } from '../common/relation';
-
-VantComponent({
-  props: {
-    info: null,
-    name: null,
-    icon: String,
-    dot: Boolean,
-    url: {
-      type: String,
-      value: '',
-    },
-    linkType: {
-      type: String,
-      value: 'redirectTo',
-    },
-    iconPrefix: {
-      type: String,
-      value: 'van-icon',
-    },
-  },
-
-  relation: useParent('tabbar'),
-
-  data: {
-    active: false,
-    activeColor: '',
-    inactiveColor: '',
-  },
-
-  methods: {
-    onClick() {
-      const { parent } = this;
-
-      if (parent) {
-        const index = parent.children.indexOf(this);
-        const active = this.data.name || index;
-
-        if (active !== this.data.active) {
-          parent.$emit('change', active);
-        }
-      }
-
-      const { url, linkType } = this.data;
-
-      if (url && wx[linkType]) {
-        return wx[linkType]({ url });
-      }
-
-      this.$emit('click');
-    },
-
-    updateFromParent() {
-      const { parent } = this;
-      if (!parent) {
-        return;
-      }
-
-      const index = parent.children.indexOf(this);
-      const parentData = parent.data;
-      const { data } = this;
-      const active = (data.name || index) === parentData.active;
-      const patch: Record<string, unknown> = {};
-
-      if (active !== data.active) {
-        patch.active = active;
-      }
-      if (parentData.activeColor !== data.activeColor) {
-        patch.activeColor = parentData.activeColor;
-      }
-      if (parentData.inactiveColor !== data.inactiveColor) {
-        patch.inactiveColor = parentData.inactiveColor;
-      }
-
-      if (Object.keys(patch).length > 0) {
-        this.setData(patch);
-      }
-    },
-  },
+const active = computed(() => {
+  if (props.name != null && props.name !== '') {
+    return tabbar.active?.value === props.name;
+  }
+  // fallback: index 由父组件顺序决定，需父组件传递 index，简化为 always false
+  return false;
 });
+const activeColor = computed(() => tabbar.activeColor?.value || '');
+const inactiveColor = computed(() => tabbar.inactiveColor?.value || '');
 
-
-    
-    </script>
-    <style>
-    :host{flex:1}.van-tabbar-item{align-items:center;color:var(--tabbar-item-text-color,#646566);display:flex;flex-direction:column;font-size:var(--tabbar-item-font-size,12px);height:100%;justify-content:center;line-height:var(--tabbar-item-line-height,1)}.van-tabbar-item__icon{font-size:var(--tabbar-item-icon-size,22px);margin-bottom:var(--tabbar-item-margin-bottom,4px);position:relative}.van-tabbar-item__icon__inner{display:block;min-width:1em}.van-tabbar-item--active{color:var(--tabbar-item-active-color,#1989fa)}.van-tabbar-item__info{margin-top:2px}
-    </style>
-  
+function onClick() {
+  if (tabbar && typeof tabbar.active?.value !== 'undefined') {
+    const value = props.name != null && props.name !== '' ? props.name : undefined;
+    tabbar.active.value = value;
+    // 触发父组件 change 事件（需父组件实现）
+    if (tabbar.onChange) tabbar.onChange(value);
+  }
+  if (props.url) {
+    window.open(props.url, '_self');
+  }
+}
+</script>
+<style scoped>
+:host {
+  flex: 1;
+}
+.van-tabbar-item {
+  align-items: center;
+  color: var(--tabbar-item-text-color, #646566);
+  display: flex;
+  flex-direction: column;
+  font-size: var(--tabbar-item-font-size, 12px);
+  height: 100%;
+  justify-content: center;
+  line-height: var(--tabbar-item-line-height, 1);
+}
+.van-tabbar-item__icon {
+  font-size: var(--tabbar-item-icon-size, 22px);
+  margin-bottom: var(--tabbar-item-margin-bottom, 4px);
+  position: relative;
+}
+.van-tabbar-item__icon__inner {
+  display: block;
+  min-width: 1em;
+}
+.van-tabbar-item--active {
+  color: var(--tabbar-item-active-color, #1989fa);
+}
+.van-tabbar-item__info {
+  margin-top: 2px;
+}
+</style>

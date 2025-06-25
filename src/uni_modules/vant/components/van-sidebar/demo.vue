@@ -1,66 +1,53 @@
+<template>
+  <van-grid :column-num="2" :border="false">
+    <van-grid-item use-slot>
+      <h3 class="demo-sidebar-title">基础用法</h3>
+      <van-sidebar class="custom-sidebar">
+        <van-sidebar-item title="标签名" />
+        <van-sidebar-item title="标签名" />
+        <van-sidebar-item title="标签名" />
+      </van-sidebar>
+    </van-grid-item>
 
-    <template>
-    <van-grid column-num="{{ 2 }}" border="{{ false }}">
-  <van-grid-item use-slot>
-    <h3 class="demo-sidebar-title">基础用法</h3>
-    <van-sidebar custom-class="custom-sidebar">
-      <van-sidebar-item title="标签名" />
-      <van-sidebar-item title="标签名" />
-      <van-sidebar-item title="标签名" />
-    </van-sidebar>
-  </van-grid-item>
+    <van-grid-item use-slot>
+      <h3 class="demo-sidebar-title">徽标提示</h3>
+      <van-sidebar class="custom-sidebar">
+        <van-sidebar-item title="标签名" dot />
+        <van-sidebar-item title="标签名" badge="5" />
+        <van-sidebar-item title="标签名" badge="99+" />
+      </van-sidebar>
+    </van-grid-item>
 
-  <van-grid-item use-slot>
-    <h3 class="demo-sidebar-title">徽标提示</h3>
-    <van-sidebar custom-class="custom-sidebar">
-      <van-sidebar-item title="标签名" dot />
-      <van-sidebar-item title="标签名" badge="5" />
-      <van-sidebar-item title="标签名" badge="99+" />
-    </van-sidebar>
-  </van-grid-item>
+    <van-grid-item use-slot>
+      <h3 class="demo-sidebar-title">禁用选项</h3>
+      <van-sidebar class="custom-sidebar">
+        <van-sidebar-item title="标签名" />
+        <van-sidebar-item title="标签名" disabled />
+        <van-sidebar-item title="标签名" />
+      </van-sidebar>
+    </van-grid-item>
 
-  <van-grid-item use-slot>
-    <h3 class="demo-sidebar-title">禁用选项</h3>
-    <van-sidebar custom-class="custom-sidebar">
-      <van-sidebar-item title="标签名" />
-      <van-sidebar-item title="标签名" disabled />
-      <van-sidebar-item title="标签名" />
-    </van-sidebar>
-  </van-grid-item>
+    <van-grid-item use-slot>
+      <h3 class="demo-sidebar-title">监听切换事件</h3>
+      <van-sidebar class="custom-sidebar" @change="onChange">
+        <van-sidebar-item title="标签名 1" />
+        <van-sidebar-item title="标签名 2" />
+        <van-sidebar-item title="标签名 3" />
+      </van-sidebar>
+    </van-grid-item>
+  </van-grid>
 
-  <van-grid-item use-slot>
-    <h3 class="demo-sidebar-title">监听切换事件</h3>
-    <van-sidebar custom-class="custom-sidebar" bind:change="onChange">
-      <van-sidebar-item title="标签名 1" />
-      <van-sidebar-item title="标签名 2" />
-      <van-sidebar-item title="标签名 3" />
-    </van-sidebar>
-  </van-grid-item>
-</van-grid>
+  <van-notify id="van-notify" />
+</template>
 
-<van-notify id="van-notify" />
+<script setup lang="ts">
+function onChange(index: number) {
+  window.alert(`切换至第${index}项`);
+}
+</script>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
-import Notify from '../../notify/notify';
-
-VantComponent({
-  methods: {
-    onChange(event) {
-      Notify({
-        context: this,
-        type: 'primary',
-        message: `切换至第${event.detail}项`,
-      });
-    },
-  },
-});
-
-    </script>
-    <style>
-    .custom-sidebar {
+<style>
+.custom-sidebar {
   margin-left: 16px;
 }
 
@@ -74,6 +61,4 @@ VantComponent({
   font-weight: normal;
   font-size: 14px;
 }
-
-    </style>
-  
+</style>

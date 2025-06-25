@@ -1,138 +1,146 @@
-
-    <template>
-    
-
-<van-popup
-  round
-  class="van-share-sheet"
-  show="{{ show }}"
-  position="bottom"
-  overlay="{{ overlay }}"
-  duration="{{ duration }}"
-  z-index="{{ zIndex }}"
-  overlay-style="{{ overlayStyle }}"
-  close-on-click-overlay="{{ closeOnClickOverlay }}"
-  safe-area-inset-bottom="{{ safeAreaInsetBottom }}"
-  root-portal="{{ rootPortal }}"
-  bind:close="onClose"
-  bind:click-overlay="onClickOverlay"
->
-  <view class="van-share-sheet__header">
-    <view class="van-share-sheet__title">
-      <slot name="title" />
-    </view>
-    <view wx:if="{{ title }}" class="van-share-sheet__title">{{ title }}</view>
-
-    <view class="van-share-sheet__description">
-      <slot name="description" />
-    </view>
-    <view wx:if="{{ description }}" class="van-share-sheet__description">
-      {{ description }}
-    </view>
-  </view>
-
-  <block wx:if="{{ computed.isMulti(options) }}">
-    <options
-      wx:for="{{ options }}"
-      show-border="{{ index !== 0 }}"
-      wx:key="index"
-      options="{{ item }}"
-      bind:select="onSelect"
-    />
-  </block>
-
-  <options wx:else options="{{ options }}" bind:select="onSelect" />
-
-  <button type="button" class="van-share-sheet__cancel" bindtap="onCancel">
-    {{ cancelText }}
-  </button>
-</van-popup>
-
+<template>
+  <van-popup
+    round
+    class="van-share-sheet"
+    position="bottom"
+    v-model:show="show"
+    :overlay="overlay"
+    :duration="duration"
+    :z-index="zIndex"
+    :overlay-style="overlayStyle"
+    :close-on-click-overlay="closeOnClickOverlay"
+    :safe-area-inset-bottom="safeAreaInsetBottom"
+    :root-portal="rootPortal"
+    @close="onClose"
+    @click-overlay="onClickOverlay"
+  >
+    <div class="van-share-sheet__header">
+      <div class="van-share-sheet__title">
+        <slot name="title">{{ title }}</slot>
+      </div>
+      <div v-if="description" class="van-share-sheet__description">
+        <slot name="description">{{ description }}</slot>
+      </div>
+    </div>
+    <template v-if="isMulti">
+      <template v-for="(item, index) in options" :key="index">
+        <ShareSheetOptions
+          :options="item"
+          :show-border="index !== 0"
+          @select="onSelect"
+        />
+      </template>
     </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
+    <template v-else>
+      <ShareSheetOptions :options="options" @select="onSelect" />
+    </template>
+    <button type="button" class="van-share-sheet__cancel" @click="onCancel">
+      {{ cancelText }}
+    </button>
+  </van-popup>
+</template>
 
-VantComponent({
-  props: {
-    // whether to show popup
-    show: Boolean,
-    // overlay custom style
-    overlayStyle: String,
-    // z-index
-    zIndex: {
-      type: Number,
-      value: 100,
-    },
-    title: String,
-    cancelText: {
-      type: String,
-      value: '取消',
-    },
-    description: String,
-    options: {
-      type: Array,
-      value: [],
-    },
-    overlay: {
-      type: Boolean,
-      value: true,
-    },
-    safeAreaInsetBottom: {
-      type: Boolean,
-      value: true,
-    },
-    closeOnClickOverlay: {
-      type: Boolean,
-      value: true,
-    },
-    duration: {
-      type: null,
-      value: 300,
-    },
-    rootPortal: {
-      type: Boolean,
-      value: false,
-    },
-  },
+<script setup lang="ts">
+import { computed } from "vue";
+import { shareSheetProps, ShareSheetProps } from "./props";
+import VanPopup from "../van-popup/van-popup.vue";
+// 你需要实现 ShareSheetOptions 组件或用 ul/li 替代
 
-  methods: {
-    onClickOverlay() {
-      this.$emit('click-overlay');
-    },
+const props = defineProps<ShareSheetProps>();
+const emit = defineEmits<{
+  (e: "update:show", value: boolean): void;
+  (e: "close"): void;
+  (e: "select", value: any): void;
+  (e: "cancel"): void;
+  (e: "click-overlay"): void;
+}>();
 
-    onCancel() {
-      this.onClose();
-      this.$emit('cancel');
-    },
-
-    onSelect(event: WechatMiniprogram.CustomEvent) {
-      this.$emit('select', event.detail);
-    },
-
-    onClose() {
-      this.$emit('close');
-    },
-  },
+const show = computed({
+  get: () => props.show,
+  set: (val) => emit("update:show", val),
 });
 
+const overlay = computed(() => props.overlay ?? true);
+const duration = computed(() => props.duration ?? 300);
+const zIndex = computed(() => props.zIndex ?? 100);
+const overlayStyle = computed(() => props.overlayStyle);
+const closeOnClickOverlay = computed(() => props.closeOnClickOverlay ?? true);
+const safeAreaInsetBottom = computed(() => props.safeAreaInsetBottom ?? true);
+const rootPortal = computed(() => props.rootPortal ?? false);
+const title = computed(() => props.title);
+const description = computed(() => props.description);
+const cancelText = computed(() => props.cancelText ?? "取消");
+const options = computed(() => props.options ?? []);
 
-    // 把下面代码变成 computed 属性
-    
-function isMulti(options) {
-  if (options == null || options[0] == null) {
-    return false;
-  }
+const isMulti = computed(() => {
+  const opts = options.value;
+  return Array.isArray(opts) && Array.isArray(opts[0]);
+});
 
-  return "Array" === options.constructor && "Array" === options[0].constructor;
+function onClickOverlay() {
+  emit("click-overlay");
 }
+function onCancel() {
+  onClose();
+  emit("cancel");
+}
+function onSelect(option: any) {
+  emit("select", option);
+}
+function onClose() {
+  emit("close");
+}
+</script>
 
-module.exports = {
-  isMulti: isMulti
-};
-
-    </script>
-    <style>
-    .van-share-sheet__header{padding:12px 16px 4px;text-align:center}.van-share-sheet__title{color:#323233;font-size:14px;font-weight:400;line-height:20px;margin-top:8px}.van-share-sheet__title:empty,.van-share-sheet__title:not(:empty)+.van-share-sheet__title{display:none}.van-share-sheet__description{color:#969799;display:block;font-size:12px;line-height:16px;margin-top:8px}.van-share-sheet__description:empty,.van-share-sheet__description:not(:empty)+.van-share-sheet__description{display:none}.van-share-sheet__cancel{background:#fff;border:none;box-sizing:initial;display:block;font-size:16px;height:auto;line-height:48px;padding:0;text-align:center;width:100%}.van-share-sheet__cancel:before{background-color:#f7f8fa;content:" ";display:block;height:8px}.van-share-sheet__cancel:after{display:none}.van-share-sheet__cancel:active{background-color:#f2f3f5}
-    </style>
-  
+<style>
+.van-share-sheet__header {
+  padding: 12px 16px 4px;
+  text-align: center;
+}
+.van-share-sheet__title {
+  color: #323233;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  margin-top: 8px;
+}
+.van-share-sheet__title:empty,
+.van-share-sheet__title:not(:empty) + .van-share-sheet__title {
+  display: none;
+}
+.van-share-sheet__description {
+  color: #969799;
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  margin-top: 8px;
+}
+.van-share-sheet__description:empty,
+.van-share-sheet__description:not(:empty) + .van-share-sheet__description {
+  display: none;
+}
+.van-share-sheet__cancel {
+  background: #fff;
+  border: none;
+  box-sizing: initial;
+  display: block;
+  font-size: 16px;
+  height: auto;
+  line-height: 48px;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+.van-share-sheet__cancel:before {
+  background-color: #f7f8fa;
+  content: " ";
+  display: block;
+  height: 8px;
+}
+.van-share-sheet__cancel:after {
+  display: none;
+}
+.van-share-sheet__cancel:active {
+  background-color: #f2f3f5;
+}
+</style>

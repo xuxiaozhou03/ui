@@ -1,10 +1,10 @@
 <template>
   <demo-block title="基础用法">
     <van-goods-action
-      custom-class="goods-action-position"
+      class="goods-action-position"
       :safe-area-inset-bottom="false"
     >
-      <van-goods-action-icon icon="chat-o" text="客服" open-type="contact" />
+      <van-goods-action-icon icon="chat-o" text="客服" />
       <van-goods-action-icon icon="cart-o" text="购物车" @click="onClickIcon" />
       <van-goods-action-button
         text="加入购物车"
@@ -17,7 +17,7 @@
 
   <demo-block title="提示信息">
     <van-goods-action
-      custom-class="goods-action-position"
+      class="goods-action-position"
       :safe-area-inset-bottom="false"
     >
       <van-goods-action-icon icon="chat-o" text="客服" dot />
@@ -30,7 +30,7 @@
 
   <demo-block title="自定义按钮颜色">
     <van-goods-action
-      custom-class="goods-action-position"
+      class="goods-action-position"
       :safe-area-inset-bottom="false"
     >
       <van-goods-action-icon icon="chat-o" text="客服" />
@@ -46,7 +46,7 @@
 
   <demo-block title="朴素按钮">
     <van-goods-action
-      custom-class="goods-action-position"
+      class="goods-action-position"
       :safe-area-inset-bottom="false"
     >
       <van-goods-action-icon icon="chat-o" text="客服" />
@@ -67,15 +67,17 @@
 import Toast from "../../toast/toast";
 
 function onClickIcon() {
+  // @ts-ignore
   Toast({ message: "点击图标" });
 }
 
 function onClickButton() {
+  // @ts-ignore
   Toast({ message: "点击按钮" });
 }
 </script>
 
-<style>
+<style scoped>
 .goods-action-position {
   position: relative !important;
 }

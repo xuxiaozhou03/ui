@@ -1,115 +1,90 @@
+<template>
+  <demo-block title="基本用法">
+    <van-search
+      v-model="value"
+      placeholder="请输入搜索关键词"
+      @search="onSearch"
+    />
+  </demo-block>
 
-    <template>
-    <demo-block title="基本用法">
-  <van-search
-    model:value="{{ value }}"
-    placeholder="请输入搜索关键词"
-    bind:search="onSearch"
-  />
-</demo-block>
+  <demo-block title="事件监听">
+    <van-search
+      v-model="value"
+      show-action
+      placeholder="请输入搜索关键词"
+      @search="onSearch"
+      @cancel="onCancel"
+      @clear="onClear"
+    />
+  </demo-block>
 
-<demo-block title="事件监听">
-  <van-search
-    model:value="{{ value }}"
-    show-action
-    placeholder="请输入搜索关键词"
-    bind:search="onSearch"
-    bind:cancel="onCancel"
-    bind:clear="onClear"
-  />
-</demo-block>
+  <demo-block title="搜索框内容对齐">
+    <van-search
+      v-model="value"
+      input-align="center"
+      placeholder="请输入搜索关键词"
+    />
+  </demo-block>
 
-<demo-block title="搜索框内容对齐">
-  <van-search
-    model:value="{{ value }}"
-    input-align="center"
-    placeholder="请输入搜索关键词"
-  />
-</demo-block>
+  <demo-block title="禁用搜索框">
+    <van-search
+      disabled
+      v-model="value"
+      placeholder="请输入搜索关键词"
+    />
+  </demo-block>
 
-<demo-block title="禁用搜索框">
-  <van-search
-    disabled
-    model:value="{{ value }}"
-    placeholder="请输入搜索关键词"
-  />
-</demo-block>
+  <demo-block title="自定义背景色">
+    <van-search
+      v-model="value"
+      shape="round"
+      background="#4fc08d"
+      placeholder="请输入搜索关键词"
+    />
+  </demo-block>
 
-<demo-block title="自定义背景色">
-  <van-search
-    model:value="{{ value }}"
-    shape="round"
-    background="#4fc08d"
-    placeholder="请输入搜索关键词"
-  />
-</demo-block>
+  <demo-block title="自定义按钮">
+    <van-search
+      v-model="value"
+      label="地址"
+      shape="round"
+      placeholder="请输入搜索关键词"
+      use-action-slot
+      @search="onSearch"
+    >
+      <template #action>
+        <view @click="onClick">搜索</view>
+      </template>
+    </van-search>
+  </demo-block>
+</template>
 
-<demo-block title="自定义按钮">
-  <van-search
-    model:value="{{ value }}"
-    label="地址"
-    shape="round"
-    placeholder="请输入搜索关键词"
-    use-action-slot
-    bind:search="onSearch"
-  >
-    <view slot="action" bind:tap="onClick">搜索</view>
-  </van-search>
-</demo-block>
+<script setup lang="ts">
+import { ref } from 'vue';
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+const value = ref('');
 
-VantComponent({
-  data: {
-    value: '',
-  },
+function onSearch(val?: string) {
+  if (value.value) {
+    // 这里可用 Toast 组件或 alert 代替
+    window.alert('搜索：' + value.value);
+  }
+}
 
-  methods: {
-    onChange(e) {
-      this.setData({
-        value: e.detail,
-      });
-    },
+function onClick() {
+  if (value.value) {
+    window.alert('搜索：' + value.value);
+  }
+}
 
-    onSearch() {
-      if (this.data.value) {
-        wx.showToast({
-          title: '搜索：' + this.data.value,
-          icon: 'none',
-        });
-      }
-    },
+function onCancel() {
+  window.alert('取消');
+}
 
-    onClick() {
-      if (this.data.value) {
-        wx.showToast({
-          title: '搜索：' + this.data.value,
-          icon: 'none',
-        });
-      }
-    },
+function onClear() {
+  window.alert('清空');
+}
+</script>
 
-    onCancel() {
-      wx.showToast({
-        title: '取消',
-        icon: 'none',
-      });
-    },
-
-    onClear() {
-      wx.showToast({
-        title: '清空',
-        icon: 'none',
-      });
-    },
-  },
-});
-
-    </script>
-    <style>
-    
-    </style>
-  
+<style>
+</style>

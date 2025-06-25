@@ -1,84 +1,70 @@
-
-    <template>
-    <demo-block title="基础用法">
-  <van-sticky>
-    <van-button type="primary" custom-style="margin-left: 15px">
-      基础用法
-    </van-button>
-  </van-sticky>
-</demo-block>
-
-<demo-block title="吸顶距离">
-  <van-sticky offset-top="{{ 50 }}">
-    <van-button type="info" custom-style="margin-left: 115px">
-      吸顶距离
-    </van-button>
-  </van-sticky>
-</demo-block>
-
-<demo-block title="指定容器">
-  <view id="container" style="height: 150px; background-color: #fff;">
-    <van-sticky container="{{ container }}">
-      <van-button type="warning" custom-style="margin-left: 215px;">
-        指定容器
+<template>
+  <demo-block title="基础用法">
+    <van-sticky>
+      <van-button type="primary" style="margin-left: 15px">
+        基础用法
       </van-button>
     </van-sticky>
-  </view>
-</demo-block>
+  </demo-block>
 
-<demo-block title="嵌套在 scroll-view 内使用">
-  <scroll-view
-    bind:scroll="onScroll"
-    scroll-y
-    id="scroller"
-    style="height: 200px; background-color: #fff;"
-  >
-    <view style="height: 400px; padding-top: 50px;">
-      <van-sticky scroll-top="{{ scrollTop }}" offset-top="{{ offsetTop }}">
-        <van-button type="warning">
-          嵌套在 scroll-view 内
+  <demo-block title="吸顶距离">
+    <van-sticky :offset-top="50">
+      <van-button type="info" style="margin-left: 115px"> 吸顶距离 </van-button>
+    </van-sticky>
+  </demo-block>
+
+  <demo-block title="指定容器">
+    <div ref="containerRef" class="sticky-container">
+      <van-sticky :container="getContainer">
+        <van-button type="warning" style="margin-left: 215px">
+          指定容器
         </van-button>
       </van-sticky>
-    </view>
-  </scroll-view>
-</demo-block>
+    </div>
+  </demo-block>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+  <demo-block title="嵌套在 scroll-view 内使用">
+    <div
+      ref="scrollerRef"
+      style="height: 200px; background-color: #fff; overflow-y: auto"
+    >
+      <div style="height: 400px; padding-top: 50px">
+        <van-sticky :scroll-top="scrollTop" :offset-top="offsetTop">
+          <van-button type="warning"> 嵌套在 scroll-view 内 </van-button>
+        </van-sticky>
+      </div>
+    </div>
+  </demo-block>
+</template>
 
-VantComponent({
-  data: {
-    container: () => {},
-    scrollTop: 0,
-    offsetTop: 0,
-  },
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 
-  mounted() {
-    this.setData({
-      container: () => this.createSelectorQuery().select('#container'),
-    });
-  },
+const containerRef = ref<HTMLElement | null>(null);
+const scrollerRef = ref<HTMLElement | null>(null);
+const scrollTop = ref(0);
+const offsetTop = ref(0);
 
-  methods: {
-    onScroll(event) {
-      this.createSelectorQuery()
-        .select('#scroller')
-        .boundingClientRect((res) => {
-          this.setData({
-            scrollTop: event.detail.scrollTop,
-            offsetTop: res.top,
-          });
-        })
-        .exec();
-    },
-  },
+function getContainer() {
+  return containerRef.value;
+}
+
+function onScroll() {
+  if (scrollerRef.value) {
+    scrollTop.value = scrollerRef.value.scrollTop;
+    offsetTop.value = scrollerRef.value.getBoundingClientRect().top;
+  }
+}
+
+onMounted(() => {
+  if (scrollerRef.value) {
+    scrollerRef.value.addEventListener("scroll", onScroll);
+  }
 });
+</script>
 
-    </script>
-    <style>
-    .van-button {
+<style scoped>
+.van-button {
   margin-left: 16px;
 }
 
@@ -88,6 +74,4 @@ VantComponent({
   height: 150px;
   background-color: #fff;
 }
-
-    </style>
-  
+</style>
