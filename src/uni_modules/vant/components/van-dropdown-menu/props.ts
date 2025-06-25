@@ -1,6 +1,8 @@
-import type { ExtractPropTypes } from "vue";
+import { commonProps } from "../../utils";
+import type { PropType, ExtractPropTypes } from "vue";
 
-export const dropdownMenuProps = {
+export const vanDropdownMenuProps = {
+  ...commonProps,
   activeColor: String,
   overlay: {
     type: Boolean,
@@ -15,7 +17,7 @@ export const dropdownMenuProps = {
     default: 200,
   },
   direction: {
-    type: String,
+    type: String as PropType<"down" | "up">,
     default: "down",
   },
   safeAreaTabBar: {
@@ -32,4 +34,6 @@ export const dropdownMenuProps = {
   },
 };
 
-export type DropdownMenuProps = ExtractPropTypes<typeof dropdownMenuProps>;
+export type VanDropdownMenuProps = ExtractPropTypes<
+  typeof vanDropdownMenuProps
+>;

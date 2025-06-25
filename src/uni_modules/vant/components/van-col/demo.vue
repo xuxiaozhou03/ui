@@ -1,40 +1,31 @@
 <template>
   <demo-block title="基础用法" padding>
     <van-row>
-      <van-col span="8" custom-class="dark">span: 8</van-col>
-      <van-col span="8" custom-class="light">span: 8</van-col>
-      <van-col span="8" custom-class="dark">span: 8</van-col>
+      <van-col span="8" class="dark">span: 8</van-col>
+      <van-col span="8" class="light">span: 8</van-col>
+      <van-col span="8" class="dark">span: 8</van-col>
     </van-row>
 
     <van-row>
-      <van-col span="4" custom-class="dark">span: 4</van-col>
-      <van-col span="10" offset="4" custom-class="light"
-        >offset: 4, span: 10</van-col
-      >
+      <van-col span="4" class="dark">span: 4</van-col>
+      <van-col span="10" offset="4" class="light">offset: 4, span: 10</van-col>
     </van-row>
 
     <van-row>
-      <van-col offset="12" span="12" custom-class="dark"
-        >offset: 12, span: 12</van-col
-      >
+      <van-col offset="12" span="12" class="dark">offset: 12, span: 12</van-col>
     </van-row>
   </demo-block>
 
   <demo-block title="在列元素之间增加间距" padding>
-    <van-row gutter="20">
-      <van-col span="8" custom-class="dark">span: 8</van-col>
-      <van-col span="8" custom-class="light">span: 8</van-col>
-      <van-col span="8" custom-class="dark">span: 8</van-col>
+    <van-row :gutter="20">
+      <van-col span="8" class="dark">span: 8</van-col>
+      <van-col span="8" class="light">span: 8</van-col>
+      <van-col span="8" class="dark">span: 8</van-col>
     </van-row>
   </demo-block>
 </template>
 <script lang="ts" setup>
-import { cn, bem, commonProps, addUnit } from "../../utils";
-import { VantComponent } from "../../common/component";
-
-VantComponent({
-  data: {},
-});
+// 该 demo 仅为展示用法，无需定义 props、emits、data 等
 </script>
 <style>
 .dark,

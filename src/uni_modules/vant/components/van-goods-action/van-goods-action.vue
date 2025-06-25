@@ -1,19 +1,17 @@
-
-    <template>
-    
-
-<view class="custom-class {{ utils.bem('goods-action', { safe: safeAreaInsetBottom }) }}">
-  <slot />
-</view>
-
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { VantComponent } from '../common/component';
-import { useChildren } from '../common/relation';
+<template>
+  <view
+    class="custom-class {{ utils.bem('goods-action', { safe: safeAreaInsetBottom }) }}"
+  >
+    <slot />
+  </view>
+</template>
+<script lang="ts" setup>
+import { cn, bem, commonProps } from "../../utils";
+import { VantComponent } from "../common/component";
+import { useChildren } from "../common/relation";
 
 VantComponent({
-  relation: useChildren('goods-action-button', function () {
+  relation: useChildren("goods-action-button", function () {
     this.children.forEach((item) => {
       item.updateStyle();
     });
@@ -26,11 +24,20 @@ VantComponent({
     },
   },
 });
-
-
-    
-    </script>
-    <style>
-    .van-goods-action{align-items:center;background-color:var(--goods-action-background-color,#fff);bottom:0;box-sizing:initial;display:flex;height:var(--goods-action-height,50px);left:0;position:fixed;right:0}.van-goods-action--safe{padding-bottom:env(safe-area-inset-bottom)}
-    </style>
-  
+</script>
+<style>
+.van-goods-action {
+  align-items: center;
+  background-color: var(--goods-action-background-color, #fff);
+  bottom: 0;
+  box-sizing: initial;
+  display: flex;
+  height: var(--goods-action-height, 50px);
+  left: 0;
+  position: fixed;
+  right: 0;
+}
+.van-goods-action--safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+</style>

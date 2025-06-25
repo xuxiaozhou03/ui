@@ -1,64 +1,48 @@
-
-    <template>
-    <demo-block title="基础用法" padding>
+<template>
+  <demo-block title="基础用法" padding>
     <van-empty description="描述文字" />
-</demo-block>
+  </demo-block>
 
-<demo-block title="图片类型">
-  <van-tabs
-    active="{{ activeTab }}"
-    bind:change="onChange"
-  >
-    <van-tab title="通用错误">
-      <van-empty image="error" description="描述文字" />
-    </van-tab>
-    <van-tab title="网络错误">
-      <van-empty image="network" description="描述文字" />
-    </van-tab>
-    <van-tab title="搜索提示">
-      <van-empty image="search" description="描述文字" />
-    </van-tab>
-  </van-tabs>
-</demo-block>
+  <demo-block title="图片类型">
+    <van-tabs v-model:active="activeTab" @change="onChange">
+      <van-tab title="通用错误">
+        <van-empty image="error" description="描述文字" />
+      </van-tab>
+      <van-tab title="网络错误">
+        <van-empty image="network" description="描述文字" />
+      </van-tab>
+      <van-tab title="搜索提示">
+        <van-empty image="search" description="描述文字" />
+      </van-tab>
+    </van-tabs>
+  </demo-block>
 
-<demo-block title="自定义图片" padding>
-  <van-empty
-    custom-class="custom-image"
-    image="https://img.yzcdn.cn/vant/custom-empty-image.png"
-    description="描述文字"
-  />
-</demo-block>
+  <demo-block title="自定义图片" padding>
+    <van-empty
+      class="custom-image"
+      image="https://img.yzcdn.cn/vant/custom-empty-image.png"
+      description="描述文字"
+    />
+  </demo-block>
 
-<demo-block title="底部内容" padding>
-  <van-empty description="描述文字">
-    <van-button round type="danger" custom-class="bottom-button">
-      按钮
-    </van-button>
-  </van-empty>
-</demo-block>
+  <demo-block title="底部内容" padding>
+    <van-empty description="描述文字">
+      <van-button round type="danger" class="bottom-button"> 按钮 </van-button>
+    </van-empty>
+  </demo-block>
+</template>
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps, addUnit } from "../../utils";
-    import { VantComponent } from '../../common/component';
+<script lang="ts" setup>
+import { ref } from "vue";
 
-VantComponent({
-  data: {
-    activeTab: 0,
-  },
+const activeTab = ref(0);
+function onChange(event: any) {
+  activeTab.value = event;
+}
+</script>
 
-  methods: {
-    onChange(event) {
-      this.setData({
-        activeTab: event.detail.name,
-      });
-    },
-  },
-});
-
-    </script>
-    <style>
-    .custom-image .van-empty__image {
+<style>
+.custom-image .van-empty__image {
   width: 90px;
   height: 90px;
 }
@@ -67,6 +51,4 @@ VantComponent({
   width: 160px;
   height: 40px;
 }
-
-    </style>
-  
+</style>

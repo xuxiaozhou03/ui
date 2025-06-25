@@ -1,10 +1,11 @@
+import { commonProps } from "../../utils";
 import type { ExtractPropTypes, PropType } from "vue";
 
 export type DatetimePickerType = "datetime" | "date" | "time" | "year-month";
 
 export const datetimePickerProps = {
+  ...commonProps,
   value: [String, Number, Date],
-  filter: Function as PropType<(type: string, values: string[]) => string[]>,
   type: {
     type: String as PropType<DatetimePickerType>,
     default: "datetime",
@@ -13,9 +14,19 @@ export const datetimePickerProps = {
     type: Boolean,
     default: true,
   },
-  formatter: Function as PropType<(type: string, value: string) => string>,
-  minDate: Number,
-  maxDate: Number,
+  formatter: {
+    type: Function as PropType<(type: string, value: string) => string>,
+    default: (type: string, value: string) => value,
+  },
+  filter: Function as PropType<(type: string, options: string[]) => string[]>,
+  minDate: {
+    type: Number,
+    default: () => new Date(new Date().getFullYear() - 10, 0, 1).getTime(),
+  },
+  maxDate: {
+    type: Number,
+    default: () => new Date(new Date().getFullYear() + 10, 11, 31).getTime(),
+  },
   minHour: {
     type: Number,
     default: 0,
@@ -32,13 +43,12 @@ export const datetimePickerProps = {
     type: Number,
     default: 59,
   },
-  // pickerProps 可在此合并
   title: String,
-  columns: Array as PropType<any[]>,
   itemHeight: Number,
   visibleItemCount: Number,
   confirmButtonText: String,
   cancelButtonText: String,
+  columns: Array as PropType<any[]>,
 };
 
 export type DatetimePickerProps = ExtractPropTypes<typeof datetimePickerProps>;

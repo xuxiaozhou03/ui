@@ -1,222 +1,112 @@
-
-    <template>
-    
-
-<view
-  wx:if="{{ showWrapper }}"
-  class="{{ utils.bem('dropdown-item', direction) }} custom-class"
-  style="{{ wrapperStyle }}"
->
-  <van-popup
-    show="{{ showPopup }}"
-    custom-style="position: absolute;{{ popupStyle }}"
-    overlay-style="position: absolute;"
-    overlay="{{ overlay }}"
-    position="{{ direction === 'down' ? 'top' : 'bottom' }}"
-    duration="{{ transition ? duration : 0 }}"
-    safe-area-tab-bar="{{ safeAreaTabBar }}"
-    close-on-click-overlay="{{ closeOnClickOverlay }}"
-    rootPortal="{{ rootPortal }}"
-    bind:enter="onOpen"
-    bind:leave="onClose"
-    bind:close="toggle"
-    bind:after-enter="onOpened"
-    bind:after-leave="onClosed"
-  >
-    <van-cell
-      wx:for="{{ options }}"
-      wx:key="value"
-      data-option="{{ item }}"
-      class="{{ utils.bem('dropdown-item__option', { active: item.value === value } ) }}"
-      clickable
-      icon="{{ item.icon }}"
-      bind:tap="onOptionTap"
+<template>
+  <div v-if="showWrapper" :class="bem('dropdown-item')">
+    <van-popup
+      :style="{
+        position: 'absolute',
+        ...(props.popupStyle ? { ...props.popupStyle } : {}),
+      }"
+      :overlay="true"
+      :position="'top'"
+      :duration="200"
+      :safe-area-tab-bar="false"
+      :close-on-click-overlay="true"
+      :root-portal="props.rootPortal"
+      @enter="onOpen"
+      @leave="onClose"
+      @close="onClose"
+      @after-enter="onOpened"
+      @after-leave="onClosed"
     >
-      <view
-        slot="title"
-        class="van-dropdown-item__title item-title-class"
-        style="{{ item.value === value  ? 'color:' + activeColor : '' }}"
+      <van-cell
+        v-for="item in props.options"
+        :key="item.value"
+        :class="
+          bem('dropdown-item__option', { active: item.value === props.value })
+        "
+        clickable
+        :icon="item.icon"
+        @click="() => onOptionTap(item)"
       >
-        {{ item.text }}
-      </view>
-      <van-icon
-        wx:if="{{ item.value === value }}"
-        name="success"
-        class="van-dropdown-item__icon"
-        color="{{ activeColor }}"
-      />
-    </van-cell>
+        <template #title>
+          <span
+            class="van-dropdown-item__title item-title-class"
+            :style="
+              item.value === props.value ? { color: props.activeColor } : {}
+            "
+          >
+            {{ item.text }}
+          </span>
+        </template>
+        <van-icon
+          v-if="item.value === props.value"
+          name="success"
+          class="van-dropdown-item__icon"
+          :color="props.activeColor"
+        />
+      </van-cell>
+      <slot />
+    </van-popup>
+  </div>
+</template>
 
-    <slot />
-  </van-popup>
-</view>
+<script lang="ts" setup>
+import { ref, computed } from "vue";
+import { dropdownItemProps, DropdownItemProps } from "./props";
+import { cn, bem } from "../../utils";
 
-    </template>
-    <script lang="ts" setup>
-    import { cn, bem, commonProps } from "../../utils";
-    import { useParent } from '../common/relation';
-import { VantComponent } from '../common/component';
-import { Option } from './shared';
+const props = defineProps(dropdownItemProps);
+const emit = defineEmits<{
+  (e: "update:value", val: string | number): void;
+  (e: "change", val: string | number): void;
+  (e: "open"): void;
+  (e: "close"): void;
+  (e: "opened"): void;
+  (e: "closed"): void;
+}>();
 
-VantComponent({
-  classes: ['item-title-class'],
-  field: true,
+const showWrapper = ref(true); // 具体逻辑可根据父组件控制
 
-  relation: useParent('dropdown-menu', function () {
-    this.updateDataFromParent();
-  }),
+function onOptionTap(option: any) {
+  if (props.disabled) return;
+  emit("update:value", option.value);
+  emit("change", option.value);
+}
+function onOpen() {
+  emit("open");
+}
+function onClose() {
+  emit("close");
+}
+function onOpened() {
+  emit("opened");
+}
+function onClosed() {
+  emit("closed");
+}
+</script>
 
-  props: {
-    value: {
-      type: null,
-      observer: 'rerender',
-    },
-    title: {
-      type: String,
-      observer: 'rerender',
-    },
-    disabled: Boolean,
-    titleClass: {
-      type: String,
-      observer: 'rerender',
-    },
-    options: {
-      type: Array,
-      value: [],
-      observer: 'rerender',
-    },
-    popupStyle: String,
-    useBeforeToggle: {
-      type: Boolean,
-      value: false,
-    },
-    rootPortal: {
-      type: Boolean,
-      value: false,
-    },
-  },
-
-  data: {
-    transition: true,
-    showPopup: false,
-    showWrapper: false,
-    displayTitle: '',
-    safeAreaTabBar: false,
-  },
-
-  methods: {
-    rerender() {
-      wx.nextTick(() => {
-        this.parent?.updateItemListData();
-      });
-    },
-
-    updateDataFromParent() {
-      if (this.parent) {
-        const {
-          overlay,
-          duration,
-          activeColor,
-          closeOnClickOverlay,
-          direction,
-          safeAreaTabBar,
-        } = this.parent.data;
-
-        this.setData({
-          overlay,
-          duration,
-          activeColor,
-          closeOnClickOverlay,
-          direction,
-          safeAreaTabBar,
-        });
-      }
-    },
-
-    onOpen() {
-      this.$emit('open');
-    },
-
-    onOpened() {
-      this.$emit('opened');
-    },
-
-    onClose() {
-      this.$emit('close');
-    },
-
-    onClosed() {
-      this.$emit('closed');
-      this.setData({ showWrapper: false });
-    },
-
-    onOptionTap(event: WechatMiniprogram.TouchEvent) {
-      const { option } = event.currentTarget.dataset;
-      const { value } = option as unknown as Option;
-
-      const shouldEmitChange = this.data.value !== value;
-      this.setData({ showPopup: false, value });
-      this.$emit('close');
-
-      this.rerender();
-
-      if (shouldEmitChange) {
-        this.$emit('change', value);
-      }
-    },
-
-    toggle(show?: boolean, options: { immediate?: boolean } = {}) {
-      const { showPopup } = this.data;
-
-      if (typeof show !== 'boolean') {
-        show = !showPopup;
-      }
-
-      if (show === showPopup) {
-        return;
-      }
-
-      this.onBeforeToggle(show).then((status) => {
-        if (!status) {
-          return;
-        }
-
-        this.setData({
-          transition: !options.immediate,
-          showPopup: show,
-        });
-
-        if (show) {
-          this.parent?.getChildWrapperStyle().then((wrapperStyle: string) => {
-            this.setData({ wrapperStyle, showWrapper: true });
-            this.rerender();
-          });
-        } else {
-          this.rerender();
-        }
-      });
-    },
-    onBeforeToggle(status: boolean): Promise<boolean> {
-      const { useBeforeToggle } = this.data;
-
-      if (!useBeforeToggle) {
-        return Promise.resolve(true);
-      }
-
-      return new Promise((resolve) => {
-        this.$emit('before-toggle', {
-          status,
-          callback: (value: boolean) => resolve(value),
-        });
-      });
-    },
-  },
-});
-
-
-    
-    </script>
-    <style>
-    .van-dropdown-item{left:0;overflow:hidden;position:fixed;right:0}.van-dropdown-item__option{text-align:left}.van-dropdown-item__option--active .van-dropdown-item__icon,.van-dropdown-item__option--active .van-dropdown-item__title{color:var(--dropdown-menu-option-active-color,#ee0a24)}.van-dropdown-item--up{top:0}.van-dropdown-item--down{bottom:0}.van-dropdown-item__icon{display:block;line-height:inherit}
-    </style>
-  
+<style>
+.van-dropdown-item {
+  left: 0;
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+}
+.van-dropdown-item__option {
+  text-align: left;
+}
+.van-dropdown-item__option--active .van-dropdown-item__icon,
+.van-dropdown-item__option--active .van-dropdown-item__title {
+  color: var(--dropdown-menu-option-active-color, #ee0a24);
+}
+.van-dropdown-item--up {
+  top: 0;
+}
+.van-dropdown-item--down {
+  bottom: 0;
+}
+.van-dropdown-item__icon {
+  display: block;
+  line-height: inherit;
+}
+</style>

@@ -1,13 +1,18 @@
-import type { ExtractPropTypes } from "vue";
+import { commonProps } from "../../utils";
+import type { PropType, ExtractPropTypes } from "vue";
 
-export const dividerProps = {
+export const vanDividerProps = {
+  ...commonProps,
   dashed: Boolean,
-  hairline: Boolean,
-  contentPosition: String,
-  fontSize: String,
-  borderColor: String,
-  textColor: String,
+  hairline: {
+    type: Boolean,
+    default: true,
+  },
+  contentPosition: {
+    type: String as PropType<"left" | "center" | "right">,
+    default: "center",
+  },
   customStyle: String,
 };
 
-export type DividerProps = ExtractPropTypes<typeof dividerProps>;
+export type VanDividerProps = ExtractPropTypes<typeof vanDividerProps>;
