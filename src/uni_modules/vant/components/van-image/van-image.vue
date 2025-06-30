@@ -1,46 +1,36 @@
 <template>
   <div
     :style="rootStyle"
-    :class="[props.customClass, bem('image', { round: props.round })]"
+    :class="cn(bem('image', { round }), customClass)"
     @click="onClick"
   >
     <img
       v-if="!error"
-      :src="props.src"
-      :class="'image-class van-image__img'"
-      :loading="props.lazyLoad ? 'lazy' : undefined"
-      :draggable="false"
-      :alt="''"
-      :decoding="'async'"
-      :crossorigin="null"
-      :referrerpolicy="null"
-      :style="{
-        width: '100%',
-        height: '100%',
-        objectFit: mode,
-        borderRadius: props.round ? '50%' : undefined,
-      }"
+      :src="src"
+      :class="cn('van-image__img', imageClass)"
+      :loading="lazyLoad ? 'lazy' : undefined"
+      :style="imgStyle"
       @load="onLoad"
       @error="onError"
     />
     <div
-      v-if="loading && props.showLoading"
-      class="loading-class van-image__loading"
+      v-if="loading && showLoading"
+      :class="cn('van-image__loading', loadingClass)"
     >
-      <slot name="loading" v-if="props.useLoadingSlot" />
+      <slot name="loading" v-if="useLoadingSlot" />
       <van-icon v-else name="photo" custom-class="van-image__loading-icon" />
     </div>
-    <div v-if="error && props.showError" class="error-class van-image__error">
-      <slot name="error" v-if="props.useErrorSlot" />
+    <div v-if="error && showError" :class="cn('van-image__error', errorClass)">
+      <slot name="error" v-if="useErrorSlot" />
       <van-icon v-else name="photo-fail" custom-class="van-image__error-icon" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, type CSSProperties } from "vue";
 import { imageProps } from "./props";
-import { bem, addUnit } from "../../utils";
+import { bem, addUnit, cn } from "../../utils";
 
 const props = defineProps(imageProps);
 const emit = defineEmits(["load", "error", "click"]);
@@ -72,29 +62,39 @@ function onClick(event: Event) {
 }
 
 const rootStyle = computed(() => {
+  const { width, height, radius, customStyle } = props;
   return [
     {
-      width: addUnit(props.width),
-      height: addUnit(props.height),
-      borderRadius: addUnit(props.radius),
-      overflow: props.radius ? "hidden" : undefined,
+      width: addUnit(width),
+      height: addUnit(height),
+      borderRadius: addUnit(radius),
+      overflow: radius ? "hidden" : undefined,
     },
-    props.customStyle,
+    customStyle,
   ];
 });
 
-const FIT_MODE_MAP: Record<string, string> = {
-  none: "none",
-  fill: "fill",
-  cover: "cover",
-  contain: "contain",
-  widthFix: "cover", // fallback for web
-  heightFix: "cover", // fallback for web
-  "scale-down": "scale-down",
-};
-
-const mode = computed(() => {
-  return FIT_MODE_MAP[props.fit || "fill"] || "fill";
+// 兼容 H5 下 mode/fill/cover/contain 等，直接用 object-fit
+const imgStyle = computed<CSSProperties>(() => {
+  const fit = props.fit || "fill";
+  // let objectFit = "fill";
+  if (fit === "widthFix" || fit === "heightFix") {
+    // objectFit = "cover";
+    return {
+      objectFit: "cover",
+    };
+  } else if (
+    fit === "none" ||
+    fit === "cover" ||
+    fit === "contain" ||
+    fit === "scale-down"
+  ) {
+    // objectFit = fit;
+    return {
+      objectFit: fit,
+    };
+  }
+  return {};
 });
 </script>
 

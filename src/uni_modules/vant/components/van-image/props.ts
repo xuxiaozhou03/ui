@@ -1,13 +1,15 @@
 import type { ExtractPropTypes, PropType } from "vue";
 import { commonProps } from "../../utils";
 
-export type ImageFit =
-  | "none"
-  | "fill"
-  | "cover"
-  | "contain"
-  | "widthFix"
-  | "heightFix";
+export const FIT_MODE_MAP = {
+  none: "none",
+  fill: "fill",
+  cover: "cover",
+  contain: "contain",
+  widthFix: "cover",
+  heightFix: "cover",
+  "scale-down": "scale-down",
+} as const;
 
 export const imageProps = {
   ...commonProps,
@@ -21,7 +23,7 @@ export const imageProps = {
   useLoadingSlot: Boolean,
   showMenuByLongpress: Boolean,
   fit: {
-    type: String as PropType<ImageFit>,
+    type: String as PropType<keyof typeof FIT_MODE_MAP>,
     default: "fill",
   },
   webp: {
@@ -36,6 +38,9 @@ export const imageProps = {
     type: Boolean,
     default: true,
   },
+  loadingClass: String,
+  errorClass: String,
+  imageClass: String,
 };
 
 export type ImageProps = ExtractPropTypes<typeof imageProps>;

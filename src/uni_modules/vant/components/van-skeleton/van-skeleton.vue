@@ -1,21 +1,21 @@
 <template>
-  <div v-if="loading" :class="['custom-class', bem('skeleton', { animate })]">
+  <div v-if="loading" :class="cn(bem('skeleton', { animate }), customClass)">
     <div
       v-if="avatar"
-      :class="['avatar-class', bem('skeleton__avatar', [avatarShape])]"
+      :class="cn(bem('skeleton__avatar', [avatarShape]), avatarClass)"
       :style="{ width: avatarSize, height: avatarSize }"
     />
     <div :class="bem('skeleton__content')">
       <div
         v-if="title"
-        :class="['title-class', bem('skeleton__title')]"
+        :class="cn(bem('skeleton__title'), titleClass)"
         :style="{ width: titleWidth }"
       />
       <div
-        v-for="(item, index) in rowArray"
-        :key="index"
-        :class="['row-class', bem('skeleton__row')]"
-        :style="{ width: isArray ? rowWidth[index] : rowWidth }"
+        v-for="item in rowArray"
+        :key="item.index"
+        :class="cn(bem('skeleton__row'), rowClass)"
+        :style="item.style"
       />
     </div>
   </div>
@@ -26,33 +26,23 @@
 
 <script setup lang="ts">
 import { computed, defineProps } from "vue";
-import { skeletonProps, SkeletonProps } from "./props";
+import { skeletonProps } from "./props";
+import { bem, cn } from "../../utils";
 
-const props = defineProps<SkeletonProps>();
+const props = defineProps(skeletonProps);
 
-const isArray = computed(() => Array.isArray(props.rowWidth));
-const rowArray = computed(() => Array.from({ length: props.row }));
-
-function bem(name: string, mods?: any) {
-  // 简化版 BEM
-  if (!mods) return `van-${name}`;
-  let base = `van-${name}`;
-  if (typeof mods === "object") {
-    Object.keys(mods).forEach((k) => {
-      if (mods[k]) base += ` van-${name}--${k}`;
-    });
-  } else if (Array.isArray(mods)) {
-    mods.forEach((m) => {
-      if (typeof m === "string") base += ` van-${name}--${m}`;
-      else if (typeof m === "object") {
-        Object.keys(m).forEach((k) => {
-          if (m[k]) base += ` van-${name}--${k}`;
-        });
-      }
-    });
-  }
-  return base;
-}
+const rowArray = computed(() =>
+  Array.from({ length: props.row }).map((_, index) => {
+    return {
+      index,
+      style: {
+        width: Array.isArray(props.rowWidth)
+          ? props.rowWidth[index]
+          : props.rowWidth,
+      },
+    };
+  })
+);
 </script>
 
 <style>

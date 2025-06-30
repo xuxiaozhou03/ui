@@ -46,32 +46,10 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import { rateProps, RateProps } from "./props";
-import VanIcon from "../van-icon/van-icon.vue";
+import { rateProps } from "./props";
+import { cn, addUnit, bem } from "../../utils";
 
-// 工具函数
-function addUnit(val: string | number | undefined) {
-  if (val == null) return undefined;
-  return typeof val === "number" ? `${val}px` : val;
-}
-function bem(name: string, mods?: any) {
-  // 简化版 BEM
-  if (!mods) return `van-${name}`;
-  let base = `van-${name}`;
-  if (Array.isArray(mods)) {
-    mods.forEach((m) => {
-      if (typeof m === "string") base += ` van-${name}--${m}`;
-      else if (typeof m === "object") {
-        Object.keys(m).forEach((k) => {
-          if (m[k]) base += ` van-${name}--${k}`;
-        });
-      }
-    });
-  }
-  return base;
-}
-
-const props = defineProps<RateProps>();
+const props = defineProps(rateProps);
 const emit = defineEmits<{
   (e: "update:modelValue", value: number): void;
   (e: "change", value: number): void;

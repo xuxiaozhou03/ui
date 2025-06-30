@@ -27,7 +27,7 @@ function traversing(mods: (string | number)[], conf: any): void {
   }
 }
 
-function bem(name: string, conf: any): string {
+function bem(name: string, conf?: any): string {
   const mods: (string | number)[] = [];
   traversing(mods, conf);
   return join(name, mods);

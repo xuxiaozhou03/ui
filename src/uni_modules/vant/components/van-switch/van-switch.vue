@@ -1,10 +1,11 @@
 <template>
   <div
-    class="van-switch"
-    :class="{
-      'van-switch--on': checked === activeValue,
-      'van-switch--disabled': disabled,
-    }"
+    :class="
+      cn('van-switch', {
+        'van-switch--on': checked === activeValue,
+        'van-switch--disabled': disabled,
+      })
+    "
     :style="rootStyle"
     @click="onClick"
   >
@@ -19,13 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, defineEmits } from "vue";
+import { computed, defineProps, defineEmits, type CSSProperties } from "vue";
 import { switchProps } from "./props";
+import { cn, addUnit } from "../../utils";
 
 const props = defineProps(switchProps);
 const emit = defineEmits<{
-  (e: "update:checked", value: any): void;
-  (e: "change", value: any): void;
+  (e: "update:checked", value: string | number | boolean): void;
+  (e: "change", value: string | number | boolean): void;
 }>();
 
 const checked = computed(() => props.checked);
@@ -33,13 +35,13 @@ const activeValue = computed(() => props.activeValue);
 const disabled = computed(() => props.disabled);
 const loading = computed(() => props.loading);
 
-const rootStyle = computed(() => {
+const rootStyle = computed<CSSProperties>(() => {
   const currentColor =
     checked.value === activeValue.value
       ? props.activeColor || "#1989fa"
       : props.inactiveColor || "#969799";
   return {
-    fontSize: `${props.size}px`,
+    fontSize: addUnit(props.size),
     backgroundColor: currentColor,
   };
 });

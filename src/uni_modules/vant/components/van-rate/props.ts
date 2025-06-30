@@ -1,6 +1,8 @@
 import type { ExtractPropTypes, PropType } from "vue";
+import { commonProps } from "../../utils";
 
 export const rateProps = {
+  ...commonProps,
   value: Number,
   readonly: Boolean,
   disabled: Boolean,

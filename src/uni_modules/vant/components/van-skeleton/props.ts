@@ -1,6 +1,8 @@
 import type { ExtractPropTypes, PropType } from "vue";
+import { commonProps } from "../../utils";
 
 export const skeletonProps = {
+  ...commonProps,
   row: {
     type: Number,
     default: 0,
@@ -28,9 +30,12 @@ export const skeletonProps = {
     default: "40%",
   },
   rowWidth: {
-    type: [Array, String],
+    type: [Array, String] as PropType<string[] | string>,
     default: () => "100%",
   },
+  avatarClass: String,
+  titleClass: String,
+  rowClass: String,
 };
 
 export type SkeletonProps = ExtractPropTypes<typeof skeletonProps>;
