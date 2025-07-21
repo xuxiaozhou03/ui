@@ -23,11 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTypescript = exports.getWxml = exports.directories = exports.outputPath = exports.distPath = exports.packagesPath = exports.rootPath = void 0;
+exports.getDistFileContent = exports.getFileContent = exports.directories = exports.outputPath = exports.distPath = exports.packagesPath = exports.rootPath = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const parseWxml_1 = require("./parseWxml");
-const parseTs_1 = require("./parseTs");
 exports.rootPath = path.resolve(__dirname, "..", "..", "vant-weapp-dev");
 exports.packagesPath = path.join(exports.rootPath, "packages");
 exports.distPath = path.join(exports.rootPath, "dist");
@@ -36,25 +34,25 @@ exports.directories = fs
     .readdirSync(exports.packagesPath)
     .filter((file) => fs.statSync(path.join(exports.packagesPath, file)).isDirectory() &&
     !["wxs", "common", "mixins", "definitions"].includes(file));
-const getWxml = (fileName) => {
-    const filePath = path.join(exports.packagesPath, fileName, `index.wxml`);
+const getFileContent = (fileName) => {
+    const filePath = path.join(exports.packagesPath, fileName);
     if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, "utf-8");
         if (content) {
-            return (0, parseWxml_1.parseWxml)(content);
+            return content;
         }
     }
     return null;
 };
-exports.getWxml = getWxml;
-const getTypescript = (fileName) => {
-    const filePath = path.join(exports.packagesPath, fileName, `index.ts`);
+exports.getFileContent = getFileContent;
+const getDistFileContent = (fileName) => {
+    const filePath = path.join(exports.distPath, fileName);
     if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, "utf-8");
         if (content) {
-            return (0, parseTs_1.parseTs)(content);
+            return content;
         }
     }
     return null;
 };
-exports.getTypescript = getTypescript;
+exports.getDistFileContent = getDistFileContent;

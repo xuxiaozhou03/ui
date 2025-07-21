@@ -31,8 +31,65 @@ function serializeAst(node) {
     const obj = { kind: ts.SyntaxKind[node.kind], text: node.getText() };
     if (node.name)
         obj.name = node.name.getText();
-    if (node.expression)
+    if (node.expression) {
         obj.expression = node.expression.getText();
+        // 细化 VantComponent 调用
+        if (ts.isCallExpression(node.expression) &&
+            node.expression.expression.getText() === "VantComponent") {
+            const callExpr = node.expression;
+            obj.callee = callExpr.expression.getText();
+            obj.arguments = callExpr.arguments.map((arg) => {
+                if (ts.isObjectLiteralExpression(arg)) {
+                    // 递归解析对象参数
+                    const parseObj = (objExpr) => {
+                        const result = {};
+                        objExpr.properties.forEach((prop) => {
+                            if (ts.isPropertyAssignment(prop)) {
+                                const key = prop.name.getText();
+                                let value;
+                                // methods 特殊处理
+                                if (key === "methods" &&
+                                    ts.isObjectLiteralExpression(prop.initializer)) {
+                                    value = {};
+                                    prop.initializer.properties.forEach((m) => {
+                                        if (ts.isMethodDeclaration(m)) {
+                                            value[m.name.getText()] = m.getText();
+                                        }
+                                        else if (ts.isPropertyAssignment(m) &&
+                                            (ts.isFunctionExpression(m.initializer) ||
+                                                ts.isArrowFunction(m.initializer))) {
+                                            value[m.name.getText()] = m.initializer.getText();
+                                        }
+                                    });
+                                }
+                                else if (ts.isObjectLiteralExpression(prop.initializer)) {
+                                    value = parseObj(prop.initializer);
+                                }
+                                else if (ts.isArrayLiteralExpression(prop.initializer)) {
+                                    value = prop.initializer.elements.map((e) => e.getText());
+                                }
+                                else if (ts.isStringLiteral(prop.initializer) ||
+                                    ts.isNumericLiteral(prop.initializer)) {
+                                    value = prop.initializer.text;
+                                }
+                                else if (ts.isFunctionExpression(prop.initializer) ||
+                                    ts.isArrowFunction(prop.initializer)) {
+                                    value = prop.initializer.getText();
+                                }
+                                else {
+                                    value = prop.initializer.getText();
+                                }
+                                result[key] = value;
+                            }
+                        });
+                        return result;
+                    };
+                    return parseObj(arg);
+                }
+                return arg.getText();
+            });
+        }
+    }
     if (node.initializer)
         obj.initializer = node.initializer.getText();
     if (node.condition)
@@ -57,10 +114,11 @@ function serializeAst(node) {
     }
     if (Array.isArray(node.statements))
         obj.statements = node.statements.map((stmt) => serializeAst(stmt));
-    // 递归遍历所有子节点
-    const children = node.getChildren();
-    if (children && children.length > 0) {
-        obj.children = children.map(serializeAst);
+    // 只保留第一级节点，不递归 children
+    // 返回根节点的 statements（即源码的顶层结构）
+    if (node === node.getSourceFile() &&
+        Array.isArray(node.statements)) {
+        obj.statements = node.statements.map((stmt) => serializeAst(stmt));
     }
     return obj;
 }

@@ -1,7 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import { parseWxml } from "./parseWxml";
-import { parseTs } from "./parseTs";
 
 export const rootPath = path.resolve(__dirname, "..", "..", "vant-weapp-dev");
 export const packagesPath = path.join(rootPath, "packages");
@@ -16,23 +14,23 @@ export const directories = fs
       !["wxs", "common", "mixins", "definitions"].includes(file)
   );
 
-export const getWxml = (fileName: string) => {
-  const filePath = path.join(packagesPath, fileName, `index.wxml`);
+export const getFileContent = (fileName: string) => {
+  const filePath = path.join(packagesPath, fileName);
   if (fs.existsSync(filePath)) {
     const content = fs.readFileSync(filePath, "utf-8");
     if (content) {
-      return parseWxml(content);
+      return content;
     }
   }
   return null;
 };
 
-export const getTypescript = (fileName: string) => {
-  const filePath = path.join(packagesPath, fileName, `index.ts`);
+export const getDistFileContent = (fileName: string) => {
+  const filePath = path.join(distPath, fileName);
   if (fs.existsSync(filePath)) {
     const content = fs.readFileSync(filePath, "utf-8");
     if (content) {
-      return parseTs(content);
+      return content;
     }
   }
   return null;
