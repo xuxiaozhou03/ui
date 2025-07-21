@@ -1,0 +1,89 @@
+[
+  {
+    "tag": "button",
+    "attrs": {
+      ":id": "id || buttonId",
+      ":data-detail": "dataset",
+      "class": "custom-class {{ utils.bem('button', [type, size, { block, round, plain, square, loading, disabled, hairline, unclickable: disabled || loading }]) }} {{ hairline ? 'van-hairline--surround' : '' }}",
+      ":hover-class": "disabled || loading ? '' : 'van-button--active hover-class'",
+      ":lang": "lang",
+      ":form-type": "formType",
+      ":style": "rootStyle",
+      ":open-type": "disabled || loading || (canIUseGetUserProfile && openType === 'getUserInfo') ? '' : openType",
+      ":business-id": "businessId",
+      ":session-from": "sessionFrom",
+      ":send-message-title": "sendMessageTitle",
+      ":send-message-path": "sendMessagePath",
+      ":send-message-img": "sendMessageImg",
+      ":show-message-card": "showMessageCard",
+      ":app-parameter": "appParameter",
+      ":aria-label": "ariaLabel",
+      "@tap": "disabled || loading ? '' : 'onClick'",
+      "@getuserinfo": "onGetUserInfo",
+      "@contact": "onContact",
+      "@getphonenumber": "onGetPhoneNumber",
+      "@getrealtimephonenumber": "onGetRealTimePhoneNumber",
+      "@agreeprivacyauthorization": "onAgreePrivacyAuthorization",
+      "@error": "onError",
+      "@launchapp": "onLaunchApp",
+      "@opensetting": "onOpenSetting",
+      "@chooseavatar": "onChooseAvatar"
+    },
+    "children": [
+      {
+        "tag": "template",
+        "attrs": {
+          "v-if": "loading"
+        },
+        "children": [
+          {
+            "tag": "van-loading",
+            "attrs": {
+              "custom-class": "loading-class",
+              ":size": "loadingSize",
+              ":type": "loadingType",
+              ":color": "loadingColor"
+            }
+          },
+          {
+            "tag": "div",
+            "attrs": {
+              "v-if": "loadingText",
+              "class": "van-button__loading-text"
+            }
+          }
+        ]
+      },
+      {
+        "tag": "template",
+        "attrs": {
+          "v-else": ""
+        },
+        "children": [
+          {
+            "tag": "van-icon",
+            "attrs": {
+              "v-if": "icon",
+              "size": "1.2em",
+              ":name": "icon",
+              ":class-prefix": "classPrefix",
+              "class": "van-button__icon",
+              "custom-style": "line-height: inherit;"
+            }
+          },
+          {
+            "tag": "div",
+            "attrs": {
+              "class": "van-button__text"
+            },
+            "children": [
+              {
+                "tag": "slot"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
