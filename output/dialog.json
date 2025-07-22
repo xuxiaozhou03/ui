@@ -71,8 +71,7 @@
                 "v-if": "showCancelButton",
                 "size": "large",
                 ":loading": "loading.cancel",
-                "class": "van-dialog__button van-hairline--right",
-                "custom-class": "van-dialog__cancel cancle-button-class",
+                "custom-class": "van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class",
                 "custom-style": "color: {{ cancelButtonColor }}",
                 "@click": "onCancel"
               }
@@ -82,9 +81,8 @@
               "attrs": {
                 "v-if": "showConfirmButton",
                 "size": "large",
-                "class": "van-dialog__button",
                 ":loading": "loading.confirm",
-                "custom-class": "van-dialog__confirm confirm-button-class",
+                "custom-class": "van-dialog__button van-dialog__confirm confirm-button-class",
                 "custom-style": "color: {{ confirmButtonColor }}",
                 ":button-id": "confirmButtonId",
                 ":open-type": "confirmButtonOpenType",
@@ -135,8 +133,7 @@
                     "v-else": "",
                     "size": "large",
                     ":loading": "loading.cancel",
-                    "class": "van-dialog__button van-hairline--right",
-                    "custom-class": "van-dialog__cancel cancle-button-class",
+                    "custom-class": "van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class",
                     "custom-style": "color: {{ cancelButtonColor }}",
                     "@click": "onCancel"
                   }
@@ -161,9 +158,8 @@
                   "attrs": {
                     "v-else": "",
                     "size": "large",
-                    "class": "van-dialog__button",
                     ":loading": "loading.confirm",
-                    "custom-class": "van-dialog__confirm confirm-button-class",
+                    "custom-class": "van-dialog__button van-dialog__confirm confirm-button-class",
                     "custom-style": "color: {{ confirmButtonColor }}",
                     ":button-id": "confirmButtonId",
                     ":open-type": "confirmButtonOpenType",

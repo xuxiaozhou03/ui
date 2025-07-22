@@ -20,9 +20,8 @@
               "tag": "van-icon",
               "attrs": {
                 ":name": "index + 1 <= innerValue ? icon : voidIcon",
-                ":class": "utils.bem('rate__icon', [{ disabled, full: index + 1 <= innerValue }])",
                 ":style": "style({ fontSize: utils.addUnit(size) })",
-                "custom-class": "icon-class",
+                "custom-class": "{{ utils.bem('rate__icon', [{ disabled, full: index + 1 <= innerValue }])}} icon-class",
                 ":data-score": "index",
                 ":color": "disabled ? disabledColor : index + 1 <= innerValue ? color : voidColor",
                 "@click": "onSelect"
@@ -33,9 +32,8 @@
               "attrs": {
                 "v-if": "allowHalf",
                 ":name": "index + 0.5 <= innerValue ? icon : voidIcon",
-                ":class": "utils.bem('rate__icon', ['half', { disabled, full: index + 0.5 <= innerValue }])",
                 ":style": "style({ fontSize: utils.addUnit(size) })",
-                "custom-class": "icon-class",
+                "custom-class": "{{ utils.bem('rate__icon', ['half', { disabled, full: index + 0.5 <= innerValue }]) }} icon-class",
                 ":data-score": "index - 0.5",
                 ":color": "disabled ? disabledColor : index + 0.5 <= innerValue ? color : voidColor",
                 "@click": "onSelect"

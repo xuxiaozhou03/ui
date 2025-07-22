@@ -99,8 +99,7 @@
                 ":type": "buttonType",
                 ":loading": "loading",
                 ":disabled": "disabled",
-                "class": "van-submit-bar__button",
-                "custom-class": "button-class",
+                "custom-class": "van-submit-bar__button button-class",
                 "custom-style": "width: 100%;",
                 "@click": "onSubmit"
               }

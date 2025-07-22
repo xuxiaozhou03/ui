@@ -97,8 +97,7 @@
                   "attrs": {
                     "v-if": "rightIcon || icon",
                     ":name": "rightIcon || icon",
-                    "class": "van-field__icon-root {{ iconClass }}",
-                    "custom-class": "right-icon-class"
+                    "custom-class": "van-field__icon-root {{ iconClass }} right-icon-class"
                   }
                 },
                 {

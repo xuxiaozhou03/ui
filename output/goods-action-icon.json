@@ -37,8 +37,7 @@
             ":size": "size",
             ":color": "color",
             ":class-prefix": "classPrefix",
-            "class": "van-goods-action-icon__icon",
-            "custom-class": "icon-class",
+            "custom-class": "van-goods-action-icon__icon icon-class",
             "info-class": "info-class"
           }
         },

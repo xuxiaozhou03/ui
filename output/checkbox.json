@@ -39,9 +39,8 @@
                 "v-else": "",
                 "name": "success",
                 "size": "0.8em",
-                ":class": "utils.bem('checkbox__icon', [shape, { disabled: disabled || parentDisabled, checked: value }])",
                 ":style": "iconStyle",
-                "custom-class": "icon-class",
+                "custom-class": "{{ utils.bem('checkbox__icon', [shape, { disabled: disabled || parentDisabled, checked: value }]) }} icon-class",
                 "custom-style": "line-height: 1.25em;"
               }
             }

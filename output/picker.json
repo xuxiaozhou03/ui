@@ -39,11 +39,10 @@
             {
               "tag": "picker-column",
               "attrs": {
-                "class": "van-picker__column",
                 "v-for": "columns",
                 ":key": "index",
                 ":data-index": "index",
-                "custom-class": "column-class",
+                "custom-class": "van-picker__column column-class",
                 ":value-key": "valueKey",
                 ":initial-options": "item.values",
                 ":default-index": "item.defaultIndex || defaultIndex",

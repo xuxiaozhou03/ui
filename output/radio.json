@@ -39,9 +39,8 @@
               "attrs": {
                 "v-else": "",
                 "name": "success",
-                ":class": "utils.bem('radio__icon', [shape, { disabled: disabled || parentDisabled, checked: value === name }])",
                 ":style": "iconStyle",
-                "custom-class": "icon-class",
+                "custom-class": "{{ utils.bem('radio__icon', [shape, { disabled: disabled || parentDisabled, checked: value === name }]) }} icon-class",
                 ":custom-style": "iconCustomStyle"
               }
             }

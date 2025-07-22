@@ -15,8 +15,7 @@
           "attrs": {
             "v-if": "icon",
             ":name": "icon",
-            "class": "van-cell__left-icon-wrap",
-            "custom-class": "van-cell__left-icon"
+            "custom-class": "van-cell__left-icon-wrap van-cell__left-icon"
           }
         },
         {
@@ -95,8 +94,7 @@
           "attrs": {
             "v-if": "isLink",
             ":name": "arrowDirection ? 'arrow' + '-' + arrowDirection : 'arrow'",
-            "class": "van-cell__right-icon-wrap right-icon-class",
-            "custom-class": "van-cell__right-icon"
+            "custom-class": "van-cell__right-icon-wrap right-icon-class van-cell__right-icon"
           }
         },
         {
