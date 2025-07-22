@@ -1,0 +1,207 @@
+{
+  "wxml": [
+    {
+      "tag": "van-popup",
+      "attrs": {
+        ":show": "show",
+        "position": "bottom",
+        ":round": "round",
+        ":z-index": "zIndex",
+        ":overlay": "overlay",
+        "custom-class": "van-action-sheet custom-class",
+        ":safe-area-inset-bottom": "safeAreaInsetBottom",
+        ":close-on-click-overlay": "closeOnClickOverlay",
+        ":root-portal": "rootPortal",
+        "@close": "onClickOverlay"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "title",
+            "class": "van-action-sheet__header"
+          },
+          "children": [
+            {
+              "tag": "van-icon",
+              "attrs": {
+                "name": "cross",
+                "custom-class": "van-action-sheet__close",
+                "@click": "onClose"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "description",
+            "class": "van-action-sheet__description van-hairline--bottom"
+          }
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "actions && actions.length",
+            "class": "list-class"
+          },
+          "children": [
+            {
+              "tag": "button",
+              "attrs": {
+                "v-for": "actions",
+                ":key": "index",
+                ":open-type": "item.disabled || item.loading || (canIUseGetUserProfile && item.openType === 'getUserInfo') ? '' : item.openType",
+                ":style": "item.color ? 'color: ' + item.color : ''",
+                ":class": "utils.bem('action-sheet__item', { disabled: item.disabled || item.loading }) }} {{ item.className || ''",
+                "hover-class": "van-action-sheet__item--hover",
+                ":data-index": "index",
+                "@tap": "item.disabled || item.loading ? '' : 'onSelect'",
+                "@getuserinfo": "onGetUserInfo",
+                "@contact": "onContact",
+                "@getphonenumber": "onGetPhoneNumber",
+                "@error": "onError",
+                "@launchapp": "onLaunchApp",
+                "@opensetting": "onOpenSetting",
+                ":lang": "lang",
+                ":session-from": "sessionFrom",
+                ":send-message-title": "sendMessageTitle",
+                ":send-message-path": "sendMessagePath",
+                ":send-message-img": "sendMessageImg",
+                ":show-message-card": "showMessageCard",
+                ":app-parameter": "appParameter"
+              },
+              "children": [
+                {
+                  "tag": "template",
+                  "attrs": {
+                    "v-if": "!item.loading"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "v-if": "item.subname",
+                        "class": "van-action-sheet__subname"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "tag": "van-loading",
+                  "attrs": {
+                    "v-else": "",
+                    "custom-class": "van-action-sheet__loading",
+                    "size": "22px"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "slot"
+        },
+        {
+          "tag": "template",
+          "attrs": {
+            "v-if": "cancelText"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-action-sheet__gap"
+              }
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-action-sheet__cancel",
+                "hover-class": "van-action-sheet__cancel--hover",
+                "hover-stay-time": "70",
+                "@tap": "onCancel"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { button } from '../mixins/button';\n\nVantComponent({\n  classes: ['list-class'],\n\n  mixins: [button],\n  props: {\n    show: Boolean,\n    title: String,\n    cancelText: String,\n    description: String,\n    round: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 100,\n    },\n    actions: {\n      type: Array,\n      value: [],\n    },\n    overlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickOverlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickAction: {\n      type: Boolean,\n      value: true,\n    },\n    safeAreaInsetBottom: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onSelect(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      const { actions, closeOnClickAction, canIUseGetUserProfile } = this.data;\n      const item = actions[index];\n      if (item) {\n        this.$emit('select', item);\n\n        if (closeOnClickAction) {\n          this.onClose();\n        }\n\n        if (item.openType === 'getUserInfo' && canIUseGetUserProfile) {\n          wx.getUserProfile({\n            desc: item.getUserProfileDesc || '  ',\n            complete: (userProfile) => {\n              this.$emit('getuserinfo', userProfile);\n            },\n          });\n        }\n      }\n    },\n\n    onCancel() {\n      this.$emit('cancel');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClickOverlay() {\n      this.$emit('click-overlay');\n      this.onClose();\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { button } from '../mixins/button';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['list-class'],\n\n  mixins: [button],\n  props: {\n    show: Boolean,\n    title: String,\n    cancelText: String,\n    description: String,\n    round: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 100,\n    },\n    actions: {\n      type: Array,\n      value: [],\n    },\n    overlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickOverlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickAction: {\n      type: Boolean,\n      value: true,\n    },\n    safeAreaInsetBottom: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onSelect(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      const { actions, closeOnClickAction, canIUseGetUserProfile } = this.data;\n      const item = actions[index];\n      if (item) {\n        this.$emit('select', item);\n\n        if (closeOnClickAction) {\n          this.onClose();\n        }\n\n        if (item.openType === 'getUserInfo' && canIUseGetUserProfile) {\n          wx.getUserProfile({\n            desc: item.getUserProfileDesc || '  ',\n            complete: (userProfile) => {\n              this.$emit('getuserinfo', userProfile);\n            },\n          });\n        }\n      }\n    },\n\n    onCancel() {\n      this.$emit('cancel');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClickOverlay() {\n      this.$emit('click-overlay');\n      this.onClose();\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['list-class'],\n\n  mixins: [button],\n  props: {\n    show: Boolean,\n    title: String,\n    cancelText: String,\n    description: String,\n    round: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 100,\n    },\n    actions: {\n      type: Array,\n      value: [],\n    },\n    overlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickOverlay: {\n      type: Boolean,\n      value: true,\n    },\n    closeOnClickAction: {\n      type: Boolean,\n      value: true,\n    },\n    safeAreaInsetBottom: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onSelect(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      const { actions, closeOnClickAction, canIUseGetUserProfile } = this.data;\n      const item = actions[index];\n      if (item) {\n        this.$emit('select', item);\n\n        if (closeOnClickAction) {\n          this.onClose();\n        }\n\n        if (item.openType === 'getUserInfo' && canIUseGetUserProfile) {\n          wx.getUserProfile({\n            desc: item.getUserProfileDesc || '  ',\n            complete: (userProfile) => {\n              this.$emit('getuserinfo', userProfile);\n            },\n          });\n        }\n      }\n    },\n\n    onCancel() {\n      this.$emit('cancel');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClickOverlay() {\n      this.$emit('click-overlay');\n      this.onClose();\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'list-class'"
+            ],
+            "mixins": [
+              "button"
+            ],
+            "props": {
+              "show": "Boolean",
+              "title": "String",
+              "cancelText": "String",
+              "description": "String",
+              "round": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "zIndex": {
+                "type": "Number",
+                "value": "100"
+              },
+              "actions": {
+                "type": "Array",
+                "value": []
+              },
+              "overlay": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "closeOnClickOverlay": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "closeOnClickAction": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "safeAreaInsetBottom": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "rootPortal": {
+                "type": "Boolean",
+                "value": "false"
+              }
+            },
+            "methods": {
+              "onSelect": "onSelect(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      const { actions, closeOnClickAction, canIUseGetUserProfile } = this.data;\n      const item = actions[index];\n      if (item) {\n        this.$emit('select', item);\n\n        if (closeOnClickAction) {\n          this.onClose();\n        }\n\n        if (item.openType === 'getUserInfo' && canIUseGetUserProfile) {\n          wx.getUserProfile({\n            desc: item.getUserProfileDesc || '  ',\n            complete: (userProfile) => {\n              this.$emit('getuserinfo', userProfile);\n            },\n          });\n        }\n      }\n    }",
+              "onCancel": "onCancel() {\n      this.$emit('cancel');\n    }",
+              "onClose": "onClose() {\n      this.$emit('close');\n    }",
+              "onClickOverlay": "onClickOverlay() {\n      this.$emit('click-overlay');\n      this.onClose();\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-action-sheet{color:var(--action-sheet-item-text-color,#323233);max-height:var(--action-sheet-max-height,90%)!important}.van-action-sheet__cancel,.van-action-sheet__item{background-color:var(--action-sheet-item-background,#fff);font-size:var(--action-sheet-item-font-size,16px);line-height:var(--action-sheet-item-line-height,22px);padding:14px 16px;text-align:center}.van-action-sheet__cancel--hover,.van-action-sheet__item--hover{background-color:#f2f3f5}.van-action-sheet__cancel:after,.van-action-sheet__item:after{border-width:0}.van-action-sheet__cancel{color:var(--action-sheet-cancel-text-color,#646566)}.van-action-sheet__gap{background-color:var(--action-sheet-cancel-padding-color,#f7f8fa);display:block;height:var(--action-sheet-cancel-padding-top,8px)}.van-action-sheet__item--disabled{color:var(--action-sheet-item-disabled-text-color,#c8c9cc)}.van-action-sheet__item--disabled.van-action-sheet__item--hover{background-color:var(--action-sheet-item-background,#fff)}.van-action-sheet__subname{color:var(--action-sheet-subname-color,#969799);font-size:var(--action-sheet-subname-font-size,12px);line-height:var(--action-sheet-subname-line-height,20px);margin-top:var(--padding-xs,8px)}.van-action-sheet__header{font-size:var(--action-sheet-header-font-size,16px);font-weight:var(--font-weight-bold,500);line-height:var(--action-sheet-header-height,48px);text-align:center}.van-action-sheet__description{color:var(--action-sheet-description-color,#969799);font-size:var(--action-sheet-description-font-size,14px);line-height:var(--action-sheet-description-line-height,20px);padding:20px var(--padding-md,16px);text-align:center}.van-action-sheet__close{color:var(--action-sheet-close-icon-color,#c8c9cc);font-size:var(--action-sheet-close-icon-size,22px)!important;line-height:inherit!important;padding:var(--action-sheet-close-icon-padding,0 16px);position:absolute!important;right:0;top:0}.van-action-sheet__loading{display:flex!important}"
+}

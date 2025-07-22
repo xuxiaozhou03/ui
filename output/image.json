@@ -1,0 +1,182 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        ":style": "rootStyle",
+        "class": "custom-class {{ utils.bem('image', { round })}}",
+        "@tap": "onClick"
+      },
+      "children": [
+        {
+          "tag": "image",
+          "attrs": {
+            "v-if": "!error",
+            ":src": "src",
+            ":mode": "mode",
+            ":lazy-load": "lazyLoad",
+            ":webp": "webp",
+            "class": "image-class van-image__img",
+            ":show-menu-by-longpress": "showMenuByLongpress",
+            "@load": "onLoad",
+            "@error": "onError"
+          }
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "loading && showLoading",
+            "class": "loading-class van-image__loading"
+          },
+          "children": [
+            {
+              "tag": "slot",
+              "attrs": {
+                "v-if": "useLoadingSlot",
+                "name": "loading"
+              }
+            },
+            {
+              "tag": "van-icon",
+              "attrs": {
+                "v-else": "",
+                "name": "photo",
+                "custom-class": "van-image__loading-icon"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "error && showError",
+            "class": "error-class van-image__error"
+          },
+          "children": [
+            {
+              "tag": "slot",
+              "attrs": {
+                "v-if": "useErrorSlot",
+                "name": "error"
+              }
+            },
+            {
+              "tag": "van-icon",
+              "attrs": {
+                "v-else": "",
+                "name": "photo-fail",
+                "custom-class": "van-image__error-icon"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { button } from '../mixins/button';\n\nVantComponent({\n  mixins: [button],\n\n  classes: ['custom-class', 'loading-class', 'error-class', 'image-class'],\n\n  props: {\n    src: {\n      type: String,\n      observer() {\n        this.setData({\n          error: false,\n          loading: true,\n        });\n      },\n    },\n    round: Boolean,\n    width: null,\n    height: null,\n    radius: null,\n    lazyLoad: Boolean,\n    useErrorSlot: Boolean,\n    useLoadingSlot: Boolean,\n    showMenuByLongpress: Boolean,\n    fit: {\n      type: String,\n      value: 'fill',\n    },\n    webp: {\n      type: Boolean,\n      value: false,\n    },\n    showError: {\n      type: Boolean,\n      value: true,\n    },\n    showLoading: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    error: false,\n    loading: true,\n    viewStyle: '',\n  },\n\n  methods: {\n    onLoad(event) {\n      this.setData({\n        loading: false,\n      });\n\n      this.$emit('load', event.detail);\n    },\n\n    onError(event) {\n      this.setData({\n        loading: false,\n        error: true,\n      });\n\n      this.$emit('error', event.detail);\n    },\n\n    onClick(event) {\n      this.$emit('click', event.detail);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { button } from '../mixins/button';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  mixins: [button],\n\n  classes: ['custom-class', 'loading-class', 'error-class', 'image-class'],\n\n  props: {\n    src: {\n      type: String,\n      observer() {\n        this.setData({\n          error: false,\n          loading: true,\n        });\n      },\n    },\n    round: Boolean,\n    width: null,\n    height: null,\n    radius: null,\n    lazyLoad: Boolean,\n    useErrorSlot: Boolean,\n    useLoadingSlot: Boolean,\n    showMenuByLongpress: Boolean,\n    fit: {\n      type: String,\n      value: 'fill',\n    },\n    webp: {\n      type: Boolean,\n      value: false,\n    },\n    showError: {\n      type: Boolean,\n      value: true,\n    },\n    showLoading: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    error: false,\n    loading: true,\n    viewStyle: '',\n  },\n\n  methods: {\n    onLoad(event) {\n      this.setData({\n        loading: false,\n      });\n\n      this.$emit('load', event.detail);\n    },\n\n    onError(event) {\n      this.setData({\n        loading: false,\n        error: true,\n      });\n\n      this.$emit('error', event.detail);\n    },\n\n    onClick(event) {\n      this.$emit('click', event.detail);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  mixins: [button],\n\n  classes: ['custom-class', 'loading-class', 'error-class', 'image-class'],\n\n  props: {\n    src: {\n      type: String,\n      observer() {\n        this.setData({\n          error: false,\n          loading: true,\n        });\n      },\n    },\n    round: Boolean,\n    width: null,\n    height: null,\n    radius: null,\n    lazyLoad: Boolean,\n    useErrorSlot: Boolean,\n    useLoadingSlot: Boolean,\n    showMenuByLongpress: Boolean,\n    fit: {\n      type: String,\n      value: 'fill',\n    },\n    webp: {\n      type: Boolean,\n      value: false,\n    },\n    showError: {\n      type: Boolean,\n      value: true,\n    },\n    showLoading: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    error: false,\n    loading: true,\n    viewStyle: '',\n  },\n\n  methods: {\n    onLoad(event) {\n      this.setData({\n        loading: false,\n      });\n\n      this.$emit('load', event.detail);\n    },\n\n    onError(event) {\n      this.setData({\n        loading: false,\n        error: true,\n      });\n\n      this.$emit('error', event.detail);\n    },\n\n    onClick(event) {\n      this.$emit('click', event.detail);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "mixins": [
+              "button"
+            ],
+            "classes": [
+              "'custom-class'",
+              "'loading-class'",
+              "'error-class'",
+              "'image-class'"
+            ],
+            "props": {
+              "src": {
+                "type": "String"
+              },
+              "round": "Boolean",
+              "width": "null",
+              "height": "null",
+              "radius": "null",
+              "lazyLoad": "Boolean",
+              "useErrorSlot": "Boolean",
+              "useLoadingSlot": "Boolean",
+              "showMenuByLongpress": "Boolean",
+              "fit": {
+                "type": "String",
+                "value": "fill"
+              },
+              "webp": {
+                "type": "Boolean",
+                "value": "false"
+              },
+              "showError": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "showLoading": {
+                "type": "Boolean",
+                "value": "true"
+              }
+            },
+            "data": {
+              "error": "false",
+              "loading": "true",
+              "viewStyle": ""
+            },
+            "methods": {
+              "onLoad": "onLoad(event) {\n      this.setData({\n        loading: false,\n      });\n\n      this.$emit('load', event.detail);\n    }",
+              "onError": "onError(event) {\n      this.setData({\n        loading: false,\n        error: true,\n      });\n\n      this.$emit('error', event.detail);\n    }",
+              "onClick": "onClick(event) {\n      this.$emit('click', event.detail);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction rootStyle(data) {\n  return style([\n    {\n      width: addUnit(data.width),\n      height: addUnit(data.height),\n      'border-radius': addUnit(data.radius),\n    },\n    data.radius ? 'overflow: hidden' : null,\n  ]);\n}\n\nvar FIT_MODE_MAP = {\n  none: 'center',\n  fill: 'scaleToFill',\n  cover: 'aspectFill',\n  contain: 'aspectFit',\n  widthFix: 'widthFix',\n  heightFix: 'heightFix',\n};\n\nfunction mode(fit) {\n  return FIT_MODE_MAP[fit];\n}\n\nmodule.exports = {\n  rootStyle: rootStyle,\n  mode: mode,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function rootStyle(data) {\n  return style([\n    {\n      width: addUnit(data.width),\n      height: addUnit(data.height),\n      'border-radius': addUnit(data.radius),\n    },\n    data.radius ? 'overflow: hidden' : null,\n  ]);\n}",
+        "name": "rootStyle"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var FIT_MODE_MAP = {\n  none: 'center',\n  fill: 'scaleToFill',\n  cover: 'aspectFill',\n  contain: 'aspectFit',\n  widthFix: 'widthFix',\n  heightFix: 'heightFix',\n};"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function mode(fit) {\n  return FIT_MODE_MAP[fit];\n}",
+        "name": "mode"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  rootStyle: rootStyle,\n  mode: mode,\n};",
+        "expression": "module.exports = {\n  rootStyle: rootStyle,\n  mode: mode,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-image{display:inline-block;position:relative}.van-image--round{border-radius:50%;overflow:hidden}.van-image--round .van-image__img{border-radius:inherit}.van-image__error,.van-image__img,.van-image__loading{display:block;height:100%;width:100%}.van-image__error,.van-image__loading{align-items:center;background-color:var(--image-placeholder-background-color,#f7f8fa);color:var(--image-placeholder-text-color,#969799);display:flex;flex-direction:column;font-size:var(--image-placeholder-font-size,14px);justify-content:center;left:0;position:absolute;top:0}.van-image__loading-icon{color:var(--image-loading-icon-color,#dcdee0);font-size:var(--image-loading-icon-size,32px)!important}.van-image__error-icon{color:var(--image-error-icon-color,#dcdee0);font-size:var(--image-error-icon-size,32px)!important}"
+}

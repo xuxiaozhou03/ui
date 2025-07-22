@@ -1,0 +1,70 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "custom-class {{ utils.bem('divider', [{ dashed, hairline }, contentPosition]) }}",
+        ":style": "rootStyle"
+      },
+      "children": [
+        {
+          "tag": "slot"
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\n\nVantComponent({\n  props: {\n    dashed: Boolean,\n    hairline: Boolean,\n    contentPosition: String,\n    fontSize: String,\n    borderColor: String,\n    textColor: String,\n    customStyle: String,\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    dashed: Boolean,\n    hairline: Boolean,\n    contentPosition: String,\n    fontSize: String,\n    borderColor: String,\n    textColor: String,\n    customStyle: String,\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    dashed: Boolean,\n    hairline: Boolean,\n    contentPosition: String,\n    fontSize: String,\n    borderColor: String,\n    textColor: String,\n    customStyle: String,\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "dashed": "Boolean",
+              "hairline": "Boolean",
+              "contentPosition": "String",
+              "fontSize": "String",
+              "borderColor": "String",
+              "textColor": "String",
+              "customStyle": "String"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction rootStyle(data) {\n  return style([\n    {\n      'border-color': data.borderColor,\n      color: data.textColor,\n      'font-size': addUnit(data.fontSize),\n    },\n    data.customStyle,\n  ]);\n}\n\nmodule.exports = {\n  rootStyle: rootStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function rootStyle(data) {\n  return style([\n    {\n      'border-color': data.borderColor,\n      color: data.textColor,\n      'font-size': addUnit(data.fontSize),\n    },\n    data.customStyle,\n  ]);\n}",
+        "name": "rootStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  rootStyle: rootStyle,\n};",
+        "expression": "module.exports = {\n  rootStyle: rootStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-divider{align-items:center;border:0 solid var(--divider-border-color,#ebedf0);color:var(--divider-text-color,#969799);display:flex;font-size:var(--divider-font-size,14px);line-height:var(--divider-line-height,24px);margin:var(--divider-margin,16px 0)}.van-divider:after,.van-divider:before{border-color:inherit;border-style:inherit;border-width:1px 0 0;box-sizing:border-box;display:block;flex:1;height:1px}.van-divider:before{content:\"\"}.van-divider--hairline:after,.van-divider--hairline:before{transform:scaleY(.5)}.van-divider--dashed{border-style:dashed}.van-divider--center:before,.van-divider--left:before,.van-divider--right:before{margin-right:var(--divider-content-padding,16px)}.van-divider--center:after,.van-divider--left:after,.van-divider--right:after{content:\"\";margin-left:var(--divider-content-padding,16px)}.van-divider--left:before{max-width:var(--divider-content-left-width,10%)}.van-divider--right:after{max-width:var(--divider-content-right-width,10%)}"
+}

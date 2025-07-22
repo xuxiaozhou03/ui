@@ -1,0 +1,215 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "custom-class {{ utils.bem('slider', { disabled, vertical }) }}",
+        ":style": "wrapperStyle",
+        "@tap": "onClick"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            ":class": "utils.bem('slider__bar')",
+            ":style": "barStyle }}; {{ style({ backgroundColor: activeColor })"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "range",
+                ":class": "utils.bem('slider__button-wrapper-left')",
+                ":data-index": "0",
+                "@touchstart": "onTouchStart",
+                "@catch:touchmove": "onTouchMove",
+                "@touchend": "onTouchEnd",
+                "@touchcancel": "onTouchEnd"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-if": "useButtonSlot",
+                    "name": "left-button"
+                  }
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-else": "",
+                    ":class": "utils.bem('slider__button')"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "range",
+                ":class": "utils.bem('slider__button-wrapper-right')",
+                ":data-index": "1",
+                "@touchstart": "onTouchStart",
+                "@catch:touchmove": "onTouchMove",
+                "@touchend": "onTouchEnd",
+                "@touchcancel": "onTouchEnd"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-if": "useButtonSlot",
+                    "name": "right-button"
+                  }
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-else": "",
+                    ":class": "utils.bem('slider__button')"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "!range",
+                ":class": "utils.bem('slider__button-wrapper')",
+                "@touchstart": "onTouchStart",
+                "@catch:touchmove": "onTouchMove",
+                "@touchend": "onTouchEnd",
+                "@touchcancel": "onTouchEnd"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-if": "useButtonSlot",
+                    "name": "button"
+                  }
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-else": "",
+                    ":class": "utils.bem('slider__button')"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { touch } from '../mixins/touch';\nimport { canIUseModel } from '../common/version';\nimport { getRect, addUnit, nextTick, addNumber, clamp } from '../common/utils';\n\ntype SliderValue = number | [number, number];\n\nconst DRAG_STATUS = {\n  START: 'start',\n  MOVING: 'moving',\n  END: 'end',\n};\n\nVantComponent({\n  mixins: [touch],\n\n  props: {\n    range: Boolean,\n    disabled: Boolean,\n    useButtonSlot: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    max: {\n      type: Number,\n      value: 100,\n    },\n    min: {\n      type: Number,\n      value: 0,\n    },\n    step: {\n      type: Number,\n      value: 1,\n    },\n    value: {\n      type: null,\n      value: 0,\n      observer(val) {\n        if (val !== this.value) {\n          this.updateValue(val);\n        }\n      },\n    },\n    vertical: Boolean,\n    barHeight: null,\n  },\n\n  created() {\n    this.updateValue(this.data.value);\n  },\n\n  methods: {\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { index } = event.currentTarget.dataset;\n      if (typeof index === 'number') {\n        this.buttonIndex = index;\n      }\n\n      this.touchStart(event);\n      this.startValue = this.format(this.value);\n      this.newValue = this.value;\n\n      if (this.isRange(this.newValue)) {\n        this.startValue = this.newValue.map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        this.startValue = this.format(this.newValue);\n      }\n\n      this.dragStatus = DRAG_STATUS.START;\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.START) {\n        this.$emit('drag-start');\n      }\n\n      this.touchMove(event);\n      this.dragStatus = DRAG_STATUS.MOVING;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const delta = vertical ? this.deltaY : this.deltaX;\n        const total = vertical ? rect.height : rect.width;\n        const diff = (delta / total) * this.getRange();\n\n        if (this.isRange(this.startValue)) {\n          (this.newValue as [number, number])[this.buttonIndex] =\n            this.startValue[this.buttonIndex] + diff;\n        } else {\n          this.newValue = this.startValue + diff;\n        }\n\n        this.updateValue(this.newValue, false, true);\n      });\n    },\n\n    onTouchEnd() {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.MOVING) {\n        this.dragStatus = DRAG_STATUS.END;\n\n        nextTick(() => {\n          this.updateValue(this.newValue, true);\n          this.$emit('drag-end');\n        });\n      }\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { min } = this.data;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const touch = event.touches[0];\n        const delta = vertical\n          ? touch.clientY - rect.top\n          : touch.clientX - rect.left;\n        const total = vertical ? rect.height : rect.width;\n        const value = Number(min) + (delta / total) * this.getRange();\n\n        if (this.isRange(this.value)) {\n          const [left, right] = this.value;\n          const middle = (left + right) / 2;\n\n          if (value <= middle) {\n            this.updateValue([value, right], true);\n          } else {\n            this.updateValue([left, value], true);\n          }\n        } else {\n          this.updateValue(value, true);\n        }\n      });\n    },\n\n    isRange(val: unknown): val is [number, number] {\n      const { range } = this.data;\n      return range && Array.isArray(val);\n    },\n\n    handleOverlap(value: [number, number]) {\n      if (value[0] > value[1]) {\n        return value.slice(0).reverse();\n      }\n      return value;\n    },\n\n    updateValue(value: SliderValue, end?: boolean, drag?: boolean) {\n      if (this.isRange(value)) {\n        value = this.handleOverlap(value).map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        value = this.format(value);\n      }\n\n      this.value = value;\n\n      const { vertical } = this.data;\n      const mainAxis = vertical ? 'height' : 'width';\n\n      this.setData({\n        wrapperStyle: `\n          background: ${this.data.inactiveColor || ''};\n          ${vertical ? 'width' : 'height'}: ${\n          addUnit(this.data.barHeight) || ''\n        };\n        `,\n        barStyle: `\n          ${mainAxis}: ${this.calcMainAxis()};\n          left: ${vertical ? 0 : this.calcOffset()};\n          top: ${vertical ? this.calcOffset() : 0};\n          ${drag ? 'transition: none;' : ''}\n        `,\n      });\n\n      if (drag) {\n        this.$emit('drag', { value });\n      }\n\n      if (end) {\n        this.$emit('change', value);\n      }\n\n      if ((drag || end) && canIUseModel()) {\n        this.setData({ value });\n      }\n    },\n\n    getScope() {\n      return Number(this.data.max) - Number(this.data.min);\n    },\n\n    getRange() {\n      const { max, min } = this.data;\n      return max - min;\n    },\n\n    getOffsetWidth(current: number, min: number) {\n      const scope = this.getScope();\n\n      // 避免最小值小于最小step时出现负数情况\n      return `${Math.max(((current - min) * 100) / scope, 0)}%`;\n    },\n\n    // 计算选中条的长度百分比\n    calcMainAxis() {\n      const { value } = this;\n      const { min } = this.data;\n\n      if (this.isRange(value)) {\n        return this.getOffsetWidth(value[1], value[0]);\n      }\n\n      return this.getOffsetWidth(value, Number(min));\n    },\n\n    // 计算选中条的开始位置的偏移量\n    calcOffset() {\n      const { value } = this;\n      const { min } = this.data;\n      const scope = this.getScope();\n      if (this.isRange(value)) {\n        return `${((value[0] - Number(min)) * 100) / scope}%`;\n      }\n      return '0%';\n    },\n\n    format(value: number) {\n      const min = +this.data.min;\n      const max = +this.data.max;\n      const step = +this.data.step;\n\n      value = clamp(value, min, max);\n      const diff = Math.round((value - min) / step) * step;\n      return addNumber(min, diff);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { touch } from '../mixins/touch';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { canIUseModel } from '../common/version';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { getRect, addUnit, nextTick, addNumber, clamp } from '../common/utils';"
+      },
+      {
+        "kind": "TypeAliasDeclaration",
+        "text": "type SliderValue = number | [number, number];",
+        "name": "SliderValue"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "const DRAG_STATUS = {\n  START: 'start',\n  MOVING: 'moving',\n  END: 'end',\n};"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  mixins: [touch],\n\n  props: {\n    range: Boolean,\n    disabled: Boolean,\n    useButtonSlot: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    max: {\n      type: Number,\n      value: 100,\n    },\n    min: {\n      type: Number,\n      value: 0,\n    },\n    step: {\n      type: Number,\n      value: 1,\n    },\n    value: {\n      type: null,\n      value: 0,\n      observer(val) {\n        if (val !== this.value) {\n          this.updateValue(val);\n        }\n      },\n    },\n    vertical: Boolean,\n    barHeight: null,\n  },\n\n  created() {\n    this.updateValue(this.data.value);\n  },\n\n  methods: {\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { index } = event.currentTarget.dataset;\n      if (typeof index === 'number') {\n        this.buttonIndex = index;\n      }\n\n      this.touchStart(event);\n      this.startValue = this.format(this.value);\n      this.newValue = this.value;\n\n      if (this.isRange(this.newValue)) {\n        this.startValue = this.newValue.map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        this.startValue = this.format(this.newValue);\n      }\n\n      this.dragStatus = DRAG_STATUS.START;\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.START) {\n        this.$emit('drag-start');\n      }\n\n      this.touchMove(event);\n      this.dragStatus = DRAG_STATUS.MOVING;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const delta = vertical ? this.deltaY : this.deltaX;\n        const total = vertical ? rect.height : rect.width;\n        const diff = (delta / total) * this.getRange();\n\n        if (this.isRange(this.startValue)) {\n          (this.newValue as [number, number])[this.buttonIndex] =\n            this.startValue[this.buttonIndex] + diff;\n        } else {\n          this.newValue = this.startValue + diff;\n        }\n\n        this.updateValue(this.newValue, false, true);\n      });\n    },\n\n    onTouchEnd() {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.MOVING) {\n        this.dragStatus = DRAG_STATUS.END;\n\n        nextTick(() => {\n          this.updateValue(this.newValue, true);\n          this.$emit('drag-end');\n        });\n      }\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { min } = this.data;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const touch = event.touches[0];\n        const delta = vertical\n          ? touch.clientY - rect.top\n          : touch.clientX - rect.left;\n        const total = vertical ? rect.height : rect.width;\n        const value = Number(min) + (delta / total) * this.getRange();\n\n        if (this.isRange(this.value)) {\n          const [left, right] = this.value;\n          const middle = (left + right) / 2;\n\n          if (value <= middle) {\n            this.updateValue([value, right], true);\n          } else {\n            this.updateValue([left, value], true);\n          }\n        } else {\n          this.updateValue(value, true);\n        }\n      });\n    },\n\n    isRange(val: unknown): val is [number, number] {\n      const { range } = this.data;\n      return range && Array.isArray(val);\n    },\n\n    handleOverlap(value: [number, number]) {\n      if (value[0] > value[1]) {\n        return value.slice(0).reverse();\n      }\n      return value;\n    },\n\n    updateValue(value: SliderValue, end?: boolean, drag?: boolean) {\n      if (this.isRange(value)) {\n        value = this.handleOverlap(value).map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        value = this.format(value);\n      }\n\n      this.value = value;\n\n      const { vertical } = this.data;\n      const mainAxis = vertical ? 'height' : 'width';\n\n      this.setData({\n        wrapperStyle: `\n          background: ${this.data.inactiveColor || ''};\n          ${vertical ? 'width' : 'height'}: ${\n          addUnit(this.data.barHeight) || ''\n        };\n        `,\n        barStyle: `\n          ${mainAxis}: ${this.calcMainAxis()};\n          left: ${vertical ? 0 : this.calcOffset()};\n          top: ${vertical ? this.calcOffset() : 0};\n          ${drag ? 'transition: none;' : ''}\n        `,\n      });\n\n      if (drag) {\n        this.$emit('drag', { value });\n      }\n\n      if (end) {\n        this.$emit('change', value);\n      }\n\n      if ((drag || end) && canIUseModel()) {\n        this.setData({ value });\n      }\n    },\n\n    getScope() {\n      return Number(this.data.max) - Number(this.data.min);\n    },\n\n    getRange() {\n      const { max, min } = this.data;\n      return max - min;\n    },\n\n    getOffsetWidth(current: number, min: number) {\n      const scope = this.getScope();\n\n      // 避免最小值小于最小step时出现负数情况\n      return `${Math.max(((current - min) * 100) / scope, 0)}%`;\n    },\n\n    // 计算选中条的长度百分比\n    calcMainAxis() {\n      const { value } = this;\n      const { min } = this.data;\n\n      if (this.isRange(value)) {\n        return this.getOffsetWidth(value[1], value[0]);\n      }\n\n      return this.getOffsetWidth(value, Number(min));\n    },\n\n    // 计算选中条的开始位置的偏移量\n    calcOffset() {\n      const { value } = this;\n      const { min } = this.data;\n      const scope = this.getScope();\n      if (this.isRange(value)) {\n        return `${((value[0] - Number(min)) * 100) / scope}%`;\n      }\n      return '0%';\n    },\n\n    format(value: number) {\n      const min = +this.data.min;\n      const max = +this.data.max;\n      const step = +this.data.step;\n\n      value = clamp(value, min, max);\n      const diff = Math.round((value - min) / step) * step;\n      return addNumber(min, diff);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  mixins: [touch],\n\n  props: {\n    range: Boolean,\n    disabled: Boolean,\n    useButtonSlot: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    max: {\n      type: Number,\n      value: 100,\n    },\n    min: {\n      type: Number,\n      value: 0,\n    },\n    step: {\n      type: Number,\n      value: 1,\n    },\n    value: {\n      type: null,\n      value: 0,\n      observer(val) {\n        if (val !== this.value) {\n          this.updateValue(val);\n        }\n      },\n    },\n    vertical: Boolean,\n    barHeight: null,\n  },\n\n  created() {\n    this.updateValue(this.data.value);\n  },\n\n  methods: {\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { index } = event.currentTarget.dataset;\n      if (typeof index === 'number') {\n        this.buttonIndex = index;\n      }\n\n      this.touchStart(event);\n      this.startValue = this.format(this.value);\n      this.newValue = this.value;\n\n      if (this.isRange(this.newValue)) {\n        this.startValue = this.newValue.map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        this.startValue = this.format(this.newValue);\n      }\n\n      this.dragStatus = DRAG_STATUS.START;\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.START) {\n        this.$emit('drag-start');\n      }\n\n      this.touchMove(event);\n      this.dragStatus = DRAG_STATUS.MOVING;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const delta = vertical ? this.deltaY : this.deltaX;\n        const total = vertical ? rect.height : rect.width;\n        const diff = (delta / total) * this.getRange();\n\n        if (this.isRange(this.startValue)) {\n          (this.newValue as [number, number])[this.buttonIndex] =\n            this.startValue[this.buttonIndex] + diff;\n        } else {\n          this.newValue = this.startValue + diff;\n        }\n\n        this.updateValue(this.newValue, false, true);\n      });\n    },\n\n    onTouchEnd() {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.MOVING) {\n        this.dragStatus = DRAG_STATUS.END;\n\n        nextTick(() => {\n          this.updateValue(this.newValue, true);\n          this.$emit('drag-end');\n        });\n      }\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { min } = this.data;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const touch = event.touches[0];\n        const delta = vertical\n          ? touch.clientY - rect.top\n          : touch.clientX - rect.left;\n        const total = vertical ? rect.height : rect.width;\n        const value = Number(min) + (delta / total) * this.getRange();\n\n        if (this.isRange(this.value)) {\n          const [left, right] = this.value;\n          const middle = (left + right) / 2;\n\n          if (value <= middle) {\n            this.updateValue([value, right], true);\n          } else {\n            this.updateValue([left, value], true);\n          }\n        } else {\n          this.updateValue(value, true);\n        }\n      });\n    },\n\n    isRange(val: unknown): val is [number, number] {\n      const { range } = this.data;\n      return range && Array.isArray(val);\n    },\n\n    handleOverlap(value: [number, number]) {\n      if (value[0] > value[1]) {\n        return value.slice(0).reverse();\n      }\n      return value;\n    },\n\n    updateValue(value: SliderValue, end?: boolean, drag?: boolean) {\n      if (this.isRange(value)) {\n        value = this.handleOverlap(value).map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        value = this.format(value);\n      }\n\n      this.value = value;\n\n      const { vertical } = this.data;\n      const mainAxis = vertical ? 'height' : 'width';\n\n      this.setData({\n        wrapperStyle: `\n          background: ${this.data.inactiveColor || ''};\n          ${vertical ? 'width' : 'height'}: ${\n          addUnit(this.data.barHeight) || ''\n        };\n        `,\n        barStyle: `\n          ${mainAxis}: ${this.calcMainAxis()};\n          left: ${vertical ? 0 : this.calcOffset()};\n          top: ${vertical ? this.calcOffset() : 0};\n          ${drag ? 'transition: none;' : ''}\n        `,\n      });\n\n      if (drag) {\n        this.$emit('drag', { value });\n      }\n\n      if (end) {\n        this.$emit('change', value);\n      }\n\n      if ((drag || end) && canIUseModel()) {\n        this.setData({ value });\n      }\n    },\n\n    getScope() {\n      return Number(this.data.max) - Number(this.data.min);\n    },\n\n    getRange() {\n      const { max, min } = this.data;\n      return max - min;\n    },\n\n    getOffsetWidth(current: number, min: number) {\n      const scope = this.getScope();\n\n      // 避免最小值小于最小step时出现负数情况\n      return `${Math.max(((current - min) * 100) / scope, 0)}%`;\n    },\n\n    // 计算选中条的长度百分比\n    calcMainAxis() {\n      const { value } = this;\n      const { min } = this.data;\n\n      if (this.isRange(value)) {\n        return this.getOffsetWidth(value[1], value[0]);\n      }\n\n      return this.getOffsetWidth(value, Number(min));\n    },\n\n    // 计算选中条的开始位置的偏移量\n    calcOffset() {\n      const { value } = this;\n      const { min } = this.data;\n      const scope = this.getScope();\n      if (this.isRange(value)) {\n        return `${((value[0] - Number(min)) * 100) / scope}%`;\n      }\n      return '0%';\n    },\n\n    format(value: number) {\n      const min = +this.data.min;\n      const max = +this.data.max;\n      const step = +this.data.step;\n\n      value = clamp(value, min, max);\n      const diff = Math.round((value - min) / step) * step;\n      return addNumber(min, diff);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "mixins": [
+              "touch"
+            ],
+            "props": {
+              "range": "Boolean",
+              "disabled": "Boolean",
+              "useButtonSlot": "Boolean",
+              "activeColor": "String",
+              "inactiveColor": "String",
+              "max": {
+                "type": "Number",
+                "value": "100"
+              },
+              "min": {
+                "type": "Number",
+                "value": "0"
+              },
+              "step": {
+                "type": "Number",
+                "value": "1"
+              },
+              "value": {
+                "type": "null",
+                "value": "0"
+              },
+              "vertical": "Boolean",
+              "barHeight": "null"
+            },
+            "methods": {
+              "onTouchStart": "onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { index } = event.currentTarget.dataset;\n      if (typeof index === 'number') {\n        this.buttonIndex = index;\n      }\n\n      this.touchStart(event);\n      this.startValue = this.format(this.value);\n      this.newValue = this.value;\n\n      if (this.isRange(this.newValue)) {\n        this.startValue = this.newValue.map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        this.startValue = this.format(this.newValue);\n      }\n\n      this.dragStatus = DRAG_STATUS.START;\n    }",
+              "onTouchMove": "onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.START) {\n        this.$emit('drag-start');\n      }\n\n      this.touchMove(event);\n      this.dragStatus = DRAG_STATUS.MOVING;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const delta = vertical ? this.deltaY : this.deltaX;\n        const total = vertical ? rect.height : rect.width;\n        const diff = (delta / total) * this.getRange();\n\n        if (this.isRange(this.startValue)) {\n          (this.newValue as [number, number])[this.buttonIndex] =\n            this.startValue[this.buttonIndex] + diff;\n        } else {\n          this.newValue = this.startValue + diff;\n        }\n\n        this.updateValue(this.newValue, false, true);\n      });\n    }",
+              "onTouchEnd": "onTouchEnd() {\n      if (this.data.disabled) return;\n\n      if (this.dragStatus === DRAG_STATUS.MOVING) {\n        this.dragStatus = DRAG_STATUS.END;\n\n        nextTick(() => {\n          this.updateValue(this.newValue, true);\n          this.$emit('drag-end');\n        });\n      }\n    }",
+              "onClick": "onClick(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) return;\n\n      const { min } = this.data;\n\n      getRect(this, '.van-slider').then((rect) => {\n        const { vertical } = this.data;\n        const touch = event.touches[0];\n        const delta = vertical\n          ? touch.clientY - rect.top\n          : touch.clientX - rect.left;\n        const total = vertical ? rect.height : rect.width;\n        const value = Number(min) + (delta / total) * this.getRange();\n\n        if (this.isRange(this.value)) {\n          const [left, right] = this.value;\n          const middle = (left + right) / 2;\n\n          if (value <= middle) {\n            this.updateValue([value, right], true);\n          } else {\n            this.updateValue([left, value], true);\n          }\n        } else {\n          this.updateValue(value, true);\n        }\n      });\n    }",
+              "isRange": "isRange(val: unknown): val is [number, number] {\n      const { range } = this.data;\n      return range && Array.isArray(val);\n    }",
+              "handleOverlap": "handleOverlap(value: [number, number]) {\n      if (value[0] > value[1]) {\n        return value.slice(0).reverse();\n      }\n      return value;\n    }",
+              "updateValue": "updateValue(value: SliderValue, end?: boolean, drag?: boolean) {\n      if (this.isRange(value)) {\n        value = this.handleOverlap(value).map((val) => this.format(val)) as [\n          number,\n          number\n        ];\n      } else {\n        value = this.format(value);\n      }\n\n      this.value = value;\n\n      const { vertical } = this.data;\n      const mainAxis = vertical ? 'height' : 'width';\n\n      this.setData({\n        wrapperStyle: `\n          background: ${this.data.inactiveColor || ''};\n          ${vertical ? 'width' : 'height'}: ${\n          addUnit(this.data.barHeight) || ''\n        };\n        `,\n        barStyle: `\n          ${mainAxis}: ${this.calcMainAxis()};\n          left: ${vertical ? 0 : this.calcOffset()};\n          top: ${vertical ? this.calcOffset() : 0};\n          ${drag ? 'transition: none;' : ''}\n        `,\n      });\n\n      if (drag) {\n        this.$emit('drag', { value });\n      }\n\n      if (end) {\n        this.$emit('change', value);\n      }\n\n      if ((drag || end) && canIUseModel()) {\n        this.setData({ value });\n      }\n    }",
+              "getScope": "getScope() {\n      return Number(this.data.max) - Number(this.data.min);\n    }",
+              "getRange": "getRange() {\n      const { max, min } = this.data;\n      return max - min;\n    }",
+              "getOffsetWidth": "getOffsetWidth(current: number, min: number) {\n      const scope = this.getScope();\n\n      // 避免最小值小于最小step时出现负数情况\n      return `${Math.max(((current - min) * 100) / scope, 0)}%`;\n    }",
+              "calcMainAxis": "calcMainAxis() {\n      const { value } = this;\n      const { min } = this.data;\n\n      if (this.isRange(value)) {\n        return this.getOffsetWidth(value[1], value[0]);\n      }\n\n      return this.getOffsetWidth(value, Number(min));\n    }",
+              "calcOffset": "calcOffset() {\n      const { value } = this;\n      const { min } = this.data;\n      const scope = this.getScope();\n      if (this.isRange(value)) {\n        return `${((value[0] - Number(min)) * 100) / scope}%`;\n      }\n      return '0%';\n    }",
+              "format": "format(value: number) {\n      const min = +this.data.min;\n      const max = +this.data.max;\n      const step = +this.data.step;\n\n      value = clamp(value, min, max);\n      const diff = Math.round((value - min) / step) * step;\n      return addNumber(min, diff);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction barStyle(barHeight, activeColor) {\n  return style({\n    height: addUnit(barHeight),\n    background: activeColor,\n  });\n}\n\nmodule.exports = {\n  barStyle: barStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function barStyle(barHeight, activeColor) {\n  return style({\n    height: addUnit(barHeight),\n    background: activeColor,\n  });\n}",
+        "name": "barStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  barStyle: barStyle,\n};",
+        "expression": "module.exports = {\n  barStyle: barStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-slider{background-color:var(--slider-inactive-background-color,#ebedf0);border-radius:999px;height:var(--slider-bar-height,2px);position:relative}.van-slider:before{bottom:calc(var(--padding-xs, 8px)*-1);content:\"\";left:0;position:absolute;right:0;top:calc(var(--padding-xs, 8px)*-1)}.van-slider__bar{background-color:var(--slider-active-background-color,#1989fa);border-radius:inherit;height:100%;position:relative;transition:all .2s;width:100%}.van-slider__button{background-color:var(--slider-button-background-color,#fff);border-radius:var(--slider-button-border-radius,50%);box-shadow:var(--slider-button-box-shadow,0 1px 2px rgba(0,0,0,.5));height:var(--slider-button-height,24px);width:var(--slider-button-width,24px)}.van-slider__button-wrapper,.van-slider__button-wrapper-right{position:absolute;right:0;top:50%;transform:translate3d(50%,-50%,0)}.van-slider__button-wrapper-left{left:0;position:absolute;top:50%;transform:translate3d(-50%,-50%,0)}.van-slider--disabled{opacity:var(--slider-disabled-opacity,.5)}.van-slider--vertical{display:inline-block;height:100%;width:var(--slider-bar-height,2px)}.van-slider--vertical .van-slider__button-wrapper,.van-slider--vertical .van-slider__button-wrapper-right{bottom:0;right:50%;top:auto;transform:translate3d(50%,50%,0)}.van-slider--vertical .van-slider__button-wrapper-left{left:auto;right:50%;top:0;transform:translate3d(50%,-50%,0)}.van-slider--vertical:before{bottom:0;left:-8px;right:-8px;top:0}"
+}

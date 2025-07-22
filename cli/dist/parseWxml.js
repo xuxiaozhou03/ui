@@ -2,22 +2,33 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseWxml = void 0;
 const htmlparser2_1 = require("htmlparser2");
-const parseAttrs = (attrs, tag) => {
+const parseClass = (key, value) => {
+    return {
+        [key]: value,
+    };
+};
+const parseAttrs = (attrs, isCustomElement) => {
     const newAttrs = Object.entries(attrs).reduce((acc, [key, value]) => {
-        if (key.startsWith("bind")) {
-            key = key.replace("bind", "@");
-        }
         const map = {
             "wx:for": "v-for",
             "wx:for-item": "v-for-item",
             "wx:for-index": "v-for-index",
-            "wx:key": "v-key",
+            "wx:key": ":key",
             "wx:if": "v-if",
             "wx:else": "v-else",
             "wx:elif": "v-else-if",
         };
         if (map[key]) {
             key = map[key];
+        }
+        if (key.startsWith("bind:")) {
+            key = key.replace("bind:", "@");
+        }
+        if (key.startsWith("bind")) {
+            key = key.replace("bind", "@");
+        }
+        if (key.startsWith("catch")) {
+            key = key.replace("catch", "@catch");
         }
         if (value.startsWith("{{") && value.endsWith("}}")) {
             value = value.slice(2, -2).trim();
@@ -64,7 +75,7 @@ const parseWxml = (wxml) => {
             const tag = parseTag(node.name);
             const resultNode = {
                 tag,
-                attrs: parseAttrs(node.attribs || {}, tag),
+                attrs: parseAttrs(node.attribs || {}, tag.includes("-")),
                 children,
             };
             if (children.length === 0) {

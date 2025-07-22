@@ -1,0 +1,195 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-picker custom-class"
+      },
+      "children": [
+        {
+          "tag": "include",
+          "attrs": {
+            "v-if": "toolbarPosition === 'top'",
+            "src": "./toolbar.wxml"
+          }
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "loading",
+            "class": "van-picker__loading"
+          },
+          "children": [
+            {
+              "tag": "loading",
+              "attrs": {
+                "color": "#1989fa"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-picker__columns",
+            ":style": "columnsStyle",
+            "@catch:touchmove": "noop"
+          },
+          "children": [
+            {
+              "tag": "picker-column",
+              "attrs": {
+                "class": "van-picker__column",
+                "v-for": "columns",
+                ":key": "index",
+                ":data-index": "index",
+                "custom-class": "column-class",
+                ":value-key": "valueKey",
+                ":initial-options": "item.values",
+                ":default-index": "item.defaultIndex || defaultIndex",
+                ":item-height": "itemHeight",
+                ":visible-item-count": "visibleItemCount",
+                "active-class": "active-class",
+                "@change": "onChange"
+              }
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-picker__mask",
+                ":style": "maskStyle"
+              }
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-picker__frame van-hairline--top-bottom",
+                ":style": "frameStyle"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "include",
+          "attrs": {
+            "v-if": "toolbarPosition === 'bottom'",
+            "src": "./toolbar.wxml"
+          }
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { pickerProps } from './shared';\n\ninterface Column {\n  values: any[];\n  defaultIndex?: number;\n}\n\nVantComponent({\n  classes: ['active-class', 'toolbar-class', 'column-class'],\n\n  props: {\n    ...pickerProps,\n    valueKey: {\n      type: String,\n      value: 'text',\n    },\n    toolbarPosition: {\n      type: String,\n      value: 'top',\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n    },\n    columns: {\n      type: Array,\n      value: [],\n      observer(columns = []) {\n        this.simple = columns.length && !columns[0].values;\n\n        if (Array.isArray(this.children) && this.children.length) {\n          this.setColumns().catch(() => {});\n        }\n      },\n    },\n  },\n\n  beforeCreate() {\n    Object.defineProperty(this, 'children', {\n      get: () => this.selectAllComponents('.van-picker__column') || [],\n    });\n  },\n\n  methods: {\n    noop() {},\n\n    setColumns() {\n      const { data } = this;\n      const columns = this.simple ? [{ values: data.columns }] : data.columns;\n      const stack = columns.map((column: Column, index: number) =>\n        this.setColumnValues(index, column.values)\n      );\n      return Promise.all(stack);\n    },\n\n    emit(event: WechatMiniprogram.TouchEvent) {\n      const { type } = event.currentTarget.dataset;\n      if (this.simple) {\n        this.$emit(type, {\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit(type, {\n          value: this.getValues(),\n          index: this.getIndexes(),\n        });\n      }\n    },\n\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (this.simple) {\n        this.$emit('change', {\n          picker: this,\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit('change', {\n          picker: this,\n          value: this.getValues(),\n          index: event.currentTarget.dataset.index,\n        });\n      }\n    },\n\n    // get column instance by index\n    getColumn(index: number) {\n      return this.children[index];\n    },\n\n    // get column value by index\n    getColumnValue(index: number) {\n      const column = this.getColumn(index);\n      return column && column.getValue();\n    },\n\n    // set column value by index\n    setColumnValue(index: number, value: any) {\n      const column = this.getColumn(index);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValue: 对应列不存在'));\n      }\n\n      return column.setValue(value);\n    },\n\n    // get column option index by column index\n    getColumnIndex(columnIndex: number) {\n      return (this.getColumn(columnIndex) || {}).data.currentIndex;\n    },\n\n    // set column option index by column index\n    setColumnIndex(columnIndex: number, optionIndex: number) {\n      const column = this.getColumn(columnIndex);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnIndex: 对应列不存在'));\n      }\n\n      return column.setIndex(optionIndex);\n    },\n\n    // get options of column by index\n    getColumnValues(index: number) {\n      return (this.children[index] || {}).data.options;\n    },\n\n    // set options of column by index\n    setColumnValues(index: number, options: any[], needReset = true) {\n      const column = this.children[index];\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValues: 对应列不存在'));\n      }\n\n      const isSame =\n        JSON.stringify(column.data.options) === JSON.stringify(options);\n\n      if (isSame) {\n        return Promise.resolve();\n      }\n\n      return column.set({ options }).then(() => {\n        if (needReset) {\n          column.setIndex(0);\n        }\n      });\n    },\n\n    // get values of all columns\n    getValues() {\n      return this.children.map((child) => child.getValue());\n    },\n\n    // set values of all columns\n    setValues(values: any[]) {\n      const stack = values.map((value, index) =>\n        this.setColumnValue(index, value)\n      );\n      return Promise.all(stack);\n    },\n\n    // get indexes of all columns\n    getIndexes() {\n      return this.children.map((child) => child.data.currentIndex);\n    },\n\n    // set indexes of all columns\n    setIndexes(indexes: number[]) {\n      const stack = indexes.map((optionIndex, columnIndex) =>\n        this.setColumnIndex(columnIndex, optionIndex)\n      );\n      return Promise.all(stack);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { pickerProps } from './shared';"
+      },
+      {
+        "kind": "InterfaceDeclaration",
+        "text": "interface Column {\n  values: any[];\n  defaultIndex?: number;\n}",
+        "name": "Column"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['active-class', 'toolbar-class', 'column-class'],\n\n  props: {\n    ...pickerProps,\n    valueKey: {\n      type: String,\n      value: 'text',\n    },\n    toolbarPosition: {\n      type: String,\n      value: 'top',\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n    },\n    columns: {\n      type: Array,\n      value: [],\n      observer(columns = []) {\n        this.simple = columns.length && !columns[0].values;\n\n        if (Array.isArray(this.children) && this.children.length) {\n          this.setColumns().catch(() => {});\n        }\n      },\n    },\n  },\n\n  beforeCreate() {\n    Object.defineProperty(this, 'children', {\n      get: () => this.selectAllComponents('.van-picker__column') || [],\n    });\n  },\n\n  methods: {\n    noop() {},\n\n    setColumns() {\n      const { data } = this;\n      const columns = this.simple ? [{ values: data.columns }] : data.columns;\n      const stack = columns.map((column: Column, index: number) =>\n        this.setColumnValues(index, column.values)\n      );\n      return Promise.all(stack);\n    },\n\n    emit(event: WechatMiniprogram.TouchEvent) {\n      const { type } = event.currentTarget.dataset;\n      if (this.simple) {\n        this.$emit(type, {\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit(type, {\n          value: this.getValues(),\n          index: this.getIndexes(),\n        });\n      }\n    },\n\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (this.simple) {\n        this.$emit('change', {\n          picker: this,\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit('change', {\n          picker: this,\n          value: this.getValues(),\n          index: event.currentTarget.dataset.index,\n        });\n      }\n    },\n\n    // get column instance by index\n    getColumn(index: number) {\n      return this.children[index];\n    },\n\n    // get column value by index\n    getColumnValue(index: number) {\n      const column = this.getColumn(index);\n      return column && column.getValue();\n    },\n\n    // set column value by index\n    setColumnValue(index: number, value: any) {\n      const column = this.getColumn(index);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValue: 对应列不存在'));\n      }\n\n      return column.setValue(value);\n    },\n\n    // get column option index by column index\n    getColumnIndex(columnIndex: number) {\n      return (this.getColumn(columnIndex) || {}).data.currentIndex;\n    },\n\n    // set column option index by column index\n    setColumnIndex(columnIndex: number, optionIndex: number) {\n      const column = this.getColumn(columnIndex);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnIndex: 对应列不存在'));\n      }\n\n      return column.setIndex(optionIndex);\n    },\n\n    // get options of column by index\n    getColumnValues(index: number) {\n      return (this.children[index] || {}).data.options;\n    },\n\n    // set options of column by index\n    setColumnValues(index: number, options: any[], needReset = true) {\n      const column = this.children[index];\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValues: 对应列不存在'));\n      }\n\n      const isSame =\n        JSON.stringify(column.data.options) === JSON.stringify(options);\n\n      if (isSame) {\n        return Promise.resolve();\n      }\n\n      return column.set({ options }).then(() => {\n        if (needReset) {\n          column.setIndex(0);\n        }\n      });\n    },\n\n    // get values of all columns\n    getValues() {\n      return this.children.map((child) => child.getValue());\n    },\n\n    // set values of all columns\n    setValues(values: any[]) {\n      const stack = values.map((value, index) =>\n        this.setColumnValue(index, value)\n      );\n      return Promise.all(stack);\n    },\n\n    // get indexes of all columns\n    getIndexes() {\n      return this.children.map((child) => child.data.currentIndex);\n    },\n\n    // set indexes of all columns\n    setIndexes(indexes: number[]) {\n      const stack = indexes.map((optionIndex, columnIndex) =>\n        this.setColumnIndex(columnIndex, optionIndex)\n      );\n      return Promise.all(stack);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['active-class', 'toolbar-class', 'column-class'],\n\n  props: {\n    ...pickerProps,\n    valueKey: {\n      type: String,\n      value: 'text',\n    },\n    toolbarPosition: {\n      type: String,\n      value: 'top',\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n    },\n    columns: {\n      type: Array,\n      value: [],\n      observer(columns = []) {\n        this.simple = columns.length && !columns[0].values;\n\n        if (Array.isArray(this.children) && this.children.length) {\n          this.setColumns().catch(() => {});\n        }\n      },\n    },\n  },\n\n  beforeCreate() {\n    Object.defineProperty(this, 'children', {\n      get: () => this.selectAllComponents('.van-picker__column') || [],\n    });\n  },\n\n  methods: {\n    noop() {},\n\n    setColumns() {\n      const { data } = this;\n      const columns = this.simple ? [{ values: data.columns }] : data.columns;\n      const stack = columns.map((column: Column, index: number) =>\n        this.setColumnValues(index, column.values)\n      );\n      return Promise.all(stack);\n    },\n\n    emit(event: WechatMiniprogram.TouchEvent) {\n      const { type } = event.currentTarget.dataset;\n      if (this.simple) {\n        this.$emit(type, {\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit(type, {\n          value: this.getValues(),\n          index: this.getIndexes(),\n        });\n      }\n    },\n\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (this.simple) {\n        this.$emit('change', {\n          picker: this,\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit('change', {\n          picker: this,\n          value: this.getValues(),\n          index: event.currentTarget.dataset.index,\n        });\n      }\n    },\n\n    // get column instance by index\n    getColumn(index: number) {\n      return this.children[index];\n    },\n\n    // get column value by index\n    getColumnValue(index: number) {\n      const column = this.getColumn(index);\n      return column && column.getValue();\n    },\n\n    // set column value by index\n    setColumnValue(index: number, value: any) {\n      const column = this.getColumn(index);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValue: 对应列不存在'));\n      }\n\n      return column.setValue(value);\n    },\n\n    // get column option index by column index\n    getColumnIndex(columnIndex: number) {\n      return (this.getColumn(columnIndex) || {}).data.currentIndex;\n    },\n\n    // set column option index by column index\n    setColumnIndex(columnIndex: number, optionIndex: number) {\n      const column = this.getColumn(columnIndex);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnIndex: 对应列不存在'));\n      }\n\n      return column.setIndex(optionIndex);\n    },\n\n    // get options of column by index\n    getColumnValues(index: number) {\n      return (this.children[index] || {}).data.options;\n    },\n\n    // set options of column by index\n    setColumnValues(index: number, options: any[], needReset = true) {\n      const column = this.children[index];\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValues: 对应列不存在'));\n      }\n\n      const isSame =\n        JSON.stringify(column.data.options) === JSON.stringify(options);\n\n      if (isSame) {\n        return Promise.resolve();\n      }\n\n      return column.set({ options }).then(() => {\n        if (needReset) {\n          column.setIndex(0);\n        }\n      });\n    },\n\n    // get values of all columns\n    getValues() {\n      return this.children.map((child) => child.getValue());\n    },\n\n    // set values of all columns\n    setValues(values: any[]) {\n      const stack = values.map((value, index) =>\n        this.setColumnValue(index, value)\n      );\n      return Promise.all(stack);\n    },\n\n    // get indexes of all columns\n    getIndexes() {\n      return this.children.map((child) => child.data.currentIndex);\n    },\n\n    // set indexes of all columns\n    setIndexes(indexes: number[]) {\n      const stack = indexes.map((optionIndex, columnIndex) =>\n        this.setColumnIndex(columnIndex, optionIndex)\n      );\n      return Promise.all(stack);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'active-class'",
+              "'toolbar-class'",
+              "'column-class'"
+            ],
+            "props": {
+              "valueKey": {
+                "type": "String",
+                "value": "text"
+              },
+              "toolbarPosition": {
+                "type": "String",
+                "value": "top"
+              },
+              "defaultIndex": {
+                "type": "Number",
+                "value": "0"
+              },
+              "columns": {
+                "type": "Array",
+                "value": []
+              }
+            },
+            "methods": {
+              "noop": "noop() {}",
+              "setColumns": "setColumns() {\n      const { data } = this;\n      const columns = this.simple ? [{ values: data.columns }] : data.columns;\n      const stack = columns.map((column: Column, index: number) =>\n        this.setColumnValues(index, column.values)\n      );\n      return Promise.all(stack);\n    }",
+              "emit": "emit(event: WechatMiniprogram.TouchEvent) {\n      const { type } = event.currentTarget.dataset;\n      if (this.simple) {\n        this.$emit(type, {\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit(type, {\n          value: this.getValues(),\n          index: this.getIndexes(),\n        });\n      }\n    }",
+              "onChange": "onChange(event: WechatMiniprogram.CustomEvent) {\n      if (this.simple) {\n        this.$emit('change', {\n          picker: this,\n          value: this.getColumnValue(0),\n          index: this.getColumnIndex(0),\n        });\n      } else {\n        this.$emit('change', {\n          picker: this,\n          value: this.getValues(),\n          index: event.currentTarget.dataset.index,\n        });\n      }\n    }",
+              "getColumn": "getColumn(index: number) {\n      return this.children[index];\n    }",
+              "getColumnValue": "getColumnValue(index: number) {\n      const column = this.getColumn(index);\n      return column && column.getValue();\n    }",
+              "setColumnValue": "setColumnValue(index: number, value: any) {\n      const column = this.getColumn(index);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValue: 对应列不存在'));\n      }\n\n      return column.setValue(value);\n    }",
+              "getColumnIndex": "getColumnIndex(columnIndex: number) {\n      return (this.getColumn(columnIndex) || {}).data.currentIndex;\n    }",
+              "setColumnIndex": "setColumnIndex(columnIndex: number, optionIndex: number) {\n      const column = this.getColumn(columnIndex);\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnIndex: 对应列不存在'));\n      }\n\n      return column.setIndex(optionIndex);\n    }",
+              "getColumnValues": "getColumnValues(index: number) {\n      return (this.children[index] || {}).data.options;\n    }",
+              "setColumnValues": "setColumnValues(index: number, options: any[], needReset = true) {\n      const column = this.children[index];\n\n      if (column == null) {\n        return Promise.reject(new Error('setColumnValues: 对应列不存在'));\n      }\n\n      const isSame =\n        JSON.stringify(column.data.options) === JSON.stringify(options);\n\n      if (isSame) {\n        return Promise.resolve();\n      }\n\n      return column.set({ options }).then(() => {\n        if (needReset) {\n          column.setIndex(0);\n        }\n      });\n    }",
+              "getValues": "getValues() {\n      return this.children.map((child) => child.getValue());\n    }",
+              "setValues": "setValues(values: any[]) {\n      const stack = values.map((value, index) =>\n        this.setColumnValue(index, value)\n      );\n      return Promise.all(stack);\n    }",
+              "getIndexes": "getIndexes() {\n      return this.children.map((child) => child.data.currentIndex);\n    }",
+              "setIndexes": "setIndexes(indexes: number[]) {\n      const stack = indexes.map((optionIndex, columnIndex) =>\n        this.setColumnIndex(columnIndex, optionIndex)\n      );\n      return Promise.all(stack);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\nvar array = require('../wxs/array.wxs');\n\nfunction columnsStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight * data.visibleItemCount),\n  });\n}\n\nfunction maskStyle(data) {\n  return style({\n    'background-size':\n      '100% ' + addUnit((data.itemHeight * (data.visibleItemCount - 1)) / 2),\n  });\n}\n\nfunction frameStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight),\n  });\n}\n\nfunction columns(columns) {\n  if (!array.isArray(columns)) {\n    return [];\n  }\n\n  if (columns.length && !columns[0].values) {\n    return [{ values: columns }];\n  }\n\n  return columns;\n}\n\nmodule.exports = {\n  columnsStyle: columnsStyle,\n  frameStyle: frameStyle,\n  maskStyle: maskStyle,\n  columns: columns,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var array = require('../wxs/array.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function columnsStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight * data.visibleItemCount),\n  });\n}",
+        "name": "columnsStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function maskStyle(data) {\n  return style({\n    'background-size':\n      '100% ' + addUnit((data.itemHeight * (data.visibleItemCount - 1)) / 2),\n  });\n}",
+        "name": "maskStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function frameStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight),\n  });\n}",
+        "name": "frameStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function columns(columns) {\n  if (!array.isArray(columns)) {\n    return [];\n  }\n\n  if (columns.length && !columns[0].values) {\n    return [{ values: columns }];\n  }\n\n  return columns;\n}",
+        "name": "columns"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  columnsStyle: columnsStyle,\n  frameStyle: frameStyle,\n  maskStyle: maskStyle,\n  columns: columns,\n};",
+        "expression": "module.exports = {\n  columnsStyle: columnsStyle,\n  frameStyle: frameStyle,\n  maskStyle: maskStyle,\n  columns: columns,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-picker{-webkit-text-size-adjust:100%;background-color:var(--picker-background-color,#fff);overflow:hidden;position:relative;-webkit-user-select:none;user-select:none}.van-picker__toolbar{display:flex;height:var(--picker-toolbar-height,44px);justify-content:space-between;line-height:var(--picker-toolbar-height,44px)}.van-picker__cancel,.van-picker__confirm{font-size:var(--picker-action-font-size,14px);padding:var(--picker-action-padding,0 16px)}.van-picker__cancel--hover,.van-picker__confirm--hover{opacity:.7}.van-picker__confirm{color:var(--picker-confirm-action-color,#576b95)}.van-picker__cancel{color:var(--picker-cancel-action-color,#969799)}.van-picker__title{font-size:var(--picker-option-font-size,16px);font-weight:var(--font-weight-bold,500);max-width:50%;text-align:center}.van-picker__columns{display:flex;position:relative}.van-picker__column{flex:1 1;width:0}.van-picker__loading{align-items:center;background-color:var(--picker-loading-mask-color,hsla(0,0%,100%,.9));bottom:0;display:flex;justify-content:center;left:0;position:absolute;right:0;top:0;z-index:4}.van-picker__mask{-webkit-backface-visibility:hidden;backface-visibility:hidden;background-image:linear-gradient(180deg,hsla(0,0%,100%,.9),hsla(0,0%,100%,.4)),linear-gradient(0deg,hsla(0,0%,100%,.9),hsla(0,0%,100%,.4));background-position:top,bottom;background-repeat:no-repeat;height:100%;left:0;top:0;width:100%;z-index:2}.van-picker__frame,.van-picker__mask{pointer-events:none;position:absolute}.van-picker__frame{left:16px;right:16px;top:50%;transform:translateY(-50%);z-index:1}"
+}

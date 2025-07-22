@@ -1,0 +1,147 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-picker-column custom-class",
+        ":style": "rootStyle",
+        "@touchstart": "onTouchStart",
+        "@catch:touchmove": "onTouchMove",
+        "@touchend": "onTouchEnd",
+        "@touchcancel": "onTouchEnd"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            ":style": "wrapperStyle"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "v-for": "options",
+                "v-for-item": "option",
+                ":key": "index",
+                ":data-index": "index",
+                "style": "height: {{ itemHeight }}px",
+                "class": "van-ellipsis {{ utils.bem('picker-column__item', { disabled: option && option.disabled, selected: index === currentIndex }) }} {{ index === currentIndex ? 'active-class' : '' }}",
+                "@tap": "onClickItem"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { range } from '../common/utils';\nimport { isObj } from '../common/validator';\n\nconst DEFAULT_DURATION = 200;\n\nVantComponent({\n  classes: ['active-class'],\n\n  props: {\n    valueKey: String,\n    className: String,\n    itemHeight: Number,\n    visibleItemCount: Number,\n    initialOptions: {\n      type: Array,\n      value: [],\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n      observer(value: number) {\n        this.setIndex(value);\n      },\n    },\n  },\n\n  data: {\n    startY: 0,\n    offset: 0,\n    duration: 0,\n    startOffset: 0,\n    options: [],\n    currentIndex: 0,\n  },\n\n  created() {\n    const { defaultIndex, initialOptions } = this.data;\n\n    this.set({\n      currentIndex: defaultIndex,\n      options: initialOptions,\n    }).then(() => {\n      this.setIndex(defaultIndex);\n    });\n  },\n\n  methods: {\n    getCount() {\n      return this.data.options.length;\n    },\n\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      this.setData({\n        startY: event.touches[0].clientY,\n        startOffset: this.data.offset,\n        duration: 0,\n      });\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      const { data } = this;\n      const deltaY = event.touches[0].clientY - data.startY;\n      this.setData({\n        offset: range(\n          data.startOffset + deltaY,\n          -(this.getCount() * data.itemHeight),\n          data.itemHeight\n        ),\n      });\n    },\n\n    onTouchEnd() {\n      const { data } = this;\n      if (data.offset !== data.startOffset) {\n        this.setData({ duration: DEFAULT_DURATION });\n\n        const index = range(\n          Math.round(-data.offset / data.itemHeight),\n          0,\n          this.getCount() - 1\n        );\n        this.setIndex(index, true);\n      }\n    },\n\n    onClickItem(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      this.setIndex(index, true);\n    },\n\n    adjustIndex(index: number) {\n      const { data } = this;\n      const count = this.getCount();\n\n      index = range(index, 0, count);\n      for (let i = index; i < count; i++) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n      for (let i = index - 1; i >= 0; i--) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n    },\n\n    isDisabled(option: any) {\n      return isObj(option) && option.disabled;\n    },\n\n    getOptionText(option: any) {\n      const { data } = this;\n      return isObj(option) && data.valueKey in option\n        ? option[data.valueKey]\n        : option;\n    },\n\n    setIndex(index: number, userAction?: boolean) {\n      const { data } = this;\n      index = this.adjustIndex(index) || 0;\n      const offset = -index * data.itemHeight;\n\n      if (index !== data.currentIndex) {\n        return this.set({ offset, currentIndex: index }).then(() => {\n          userAction && this.$emit('change', index);\n        });\n      }\n\n      return this.set({ offset });\n    },\n\n    setValue(value: string) {\n      const { options } = this.data;\n      for (let i = 0; i < options.length; i++) {\n        if (this.getOptionText(options[i]) === value) {\n          return this.setIndex(i);\n        }\n      }\n      return Promise.resolve();\n    },\n\n    getValue() {\n      const { data } = this;\n      return data.options[data.currentIndex];\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { range } from '../common/utils';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { isObj } from '../common/validator';"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "const DEFAULT_DURATION = 200;"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['active-class'],\n\n  props: {\n    valueKey: String,\n    className: String,\n    itemHeight: Number,\n    visibleItemCount: Number,\n    initialOptions: {\n      type: Array,\n      value: [],\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n      observer(value: number) {\n        this.setIndex(value);\n      },\n    },\n  },\n\n  data: {\n    startY: 0,\n    offset: 0,\n    duration: 0,\n    startOffset: 0,\n    options: [],\n    currentIndex: 0,\n  },\n\n  created() {\n    const { defaultIndex, initialOptions } = this.data;\n\n    this.set({\n      currentIndex: defaultIndex,\n      options: initialOptions,\n    }).then(() => {\n      this.setIndex(defaultIndex);\n    });\n  },\n\n  methods: {\n    getCount() {\n      return this.data.options.length;\n    },\n\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      this.setData({\n        startY: event.touches[0].clientY,\n        startOffset: this.data.offset,\n        duration: 0,\n      });\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      const { data } = this;\n      const deltaY = event.touches[0].clientY - data.startY;\n      this.setData({\n        offset: range(\n          data.startOffset + deltaY,\n          -(this.getCount() * data.itemHeight),\n          data.itemHeight\n        ),\n      });\n    },\n\n    onTouchEnd() {\n      const { data } = this;\n      if (data.offset !== data.startOffset) {\n        this.setData({ duration: DEFAULT_DURATION });\n\n        const index = range(\n          Math.round(-data.offset / data.itemHeight),\n          0,\n          this.getCount() - 1\n        );\n        this.setIndex(index, true);\n      }\n    },\n\n    onClickItem(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      this.setIndex(index, true);\n    },\n\n    adjustIndex(index: number) {\n      const { data } = this;\n      const count = this.getCount();\n\n      index = range(index, 0, count);\n      for (let i = index; i < count; i++) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n      for (let i = index - 1; i >= 0; i--) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n    },\n\n    isDisabled(option: any) {\n      return isObj(option) && option.disabled;\n    },\n\n    getOptionText(option: any) {\n      const { data } = this;\n      return isObj(option) && data.valueKey in option\n        ? option[data.valueKey]\n        : option;\n    },\n\n    setIndex(index: number, userAction?: boolean) {\n      const { data } = this;\n      index = this.adjustIndex(index) || 0;\n      const offset = -index * data.itemHeight;\n\n      if (index !== data.currentIndex) {\n        return this.set({ offset, currentIndex: index }).then(() => {\n          userAction && this.$emit('change', index);\n        });\n      }\n\n      return this.set({ offset });\n    },\n\n    setValue(value: string) {\n      const { options } = this.data;\n      for (let i = 0; i < options.length; i++) {\n        if (this.getOptionText(options[i]) === value) {\n          return this.setIndex(i);\n        }\n      }\n      return Promise.resolve();\n    },\n\n    getValue() {\n      const { data } = this;\n      return data.options[data.currentIndex];\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['active-class'],\n\n  props: {\n    valueKey: String,\n    className: String,\n    itemHeight: Number,\n    visibleItemCount: Number,\n    initialOptions: {\n      type: Array,\n      value: [],\n    },\n    defaultIndex: {\n      type: Number,\n      value: 0,\n      observer(value: number) {\n        this.setIndex(value);\n      },\n    },\n  },\n\n  data: {\n    startY: 0,\n    offset: 0,\n    duration: 0,\n    startOffset: 0,\n    options: [],\n    currentIndex: 0,\n  },\n\n  created() {\n    const { defaultIndex, initialOptions } = this.data;\n\n    this.set({\n      currentIndex: defaultIndex,\n      options: initialOptions,\n    }).then(() => {\n      this.setIndex(defaultIndex);\n    });\n  },\n\n  methods: {\n    getCount() {\n      return this.data.options.length;\n    },\n\n    onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      this.setData({\n        startY: event.touches[0].clientY,\n        startOffset: this.data.offset,\n        duration: 0,\n      });\n    },\n\n    onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      const { data } = this;\n      const deltaY = event.touches[0].clientY - data.startY;\n      this.setData({\n        offset: range(\n          data.startOffset + deltaY,\n          -(this.getCount() * data.itemHeight),\n          data.itemHeight\n        ),\n      });\n    },\n\n    onTouchEnd() {\n      const { data } = this;\n      if (data.offset !== data.startOffset) {\n        this.setData({ duration: DEFAULT_DURATION });\n\n        const index = range(\n          Math.round(-data.offset / data.itemHeight),\n          0,\n          this.getCount() - 1\n        );\n        this.setIndex(index, true);\n      }\n    },\n\n    onClickItem(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      this.setIndex(index, true);\n    },\n\n    adjustIndex(index: number) {\n      const { data } = this;\n      const count = this.getCount();\n\n      index = range(index, 0, count);\n      for (let i = index; i < count; i++) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n      for (let i = index - 1; i >= 0; i--) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n    },\n\n    isDisabled(option: any) {\n      return isObj(option) && option.disabled;\n    },\n\n    getOptionText(option: any) {\n      const { data } = this;\n      return isObj(option) && data.valueKey in option\n        ? option[data.valueKey]\n        : option;\n    },\n\n    setIndex(index: number, userAction?: boolean) {\n      const { data } = this;\n      index = this.adjustIndex(index) || 0;\n      const offset = -index * data.itemHeight;\n\n      if (index !== data.currentIndex) {\n        return this.set({ offset, currentIndex: index }).then(() => {\n          userAction && this.$emit('change', index);\n        });\n      }\n\n      return this.set({ offset });\n    },\n\n    setValue(value: string) {\n      const { options } = this.data;\n      for (let i = 0; i < options.length; i++) {\n        if (this.getOptionText(options[i]) === value) {\n          return this.setIndex(i);\n        }\n      }\n      return Promise.resolve();\n    },\n\n    getValue() {\n      const { data } = this;\n      return data.options[data.currentIndex];\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'active-class'"
+            ],
+            "props": {
+              "valueKey": "String",
+              "className": "String",
+              "itemHeight": "Number",
+              "visibleItemCount": "Number",
+              "initialOptions": {
+                "type": "Array",
+                "value": []
+              },
+              "defaultIndex": {
+                "type": "Number",
+                "value": "0"
+              }
+            },
+            "data": {
+              "startY": "0",
+              "offset": "0",
+              "duration": "0",
+              "startOffset": "0",
+              "options": [],
+              "currentIndex": "0"
+            },
+            "methods": {
+              "getCount": "getCount() {\n      return this.data.options.length;\n    }",
+              "onTouchStart": "onTouchStart(event: WechatMiniprogram.TouchEvent) {\n      this.setData({\n        startY: event.touches[0].clientY,\n        startOffset: this.data.offset,\n        duration: 0,\n      });\n    }",
+              "onTouchMove": "onTouchMove(event: WechatMiniprogram.TouchEvent) {\n      const { data } = this;\n      const deltaY = event.touches[0].clientY - data.startY;\n      this.setData({\n        offset: range(\n          data.startOffset + deltaY,\n          -(this.getCount() * data.itemHeight),\n          data.itemHeight\n        ),\n      });\n    }",
+              "onTouchEnd": "onTouchEnd() {\n      const { data } = this;\n      if (data.offset !== data.startOffset) {\n        this.setData({ duration: DEFAULT_DURATION });\n\n        const index = range(\n          Math.round(-data.offset / data.itemHeight),\n          0,\n          this.getCount() - 1\n        );\n        this.setIndex(index, true);\n      }\n    }",
+              "onClickItem": "onClickItem(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n      this.setIndex(index, true);\n    }",
+              "adjustIndex": "adjustIndex(index: number) {\n      const { data } = this;\n      const count = this.getCount();\n\n      index = range(index, 0, count);\n      for (let i = index; i < count; i++) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n      for (let i = index - 1; i >= 0; i--) {\n        if (!this.isDisabled(data.options[i])) return i;\n      }\n    }",
+              "isDisabled": "isDisabled(option: any) {\n      return isObj(option) && option.disabled;\n    }",
+              "getOptionText": "getOptionText(option: any) {\n      const { data } = this;\n      return isObj(option) && data.valueKey in option\n        ? option[data.valueKey]\n        : option;\n    }",
+              "setIndex": "setIndex(index: number, userAction?: boolean) {\n      const { data } = this;\n      index = this.adjustIndex(index) || 0;\n      const offset = -index * data.itemHeight;\n\n      if (index !== data.currentIndex) {\n        return this.set({ offset, currentIndex: index }).then(() => {\n          userAction && this.$emit('change', index);\n        });\n      }\n\n      return this.set({ offset });\n    }",
+              "setValue": "setValue(value: string) {\n      const { options } = this.data;\n      for (let i = 0; i < options.length; i++) {\n        if (this.getOptionText(options[i]) === value) {\n          return this.setIndex(i);\n        }\n      }\n      return Promise.resolve();\n    }",
+              "getValue": "getValue() {\n      const { data } = this;\n      return data.options[data.currentIndex];\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction isObj(x) {\n  var type = typeof x;\n  return x !== null && (type === 'object' || type === 'function');\n}\n\nfunction optionText(option, valueKey) {\n  return isObj(option) && option[valueKey] != null ? option[valueKey] : option;\n}\n\nfunction rootStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight * data.visibleItemCount),\n  });\n}\n\nfunction wrapperStyle(data) {\n  var offset = addUnit(\n    data.offset + (data.itemHeight * (data.visibleItemCount - 1)) / 2\n  );\n\n  return style({\n    transition: 'transform ' + data.duration + 'ms',\n    'line-height': addUnit(data.itemHeight),\n    transform: 'translate3d(0, ' + offset + ', 0)',\n  });\n}\n\nmodule.exports = {\n  optionText: optionText,\n  rootStyle: rootStyle,\n  wrapperStyle: wrapperStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function isObj(x) {\n  var type = typeof x;\n  return x !== null && (type === 'object' || type === 'function');\n}",
+        "name": "isObj"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function optionText(option, valueKey) {\n  return isObj(option) && option[valueKey] != null ? option[valueKey] : option;\n}",
+        "name": "optionText"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function rootStyle(data) {\n  return style({\n    height: addUnit(data.itemHeight * data.visibleItemCount),\n  });\n}",
+        "name": "rootStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function wrapperStyle(data) {\n  var offset = addUnit(\n    data.offset + (data.itemHeight * (data.visibleItemCount - 1)) / 2\n  );\n\n  return style({\n    transition: 'transform ' + data.duration + 'ms',\n    'line-height': addUnit(data.itemHeight),\n    transform: 'translate3d(0, ' + offset + ', 0)',\n  });\n}",
+        "name": "wrapperStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  optionText: optionText,\n  rootStyle: rootStyle,\n  wrapperStyle: wrapperStyle,\n};",
+        "expression": "module.exports = {\n  optionText: optionText,\n  rootStyle: rootStyle,\n  wrapperStyle: wrapperStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-picker-column{color:var(--picker-option-text-color,#000);font-size:var(--picker-option-font-size,16px);overflow:hidden;text-align:center}.van-picker-column__item{padding:0 5px}.van-picker-column__item--selected{color:var(--picker-option-selected-text-color,#323233);font-weight:var(--font-weight-bold,500)}.van-picker-column__item--disabled{opacity:var(--picker-option-disabled-opacity,.3)}"
+}

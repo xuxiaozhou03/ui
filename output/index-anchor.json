@@ -1,0 +1,82 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-index-anchor-wrapper",
+        ":style": "wrapperStyle"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-index-anchor {{ active ? 'van-index-anchor--active van-hairline--bottom' : '' }}",
+            ":style": "anchorStyle"
+          },
+          "children": [
+            {
+              "tag": "slot",
+              "attrs": {
+                "v-if": "useSlot"
+              }
+            },
+            {
+              "tag": "template",
+              "attrs": {
+                "v-else": ""
+              },
+              "children": [
+                {
+                  "tag": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { getRect } from '../common/utils';\nimport { VantComponent } from '../common/component';\nimport { useParent } from '../common/relation';\n\nVantComponent({\n  relation: useParent('index-bar'),\n\n  props: {\n    useSlot: Boolean,\n    index: null,\n  },\n\n  data: {\n    active: false,\n    wrapperStyle: '',\n    anchorStyle: '',\n  },\n\n  methods: {\n    scrollIntoView(scrollTop) {\n      getRect(this, '.van-index-anchor-wrapper').then((rect) => {\n        wx.pageScrollTo({\n          duration: 0,\n          scrollTop: scrollTop + rect.top - this.parent.data.stickyOffsetTop,\n        });\n      });\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { getRect } from '../common/utils';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useParent } from '../common/relation';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  relation: useParent('index-bar'),\n\n  props: {\n    useSlot: Boolean,\n    index: null,\n  },\n\n  data: {\n    active: false,\n    wrapperStyle: '',\n    anchorStyle: '',\n  },\n\n  methods: {\n    scrollIntoView(scrollTop) {\n      getRect(this, '.van-index-anchor-wrapper').then((rect) => {\n        wx.pageScrollTo({\n          duration: 0,\n          scrollTop: scrollTop + rect.top - this.parent.data.stickyOffsetTop,\n        });\n      });\n    },\n  },\n});",
+        "expression": "VantComponent({\n  relation: useParent('index-bar'),\n\n  props: {\n    useSlot: Boolean,\n    index: null,\n  },\n\n  data: {\n    active: false,\n    wrapperStyle: '',\n    anchorStyle: '',\n  },\n\n  methods: {\n    scrollIntoView(scrollTop) {\n      getRect(this, '.van-index-anchor-wrapper').then((rect) => {\n        wx.pageScrollTo({\n          duration: 0,\n          scrollTop: scrollTop + rect.top - this.parent.data.stickyOffsetTop,\n        });\n      });\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "relation": "useParent('index-bar')",
+            "props": {
+              "useSlot": "Boolean",
+              "index": "null"
+            },
+            "data": {
+              "active": "false",
+              "wrapperStyle": "",
+              "anchorStyle": ""
+            },
+            "methods": {
+              "scrollIntoView": "scrollIntoView(scrollTop) {\n      getRect(this, '.van-index-anchor-wrapper').then((rect) => {\n        wx.pageScrollTo({\n          duration: 0,\n          scrollTop: scrollTop + rect.top - this.parent.data.stickyOffsetTop,\n        });\n      });\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-index-anchor{background-color:var(--index-anchor-background-color,transparent);color:var(--index-anchor-text-color,#323233);font-size:var(--index-anchor-font-size,14px);font-weight:var(--index-anchor-font-weight,500);line-height:var(--index-anchor-line-height,32px);padding:var(--index-anchor-padding,0 16px)}.van-index-anchor--active{background-color:var(--index-anchor-active-background-color,#fff);color:var(--index-anchor-active-text-color,#07c160);left:0;right:0}"
+}

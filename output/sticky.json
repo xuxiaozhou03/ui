@@ -1,0 +1,126 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "custom-class van-sticky",
+        ":style": "containerStyle"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            ":class": "utils.bem('sticky-wrap', { fixed })",
+            ":style": "wrapStyle"
+          },
+          "children": [
+            {
+              "tag": "slot"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { getRect } from '../common/utils';\nimport { VantComponent } from '../common/component';\nimport { isDef } from '../common/validator';\nimport { pageScrollMixin } from '../mixins/page-scroll';\n\nconst ROOT_ELEMENT = '.van-sticky';\n\nVantComponent({\n  props: {\n    zIndex: {\n      type: Number,\n      value: 99,\n    },\n    offsetTop: {\n      type: Number,\n      value: 0,\n      observer: 'onScroll',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'onScroll',\n    },\n    container: {\n      type: null,\n      observer: 'onScroll',\n    },\n    scrollTop: {\n      type: null,\n      observer(val) {\n        this.onScroll({ scrollTop: val });\n      },\n    },\n  },\n\n  mixins: [\n    pageScrollMixin(function (event) {\n      if (this.data.scrollTop != null) {\n        return;\n      }\n      this.onScroll(event);\n    }),\n  ],\n\n  data: {\n    height: 0,\n    fixed: false,\n    transform: 0,\n  },\n\n  mounted() {\n    this.onScroll();\n  },\n\n  methods: {\n    onScroll({ scrollTop }: { scrollTop?: number } = {}) {\n      const { container, offsetTop, disabled } = this.data;\n\n      if (disabled) {\n        this.setDataAfterDiff({\n          fixed: false,\n          transform: 0,\n        });\n        return;\n      }\n\n      this.scrollTop = scrollTop || this.scrollTop;\n\n      if (typeof container === 'function') {\n        Promise.all([getRect(this, ROOT_ELEMENT), this.getContainerRect()])\n          .then(([root, container]) => {\n            if (offsetTop + root.height > container.height + container.top) {\n              this.setDataAfterDiff({\n                fixed: false,\n                transform: container.height - root.height,\n              });\n            } else if (offsetTop >= root.top) {\n              this.setDataAfterDiff({\n                fixed: true,\n                height: root.height,\n                transform: 0,\n              });\n            } else {\n              this.setDataAfterDiff({ fixed: false, transform: 0 });\n            }\n          })\n          .catch(() => {});\n\n        return;\n      }\n\n      getRect(this, ROOT_ELEMENT).then((root) => {\n        if (!isDef(root) || (!root.width && !root.height)) {\n          return;\n        }\n        if (offsetTop >= root.top) {\n          this.setDataAfterDiff({ fixed: true, height: root.height });\n          this.transform = 0;\n        } else {\n          this.setDataAfterDiff({ fixed: false });\n        }\n      });\n    },\n\n    setDataAfterDiff(data) {\n      wx.nextTick(() => {\n        const diff = Object.keys(data).reduce((prev, key) => {\n          if (data[key] !== this.data[key]) {\n            prev[key] = data[key];\n          }\n\n          return prev;\n        }, {});\n\n        if (Object.keys(diff).length > 0) {\n          this.setData(diff);\n        }\n\n        this.$emit('scroll', {\n          scrollTop: this.scrollTop,\n          isFixed: data.fixed || this.data.fixed,\n        });\n      });\n    },\n\n    getContainerRect() {\n      const nodesRef: WechatMiniprogram.NodesRef = this.data.container();\n\n      if (!nodesRef) {\n        return Promise.reject(new Error('not found container'));\n      }\n\n      return new Promise<WechatMiniprogram.BoundingClientRectCallbackResult>(\n        (resolve) => nodesRef.boundingClientRect(resolve).exec()\n      );\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { getRect } from '../common/utils';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { isDef } from '../common/validator';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { pageScrollMixin } from '../mixins/page-scroll';"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "const ROOT_ELEMENT = '.van-sticky';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    zIndex: {\n      type: Number,\n      value: 99,\n    },\n    offsetTop: {\n      type: Number,\n      value: 0,\n      observer: 'onScroll',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'onScroll',\n    },\n    container: {\n      type: null,\n      observer: 'onScroll',\n    },\n    scrollTop: {\n      type: null,\n      observer(val) {\n        this.onScroll({ scrollTop: val });\n      },\n    },\n  },\n\n  mixins: [\n    pageScrollMixin(function (event) {\n      if (this.data.scrollTop != null) {\n        return;\n      }\n      this.onScroll(event);\n    }),\n  ],\n\n  data: {\n    height: 0,\n    fixed: false,\n    transform: 0,\n  },\n\n  mounted() {\n    this.onScroll();\n  },\n\n  methods: {\n    onScroll({ scrollTop }: { scrollTop?: number } = {}) {\n      const { container, offsetTop, disabled } = this.data;\n\n      if (disabled) {\n        this.setDataAfterDiff({\n          fixed: false,\n          transform: 0,\n        });\n        return;\n      }\n\n      this.scrollTop = scrollTop || this.scrollTop;\n\n      if (typeof container === 'function') {\n        Promise.all([getRect(this, ROOT_ELEMENT), this.getContainerRect()])\n          .then(([root, container]) => {\n            if (offsetTop + root.height > container.height + container.top) {\n              this.setDataAfterDiff({\n                fixed: false,\n                transform: container.height - root.height,\n              });\n            } else if (offsetTop >= root.top) {\n              this.setDataAfterDiff({\n                fixed: true,\n                height: root.height,\n                transform: 0,\n              });\n            } else {\n              this.setDataAfterDiff({ fixed: false, transform: 0 });\n            }\n          })\n          .catch(() => {});\n\n        return;\n      }\n\n      getRect(this, ROOT_ELEMENT).then((root) => {\n        if (!isDef(root) || (!root.width && !root.height)) {\n          return;\n        }\n        if (offsetTop >= root.top) {\n          this.setDataAfterDiff({ fixed: true, height: root.height });\n          this.transform = 0;\n        } else {\n          this.setDataAfterDiff({ fixed: false });\n        }\n      });\n    },\n\n    setDataAfterDiff(data) {\n      wx.nextTick(() => {\n        const diff = Object.keys(data).reduce((prev, key) => {\n          if (data[key] !== this.data[key]) {\n            prev[key] = data[key];\n          }\n\n          return prev;\n        }, {});\n\n        if (Object.keys(diff).length > 0) {\n          this.setData(diff);\n        }\n\n        this.$emit('scroll', {\n          scrollTop: this.scrollTop,\n          isFixed: data.fixed || this.data.fixed,\n        });\n      });\n    },\n\n    getContainerRect() {\n      const nodesRef: WechatMiniprogram.NodesRef = this.data.container();\n\n      if (!nodesRef) {\n        return Promise.reject(new Error('not found container'));\n      }\n\n      return new Promise<WechatMiniprogram.BoundingClientRectCallbackResult>(\n        (resolve) => nodesRef.boundingClientRect(resolve).exec()\n      );\n    },\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    zIndex: {\n      type: Number,\n      value: 99,\n    },\n    offsetTop: {\n      type: Number,\n      value: 0,\n      observer: 'onScroll',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'onScroll',\n    },\n    container: {\n      type: null,\n      observer: 'onScroll',\n    },\n    scrollTop: {\n      type: null,\n      observer(val) {\n        this.onScroll({ scrollTop: val });\n      },\n    },\n  },\n\n  mixins: [\n    pageScrollMixin(function (event) {\n      if (this.data.scrollTop != null) {\n        return;\n      }\n      this.onScroll(event);\n    }),\n  ],\n\n  data: {\n    height: 0,\n    fixed: false,\n    transform: 0,\n  },\n\n  mounted() {\n    this.onScroll();\n  },\n\n  methods: {\n    onScroll({ scrollTop }: { scrollTop?: number } = {}) {\n      const { container, offsetTop, disabled } = this.data;\n\n      if (disabled) {\n        this.setDataAfterDiff({\n          fixed: false,\n          transform: 0,\n        });\n        return;\n      }\n\n      this.scrollTop = scrollTop || this.scrollTop;\n\n      if (typeof container === 'function') {\n        Promise.all([getRect(this, ROOT_ELEMENT), this.getContainerRect()])\n          .then(([root, container]) => {\n            if (offsetTop + root.height > container.height + container.top) {\n              this.setDataAfterDiff({\n                fixed: false,\n                transform: container.height - root.height,\n              });\n            } else if (offsetTop >= root.top) {\n              this.setDataAfterDiff({\n                fixed: true,\n                height: root.height,\n                transform: 0,\n              });\n            } else {\n              this.setDataAfterDiff({ fixed: false, transform: 0 });\n            }\n          })\n          .catch(() => {});\n\n        return;\n      }\n\n      getRect(this, ROOT_ELEMENT).then((root) => {\n        if (!isDef(root) || (!root.width && !root.height)) {\n          return;\n        }\n        if (offsetTop >= root.top) {\n          this.setDataAfterDiff({ fixed: true, height: root.height });\n          this.transform = 0;\n        } else {\n          this.setDataAfterDiff({ fixed: false });\n        }\n      });\n    },\n\n    setDataAfterDiff(data) {\n      wx.nextTick(() => {\n        const diff = Object.keys(data).reduce((prev, key) => {\n          if (data[key] !== this.data[key]) {\n            prev[key] = data[key];\n          }\n\n          return prev;\n        }, {});\n\n        if (Object.keys(diff).length > 0) {\n          this.setData(diff);\n        }\n\n        this.$emit('scroll', {\n          scrollTop: this.scrollTop,\n          isFixed: data.fixed || this.data.fixed,\n        });\n      });\n    },\n\n    getContainerRect() {\n      const nodesRef: WechatMiniprogram.NodesRef = this.data.container();\n\n      if (!nodesRef) {\n        return Promise.reject(new Error('not found container'));\n      }\n\n      return new Promise<WechatMiniprogram.BoundingClientRectCallbackResult>(\n        (resolve) => nodesRef.boundingClientRect(resolve).exec()\n      );\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "zIndex": {
+                "type": "Number",
+                "value": "99"
+              },
+              "offsetTop": {
+                "type": "Number",
+                "value": "0",
+                "observer": "onScroll"
+              },
+              "disabled": {
+                "type": "Boolean",
+                "observer": "onScroll"
+              },
+              "container": {
+                "type": "null",
+                "observer": "onScroll"
+              },
+              "scrollTop": {
+                "type": "null"
+              }
+            },
+            "mixins": [
+              "pageScrollMixin(function (event) {\n      if (this.data.scrollTop != null) {\n        return;\n      }\n      this.onScroll(event);\n    })"
+            ],
+            "data": {
+              "height": "0",
+              "fixed": "false",
+              "transform": "0"
+            },
+            "methods": {
+              "onScroll": "onScroll({ scrollTop }: { scrollTop?: number } = {}) {\n      const { container, offsetTop, disabled } = this.data;\n\n      if (disabled) {\n        this.setDataAfterDiff({\n          fixed: false,\n          transform: 0,\n        });\n        return;\n      }\n\n      this.scrollTop = scrollTop || this.scrollTop;\n\n      if (typeof container === 'function') {\n        Promise.all([getRect(this, ROOT_ELEMENT), this.getContainerRect()])\n          .then(([root, container]) => {\n            if (offsetTop + root.height > container.height + container.top) {\n              this.setDataAfterDiff({\n                fixed: false,\n                transform: container.height - root.height,\n              });\n            } else if (offsetTop >= root.top) {\n              this.setDataAfterDiff({\n                fixed: true,\n                height: root.height,\n                transform: 0,\n              });\n            } else {\n              this.setDataAfterDiff({ fixed: false, transform: 0 });\n            }\n          })\n          .catch(() => {});\n\n        return;\n      }\n\n      getRect(this, ROOT_ELEMENT).then((root) => {\n        if (!isDef(root) || (!root.width && !root.height)) {\n          return;\n        }\n        if (offsetTop >= root.top) {\n          this.setDataAfterDiff({ fixed: true, height: root.height });\n          this.transform = 0;\n        } else {\n          this.setDataAfterDiff({ fixed: false });\n        }\n      });\n    }",
+              "setDataAfterDiff": "setDataAfterDiff(data) {\n      wx.nextTick(() => {\n        const diff = Object.keys(data).reduce((prev, key) => {\n          if (data[key] !== this.data[key]) {\n            prev[key] = data[key];\n          }\n\n          return prev;\n        }, {});\n\n        if (Object.keys(diff).length > 0) {\n          this.setData(diff);\n        }\n\n        this.$emit('scroll', {\n          scrollTop: this.scrollTop,\n          isFixed: data.fixed || this.data.fixed,\n        });\n      });\n    }",
+              "getContainerRect": "getContainerRect() {\n      const nodesRef: WechatMiniprogram.NodesRef = this.data.container();\n\n      if (!nodesRef) {\n        return Promise.reject(new Error('not found container'));\n      }\n\n      return new Promise<WechatMiniprogram.BoundingClientRectCallbackResult>(\n        (resolve) => nodesRef.boundingClientRect(resolve).exec()\n      );\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction wrapStyle(data) {\n  return style({\n    transform: data.transform\n      ? 'translate3d(0, ' + data.transform + 'px, 0)'\n      : '',\n    top: data.fixed ? addUnit(data.offsetTop) : '',\n    'z-index': data.zIndex,\n  });\n}\n\nfunction containerStyle(data) {\n  return style({\n    height: data.fixed ? addUnit(data.height) : '',\n    'z-index': data.zIndex,\n  });\n}\n\nmodule.exports = {\n  wrapStyle: wrapStyle,\n  containerStyle: containerStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function wrapStyle(data) {\n  return style({\n    transform: data.transform\n      ? 'translate3d(0, ' + data.transform + 'px, 0)'\n      : '',\n    top: data.fixed ? addUnit(data.offsetTop) : '',\n    'z-index': data.zIndex,\n  });\n}",
+        "name": "wrapStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function containerStyle(data) {\n  return style({\n    height: data.fixed ? addUnit(data.height) : '',\n    'z-index': data.zIndex,\n  });\n}",
+        "name": "containerStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  wrapStyle: wrapStyle,\n  containerStyle: containerStyle,\n};",
+        "expression": "module.exports = {\n  wrapStyle: wrapStyle,\n  containerStyle: containerStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-sticky{position:relative}.van-sticky-wrap--fixed{left:0;position:fixed;right:0}"
+}

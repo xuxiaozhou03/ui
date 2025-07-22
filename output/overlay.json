@@ -1,0 +1,77 @@
+{
+  "wxml": [
+    {
+      "tag": "import",
+      "attrs": {
+        "src": "./overlay.wxml"
+      }
+    },
+    {
+      "tag": "root-portal",
+      "attrs": {
+        "v-if": "rootPortal"
+      },
+      "children": [
+        {
+          "tag": "include",
+          "attrs": {
+            "src": "./overlay.wxml"
+          }
+        }
+      ]
+    },
+    {
+      "tag": "include",
+      "attrs": {
+        "v-else": "",
+        "src": "./overlay.wxml"
+      }
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\n\nVantComponent({\n  props: {\n    show: Boolean,\n    customStyle: String,\n    duration: {\n      type: null,\n      value: 300,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    lockScroll: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      this.$emit('click');\n    },\n\n    // for prevent touchmove\n    noop() {},\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    show: Boolean,\n    customStyle: String,\n    duration: {\n      type: null,\n      value: 300,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    lockScroll: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      this.$emit('click');\n    },\n\n    // for prevent touchmove\n    noop() {},\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    show: Boolean,\n    customStyle: String,\n    duration: {\n      type: null,\n      value: 300,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    lockScroll: {\n      type: Boolean,\n      value: true,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      this.$emit('click');\n    },\n\n    // for prevent touchmove\n    noop() {},\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "show": "Boolean",
+              "customStyle": "String",
+              "duration": {
+                "type": "null",
+                "value": "300"
+              },
+              "zIndex": {
+                "type": "Number",
+                "value": "1"
+              },
+              "lockScroll": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "rootPortal": {
+                "type": "Boolean",
+                "value": "false"
+              }
+            },
+            "methods": {
+              "onClick": "onClick() {\n      this.$emit('click');\n    }",
+              "noop": "noop() {}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-overlay{background-color:var(--overlay-background-color,rgba(0,0,0,.7));height:100%;left:0;position:fixed;top:0;width:100%}"
+}

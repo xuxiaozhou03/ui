@@ -1,0 +1,295 @@
+{
+  "wxml": [
+    {
+      "tag": "van-cell",
+      "attrs": {
+        ":size": "size",
+        ":icon": "leftIcon",
+        ":center": "center",
+        ":border": "border",
+        ":is-link": "isLink",
+        ":required": "required",
+        ":clickable": "clickable",
+        ":title-width": "titleWidth",
+        "title-style": "margin-right: 12px;",
+        ":custom-style": "customStyle",
+        ":arrow-direction": "arrowDirection",
+        "custom-class": "custom-class van-field"
+      },
+      "children": [
+        {
+          "tag": "slot",
+          "attrs": {
+            "name": "left-icon",
+            "slot": "icon"
+          }
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            ":for": "name",
+            "v-if": "label",
+            "class": "label-class {{ utils.bem('field__label', { disabled }) }}",
+            "slot": "title"
+          }
+        },
+        {
+          "tag": "slot",
+          "attrs": {
+            "v-else": "",
+            "name": "label",
+            "slot": "title"
+          }
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            ":class": "utils.bem('field__body', [type])"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                ":class": "utils.bem('field__control', [inputAlign, 'custom'])",
+                "@tap": "onClickInput"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "input"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "include",
+              "attrs": {
+                "v-if": "type === 'textarea'",
+                "src": "./textarea.wxml"
+              }
+            },
+            {
+              "tag": "include",
+              "attrs": {
+                "v-else": "",
+                "src": "./input.wxml"
+              }
+            },
+            {
+              "tag": "van-icon",
+              "attrs": {
+                "v-if": "showClear",
+                ":name": "clearIcon",
+                "class": "van-field__clear-root van-field__icon-root",
+                "@catch:touchstart": "onClear"
+              }
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-field__icon-container",
+                "@tap": "onClickIcon"
+              },
+              "children": [
+                {
+                  "tag": "van-icon",
+                  "attrs": {
+                    "v-if": "rightIcon || icon",
+                    ":name": "rightIcon || icon",
+                    "class": "van-field__icon-root {{ iconClass }}",
+                    "custom-class": "right-icon-class"
+                  }
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "right-icon"
+                  }
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "icon"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-field__button"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "button"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            ":for": "name",
+            "v-if": "showWordLimit && maxlength",
+            "class": "van-field__word-limit"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                ":class": "utils.bem('field__word-num', { full: value.length >= maxlength })"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            ":for": "name",
+            "v-if": "errorMessage",
+            ":class": "utils.bem('field__error-message', [errorMessageAlign, { disabled, error }])"
+          }
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { nextTick } from '../common/utils';\nimport { VantComponent } from '../common/component';\nimport { commonProps, inputProps, textareaProps } from './props';\nimport { InputDetails } from './types';\n\nVantComponent({\n  field: true,\n\n  classes: ['input-class', 'right-icon-class', 'label-class'],\n\n  props: {\n    ...commonProps,\n    ...inputProps,\n    ...textareaProps,\n    size: String,\n    icon: String,\n    label: String,\n    error: Boolean,\n    center: Boolean,\n    isLink: Boolean,\n    leftIcon: String,\n    rightIcon: String,\n    autosize: null,\n    required: Boolean,\n    iconClass: String,\n    clickable: Boolean,\n    inputAlign: String,\n    customStyle: String,\n    errorMessage: String,\n    arrowDirection: String,\n    showWordLimit: Boolean,\n    errorMessageAlign: String,\n    readonly: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearable: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    titleWidth: {\n      type: String,\n      value: '6.2em',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    extraEventParams: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    focused: false,\n    innerValue: '',\n    showClear: false,\n  },\n\n  watch: {\n    value(this: WechatMiniprogram.Component.TrivialInstance, value) {\n      if (value !== this.value) {\n        this.setData({ innerValue: value });\n        this.value = value;\n\n        this.setShowClear();\n      }\n    },\n    clearTrigger() {\n      this.setShowClear();\n    },\n  },\n\n  created() {\n    this.value = this.data.value;\n    this.setData({ innerValue: this.value });\n  },\n\n  methods: {\n    formatValue(value: string) {\n      const { maxlength } = this.data;\n\n      if (maxlength !== -1 && value.length > maxlength) {\n        return value.slice(0, maxlength);\n      }\n\n      return value;\n    },\n\n    onInput(event: WechatMiniprogram.Input | WechatMiniprogram.TextareaInput) {\n      const { value = '' } = event.detail || {};\n\n      const formatValue = this.formatValue(value);\n\n      this.value = formatValue;\n\n      this.setShowClear();\n\n      return this.emitChange({\n        ...event.detail,\n        value: formatValue,\n      });\n    },\n\n    onFocus(\n      event: WechatMiniprogram.InputFocus | WechatMiniprogram.TextareaFocus\n    ) {\n      this.focused = true;\n      this.setShowClear();\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(\n      event: WechatMiniprogram.InputBlur | WechatMiniprogram.TextareaBlur\n    ) {\n      this.focused = false;\n      this.setShowClear();\n      this.$emit('blur', event.detail);\n    },\n\n    onClickIcon() {\n      this.$emit('click-icon');\n    },\n\n    onClickInput(event: WechatMiniprogram.TouchEvent) {\n      this.$emit('click-input', event.detail);\n    },\n\n    onClear() {\n      this.setData({ innerValue: '' });\n      this.value = '';\n      this.setShowClear();\n\n      nextTick(() => {\n        this.emitChange({ value: '' });\n        this.$emit('clear', '');\n      });\n    },\n\n    onConfirm(\n      event: WechatMiniprogram.InputConfirm | WechatMiniprogram.TextareaConfirm\n    ) {\n      const { value = '' } = event.detail || {};\n      this.value = value;\n      this.setShowClear();\n      this.$emit('confirm', value);\n    },\n\n    setValue(value: string) {\n      this.value = value;\n      this.setShowClear();\n\n      if (value === '') {\n        this.setData({ innerValue: '' });\n      }\n\n      this.emitChange({ value });\n    },\n\n    onLineChange(event: WechatMiniprogram.TextareaLineChange) {\n      this.$emit('linechange', event.detail);\n    },\n\n    onKeyboardHeightChange(\n      event:\n        | WechatMiniprogram.InputKeyboardHeightChange\n        | WechatMiniprogram.TextareaKeyboardHeightChange\n    ) {\n      this.$emit('keyboardheightchange', event.detail);\n    },\n\n    onBindNicknameReview(event) {\n      this.$emit('nicknamereview', event.detail);\n    },\n\n    emitChange(detail: InputDetails) {\n      const { extraEventParams } = this.data;\n\n      this.setData({ value: detail.value });\n\n      let result: InputDetails | undefined;\n\n      const data = extraEventParams\n        ? {\n            ...detail,\n            callback: (data: InputDetails) => {\n              result = data;\n            },\n          }\n        : detail.value;\n\n      this.$emit('input', data);\n      this.$emit('change', data);\n\n      return result;\n    },\n\n    setShowClear() {\n      const { clearable, readonly, clearTrigger } = this.data;\n      const { focused, value } = this;\n\n      let showClear = false;\n\n      if (clearable && !readonly) {\n        const hasValue = !!value;\n        const trigger =\n          clearTrigger === 'always' || (clearTrigger === 'focus' && focused);\n\n        showClear = hasValue && trigger;\n      }\n\n      this.setView({ showClear });\n    },\n\n    noop() {},\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { nextTick } from '../common/utils';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { commonProps, inputProps, textareaProps } from './props';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { InputDetails } from './types';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  field: true,\n\n  classes: ['input-class', 'right-icon-class', 'label-class'],\n\n  props: {\n    ...commonProps,\n    ...inputProps,\n    ...textareaProps,\n    size: String,\n    icon: String,\n    label: String,\n    error: Boolean,\n    center: Boolean,\n    isLink: Boolean,\n    leftIcon: String,\n    rightIcon: String,\n    autosize: null,\n    required: Boolean,\n    iconClass: String,\n    clickable: Boolean,\n    inputAlign: String,\n    customStyle: String,\n    errorMessage: String,\n    arrowDirection: String,\n    showWordLimit: Boolean,\n    errorMessageAlign: String,\n    readonly: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearable: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    titleWidth: {\n      type: String,\n      value: '6.2em',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    extraEventParams: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    focused: false,\n    innerValue: '',\n    showClear: false,\n  },\n\n  watch: {\n    value(this: WechatMiniprogram.Component.TrivialInstance, value) {\n      if (value !== this.value) {\n        this.setData({ innerValue: value });\n        this.value = value;\n\n        this.setShowClear();\n      }\n    },\n    clearTrigger() {\n      this.setShowClear();\n    },\n  },\n\n  created() {\n    this.value = this.data.value;\n    this.setData({ innerValue: this.value });\n  },\n\n  methods: {\n    formatValue(value: string) {\n      const { maxlength } = this.data;\n\n      if (maxlength !== -1 && value.length > maxlength) {\n        return value.slice(0, maxlength);\n      }\n\n      return value;\n    },\n\n    onInput(event: WechatMiniprogram.Input | WechatMiniprogram.TextareaInput) {\n      const { value = '' } = event.detail || {};\n\n      const formatValue = this.formatValue(value);\n\n      this.value = formatValue;\n\n      this.setShowClear();\n\n      return this.emitChange({\n        ...event.detail,\n        value: formatValue,\n      });\n    },\n\n    onFocus(\n      event: WechatMiniprogram.InputFocus | WechatMiniprogram.TextareaFocus\n    ) {\n      this.focused = true;\n      this.setShowClear();\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(\n      event: WechatMiniprogram.InputBlur | WechatMiniprogram.TextareaBlur\n    ) {\n      this.focused = false;\n      this.setShowClear();\n      this.$emit('blur', event.detail);\n    },\n\n    onClickIcon() {\n      this.$emit('click-icon');\n    },\n\n    onClickInput(event: WechatMiniprogram.TouchEvent) {\n      this.$emit('click-input', event.detail);\n    },\n\n    onClear() {\n      this.setData({ innerValue: '' });\n      this.value = '';\n      this.setShowClear();\n\n      nextTick(() => {\n        this.emitChange({ value: '' });\n        this.$emit('clear', '');\n      });\n    },\n\n    onConfirm(\n      event: WechatMiniprogram.InputConfirm | WechatMiniprogram.TextareaConfirm\n    ) {\n      const { value = '' } = event.detail || {};\n      this.value = value;\n      this.setShowClear();\n      this.$emit('confirm', value);\n    },\n\n    setValue(value: string) {\n      this.value = value;\n      this.setShowClear();\n\n      if (value === '') {\n        this.setData({ innerValue: '' });\n      }\n\n      this.emitChange({ value });\n    },\n\n    onLineChange(event: WechatMiniprogram.TextareaLineChange) {\n      this.$emit('linechange', event.detail);\n    },\n\n    onKeyboardHeightChange(\n      event:\n        | WechatMiniprogram.InputKeyboardHeightChange\n        | WechatMiniprogram.TextareaKeyboardHeightChange\n    ) {\n      this.$emit('keyboardheightchange', event.detail);\n    },\n\n    onBindNicknameReview(event) {\n      this.$emit('nicknamereview', event.detail);\n    },\n\n    emitChange(detail: InputDetails) {\n      const { extraEventParams } = this.data;\n\n      this.setData({ value: detail.value });\n\n      let result: InputDetails | undefined;\n\n      const data = extraEventParams\n        ? {\n            ...detail,\n            callback: (data: InputDetails) => {\n              result = data;\n            },\n          }\n        : detail.value;\n\n      this.$emit('input', data);\n      this.$emit('change', data);\n\n      return result;\n    },\n\n    setShowClear() {\n      const { clearable, readonly, clearTrigger } = this.data;\n      const { focused, value } = this;\n\n      let showClear = false;\n\n      if (clearable && !readonly) {\n        const hasValue = !!value;\n        const trigger =\n          clearTrigger === 'always' || (clearTrigger === 'focus' && focused);\n\n        showClear = hasValue && trigger;\n      }\n\n      this.setView({ showClear });\n    },\n\n    noop() {},\n  },\n});",
+        "expression": "VantComponent({\n  field: true,\n\n  classes: ['input-class', 'right-icon-class', 'label-class'],\n\n  props: {\n    ...commonProps,\n    ...inputProps,\n    ...textareaProps,\n    size: String,\n    icon: String,\n    label: String,\n    error: Boolean,\n    center: Boolean,\n    isLink: Boolean,\n    leftIcon: String,\n    rightIcon: String,\n    autosize: null,\n    required: Boolean,\n    iconClass: String,\n    clickable: Boolean,\n    inputAlign: String,\n    customStyle: String,\n    errorMessage: String,\n    arrowDirection: String,\n    showWordLimit: Boolean,\n    errorMessageAlign: String,\n    readonly: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearable: {\n      type: Boolean,\n      observer: 'setShowClear',\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    titleWidth: {\n      type: String,\n      value: '6.2em',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    extraEventParams: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    focused: false,\n    innerValue: '',\n    showClear: false,\n  },\n\n  watch: {\n    value(this: WechatMiniprogram.Component.TrivialInstance, value) {\n      if (value !== this.value) {\n        this.setData({ innerValue: value });\n        this.value = value;\n\n        this.setShowClear();\n      }\n    },\n    clearTrigger() {\n      this.setShowClear();\n    },\n  },\n\n  created() {\n    this.value = this.data.value;\n    this.setData({ innerValue: this.value });\n  },\n\n  methods: {\n    formatValue(value: string) {\n      const { maxlength } = this.data;\n\n      if (maxlength !== -1 && value.length > maxlength) {\n        return value.slice(0, maxlength);\n      }\n\n      return value;\n    },\n\n    onInput(event: WechatMiniprogram.Input | WechatMiniprogram.TextareaInput) {\n      const { value = '' } = event.detail || {};\n\n      const formatValue = this.formatValue(value);\n\n      this.value = formatValue;\n\n      this.setShowClear();\n\n      return this.emitChange({\n        ...event.detail,\n        value: formatValue,\n      });\n    },\n\n    onFocus(\n      event: WechatMiniprogram.InputFocus | WechatMiniprogram.TextareaFocus\n    ) {\n      this.focused = true;\n      this.setShowClear();\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(\n      event: WechatMiniprogram.InputBlur | WechatMiniprogram.TextareaBlur\n    ) {\n      this.focused = false;\n      this.setShowClear();\n      this.$emit('blur', event.detail);\n    },\n\n    onClickIcon() {\n      this.$emit('click-icon');\n    },\n\n    onClickInput(event: WechatMiniprogram.TouchEvent) {\n      this.$emit('click-input', event.detail);\n    },\n\n    onClear() {\n      this.setData({ innerValue: '' });\n      this.value = '';\n      this.setShowClear();\n\n      nextTick(() => {\n        this.emitChange({ value: '' });\n        this.$emit('clear', '');\n      });\n    },\n\n    onConfirm(\n      event: WechatMiniprogram.InputConfirm | WechatMiniprogram.TextareaConfirm\n    ) {\n      const { value = '' } = event.detail || {};\n      this.value = value;\n      this.setShowClear();\n      this.$emit('confirm', value);\n    },\n\n    setValue(value: string) {\n      this.value = value;\n      this.setShowClear();\n\n      if (value === '') {\n        this.setData({ innerValue: '' });\n      }\n\n      this.emitChange({ value });\n    },\n\n    onLineChange(event: WechatMiniprogram.TextareaLineChange) {\n      this.$emit('linechange', event.detail);\n    },\n\n    onKeyboardHeightChange(\n      event:\n        | WechatMiniprogram.InputKeyboardHeightChange\n        | WechatMiniprogram.TextareaKeyboardHeightChange\n    ) {\n      this.$emit('keyboardheightchange', event.detail);\n    },\n\n    onBindNicknameReview(event) {\n      this.$emit('nicknamereview', event.detail);\n    },\n\n    emitChange(detail: InputDetails) {\n      const { extraEventParams } = this.data;\n\n      this.setData({ value: detail.value });\n\n      let result: InputDetails | undefined;\n\n      const data = extraEventParams\n        ? {\n            ...detail,\n            callback: (data: InputDetails) => {\n              result = data;\n            },\n          }\n        : detail.value;\n\n      this.$emit('input', data);\n      this.$emit('change', data);\n\n      return result;\n    },\n\n    setShowClear() {\n      const { clearable, readonly, clearTrigger } = this.data;\n      const { focused, value } = this;\n\n      let showClear = false;\n\n      if (clearable && !readonly) {\n        const hasValue = !!value;\n        const trigger =\n          clearTrigger === 'always' || (clearTrigger === 'focus' && focused);\n\n        showClear = hasValue && trigger;\n      }\n\n      this.setView({ showClear });\n    },\n\n    noop() {},\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "field": "true",
+            "classes": [
+              "'input-class'",
+              "'right-icon-class'",
+              "'label-class'"
+            ],
+            "props": {
+              "size": "String",
+              "icon": "String",
+              "label": "String",
+              "error": "Boolean",
+              "center": "Boolean",
+              "isLink": "Boolean",
+              "leftIcon": "String",
+              "rightIcon": "String",
+              "autosize": "null",
+              "required": "Boolean",
+              "iconClass": "String",
+              "clickable": "Boolean",
+              "inputAlign": "String",
+              "customStyle": "String",
+              "errorMessage": "String",
+              "arrowDirection": "String",
+              "showWordLimit": "Boolean",
+              "errorMessageAlign": "String",
+              "readonly": {
+                "type": "Boolean",
+                "observer": "setShowClear"
+              },
+              "clearable": {
+                "type": "Boolean",
+                "observer": "setShowClear"
+              },
+              "clearTrigger": {
+                "type": "String",
+                "value": "focus"
+              },
+              "border": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "titleWidth": {
+                "type": "String",
+                "value": "6.2em"
+              },
+              "clearIcon": {
+                "type": "String",
+                "value": "clear"
+              },
+              "extraEventParams": {
+                "type": "Boolean",
+                "value": "false"
+              }
+            },
+            "data": {
+              "focused": "false",
+              "innerValue": "",
+              "showClear": "false"
+            },
+            "watch": {},
+            "methods": {
+              "formatValue": "formatValue(value: string) {\n      const { maxlength } = this.data;\n\n      if (maxlength !== -1 && value.length > maxlength) {\n        return value.slice(0, maxlength);\n      }\n\n      return value;\n    }",
+              "onInput": "onInput(event: WechatMiniprogram.Input | WechatMiniprogram.TextareaInput) {\n      const { value = '' } = event.detail || {};\n\n      const formatValue = this.formatValue(value);\n\n      this.value = formatValue;\n\n      this.setShowClear();\n\n      return this.emitChange({\n        ...event.detail,\n        value: formatValue,\n      });\n    }",
+              "onFocus": "onFocus(\n      event: WechatMiniprogram.InputFocus | WechatMiniprogram.TextareaFocus\n    ) {\n      this.focused = true;\n      this.setShowClear();\n      this.$emit('focus', event.detail);\n    }",
+              "onBlur": "onBlur(\n      event: WechatMiniprogram.InputBlur | WechatMiniprogram.TextareaBlur\n    ) {\n      this.focused = false;\n      this.setShowClear();\n      this.$emit('blur', event.detail);\n    }",
+              "onClickIcon": "onClickIcon() {\n      this.$emit('click-icon');\n    }",
+              "onClickInput": "onClickInput(event: WechatMiniprogram.TouchEvent) {\n      this.$emit('click-input', event.detail);\n    }",
+              "onClear": "onClear() {\n      this.setData({ innerValue: '' });\n      this.value = '';\n      this.setShowClear();\n\n      nextTick(() => {\n        this.emitChange({ value: '' });\n        this.$emit('clear', '');\n      });\n    }",
+              "onConfirm": "onConfirm(\n      event: WechatMiniprogram.InputConfirm | WechatMiniprogram.TextareaConfirm\n    ) {\n      const { value = '' } = event.detail || {};\n      this.value = value;\n      this.setShowClear();\n      this.$emit('confirm', value);\n    }",
+              "setValue": "setValue(value: string) {\n      this.value = value;\n      this.setShowClear();\n\n      if (value === '') {\n        this.setData({ innerValue: '' });\n      }\n\n      this.emitChange({ value });\n    }",
+              "onLineChange": "onLineChange(event: WechatMiniprogram.TextareaLineChange) {\n      this.$emit('linechange', event.detail);\n    }",
+              "onKeyboardHeightChange": "onKeyboardHeightChange(\n      event:\n        | WechatMiniprogram.InputKeyboardHeightChange\n        | WechatMiniprogram.TextareaKeyboardHeightChange\n    ) {\n      this.$emit('keyboardheightchange', event.detail);\n    }",
+              "onBindNicknameReview": "onBindNicknameReview(event) {\n      this.$emit('nicknamereview', event.detail);\n    }",
+              "emitChange": "emitChange(detail: InputDetails) {\n      const { extraEventParams } = this.data;\n\n      this.setData({ value: detail.value });\n\n      let result: InputDetails | undefined;\n\n      const data = extraEventParams\n        ? {\n            ...detail,\n            callback: (data: InputDetails) => {\n              result = data;\n            },\n          }\n        : detail.value;\n\n      this.$emit('input', data);\n      this.$emit('change', data);\n\n      return result;\n    }",
+              "setShowClear": "setShowClear() {\n      const { clearable, readonly, clearTrigger } = this.data;\n      const { focused, value } = this;\n\n      let showClear = false;\n\n      if (clearable && !readonly) {\n        const hasValue = !!value;\n        const trigger =\n          clearTrigger === 'always' || (clearTrigger === 'focus' && focused);\n\n        showClear = hasValue && trigger;\n      }\n\n      this.setView({ showClear });\n    }",
+              "noop": "noop() {}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction inputStyle(autosize) {\n  if (autosize && autosize.constructor === 'Object') {\n    return style({\n      'min-height': addUnit(autosize.minHeight),\n      'max-height': addUnit(autosize.maxHeight),\n    });\n  }\n\n  return '';\n}\n\nmodule.exports = {\n  inputStyle: inputStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function inputStyle(autosize) {\n  if (autosize && autosize.constructor === 'Object') {\n    return style({\n      'min-height': addUnit(autosize.minHeight),\n      'max-height': addUnit(autosize.maxHeight),\n    });\n  }\n\n  return '';\n}",
+        "name": "inputStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  inputStyle: inputStyle,\n};",
+        "expression": "module.exports = {\n  inputStyle: inputStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-field{--cell-icon-size:var(--field-icon-size,16px)}.van-field__label{color:var(--field-label-color,#646566)}.van-field__label--disabled{color:var(--field-disabled-text-color,#c8c9cc)}.van-field__body{align-items:center;display:flex}.van-field__body--textarea{box-sizing:border-box;line-height:1.2em;min-height:var(--cell-line-height,24px);padding:3.6px 0}.van-field__control:empty+.van-field__control{display:block}.van-field__control{background-color:initial;border:0;box-sizing:border-box;color:var(--field-input-text-color,#323233);display:none;height:var(--cell-line-height,24px);line-height:inherit;margin:0;min-height:var(--cell-line-height,24px);padding:0;position:relative;resize:none;text-align:left;width:100%}.van-field__control:empty{display:none}.van-field__control--textarea{height:var(--field-text-area-min-height,18px);min-height:var(--field-text-area-min-height,18px)}.van-field__control--error{color:var(--field-input-error-text-color,#ee0a24)}.van-field__control--disabled{background-color:initial;color:var(--field-input-disabled-text-color,#c8c9cc);opacity:1}.van-field__control--center{text-align:center}.van-field__control--right{text-align:right}.van-field__control--custom{align-items:center;display:flex;min-height:var(--cell-line-height,24px)}.van-field__placeholder{color:var(--field-placeholder-text-color,#c8c9cc);left:0;pointer-events:none;position:absolute;right:0;top:0}.van-field__placeholder--error{color:var(--field-error-message-color,#ee0a24)}.van-field__icon-root{align-items:center;display:flex;min-height:var(--cell-line-height,24px)}.van-field__clear-root,.van-field__icon-container{line-height:inherit;margin-right:calc(var(--padding-xs, 8px)*-1);padding:0 var(--padding-xs,8px);vertical-align:middle}.van-field__button,.van-field__clear-root,.van-field__icon-container{flex-shrink:0}.van-field__clear-root{color:var(--field-clear-icon-color,#c8c9cc);font-size:var(--field-clear-icon-size,16px)}.van-field__icon-container{color:var(--field-icon-container-color,#969799);font-size:var(--field-icon-size,16px)}.van-field__icon-container:empty{display:none}.van-field__button{padding-left:var(--padding-xs,8px)}.van-field__button:empty{display:none}.van-field__error-message{color:var(--field-error-message-color,#ee0a24);display:block;font-size:var(--field-error-message-text-font-size,12px);text-align:left}.van-field__error-message--center{text-align:center}.van-field__error-message--right{text-align:right}.van-field__word-limit{color:var(--field-word-limit-color,#646566);font-size:var(--field-word-limit-font-size,12px);line-height:var(--field-word-limit-line-height,16px);margin-top:var(--padding-base,4px);text-align:right}.van-field__word-num{display:inline}.van-field__word-num--full{color:var(--field-word-num-full-color,#ee0a24)}"
+}

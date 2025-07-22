@@ -1,0 +1,52 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "v-if": "title",
+        ":class": "utils.bem('cell-group__title', { inset })"
+      }
+    },
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "custom-class {{ utils.bem('cell-group', { inset }) }} {{ border ? 'van-hairline--top-bottom' : '' }}"
+      },
+      "children": [
+        {
+          "tag": "slot"
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\n\nVantComponent({\n  props: {\n    title: String,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    inset: Boolean,\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    title: String,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    inset: Boolean,\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    title: String,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    inset: Boolean,\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "title": "String",
+              "border": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "inset": "Boolean"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-cell-group--inset{border-radius:var(--cell-group-inset-border-radius,8px);margin:var(--cell-group-inset-padding,0 16px);overflow:hidden}.van-cell-group__title{color:var(--cell-group-title-color,#969799);font-size:var(--cell-group-title-font-size,14px);line-height:var(--cell-group-title-line-height,16px);padding:var(--cell-group-title-padding,16px 16px 8px)}.van-cell-group__title--inset{padding:var(--cell-group-inset-title-padding,16px 16px 8px 32px)}"
+}

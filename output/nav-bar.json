@@ -1,0 +1,199 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "v-if": "fixed && placeholder",
+        "style": "height: {{ height }}px;"
+      }
+    },
+    {
+      "tag": "div",
+      "attrs": {
+        ":class": "utils.bem('nav-bar', { fixed }) }} custom-class {{ border ? 'van-hairline--bottom' : ''",
+        ":style": "computed.barStyle({ zIndex, statusBarHeight, safeAreaInsetTop }) }}; {{ customStyle"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-nav-bar__content"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-nav-bar__left",
+                "@tap": "onClickLeft"
+              },
+              "children": [
+                {
+                  "tag": "template",
+                  "attrs": {
+                    "v-if": "leftArrow || leftText"
+                  },
+                  "children": [
+                    {
+                      "tag": "van-icon",
+                      "attrs": {
+                        "v-if": "leftArrow",
+                        "size": "16px",
+                        "name": "arrow-left",
+                        "custom-class": "van-nav-bar__arrow"
+                      }
+                    },
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "v-if": "leftText",
+                        "class": "van-nav-bar__text",
+                        "hover-class": "van-nav-bar__text--hover",
+                        "hover-stay-time": "70"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-else": "",
+                    "name": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-nav-bar__title title-class van-ellipsis"
+              },
+              "children": [
+                {
+                  "tag": "template",
+                  "attrs": {
+                    "v-if": "title"
+                  }
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-else": "",
+                    "name": "title"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-nav-bar__right",
+                "@tap": "onClickRight"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-if": "rightText",
+                    "class": "van-nav-bar__text",
+                    "hover-class": "van-nav-bar__text--hover",
+                    "hover-stay-time": "70"
+                  }
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-else": "",
+                    "name": "right"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { getRect, getSystemInfoSync } from '../common/utils';\n\nVantComponent({\n  classes: ['title-class'],\n\n  props: {\n    title: String,\n    fixed: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    placeholder: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    leftText: String,\n    rightText: String,\n    customStyle: String,\n    leftArrow: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    height: 46,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n\n    this.setData({\n      statusBarHeight,\n      height: 46 + statusBarHeight,\n    });\n  },\n\n  mounted() {\n    this.setHeight();\n  },\n\n  methods: {\n    onClickLeft() {\n      this.$emit('click-left');\n    },\n\n    onClickRight() {\n      this.$emit('click-right');\n    },\n\n    setHeight() {\n      if (!this.data.fixed || !this.data.placeholder) {\n        return;\n      }\n\n      wx.nextTick(() => {\n        getRect(this, '.van-nav-bar').then((res) => {\n          if (res && 'height' in res) {\n            this.setData({ height: res.height });\n          }\n        });\n      });\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { getRect, getSystemInfoSync } from '../common/utils';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['title-class'],\n\n  props: {\n    title: String,\n    fixed: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    placeholder: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    leftText: String,\n    rightText: String,\n    customStyle: String,\n    leftArrow: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    height: 46,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n\n    this.setData({\n      statusBarHeight,\n      height: 46 + statusBarHeight,\n    });\n  },\n\n  mounted() {\n    this.setHeight();\n  },\n\n  methods: {\n    onClickLeft() {\n      this.$emit('click-left');\n    },\n\n    onClickRight() {\n      this.$emit('click-right');\n    },\n\n    setHeight() {\n      if (!this.data.fixed || !this.data.placeholder) {\n        return;\n      }\n\n      wx.nextTick(() => {\n        getRect(this, '.van-nav-bar').then((res) => {\n          if (res && 'height' in res) {\n            this.setData({ height: res.height });\n          }\n        });\n      });\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['title-class'],\n\n  props: {\n    title: String,\n    fixed: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    placeholder: {\n      type: Boolean,\n      observer: 'setHeight',\n    },\n    leftText: String,\n    rightText: String,\n    customStyle: String,\n    leftArrow: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    zIndex: {\n      type: Number,\n      value: 1,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    height: 46,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n\n    this.setData({\n      statusBarHeight,\n      height: 46 + statusBarHeight,\n    });\n  },\n\n  mounted() {\n    this.setHeight();\n  },\n\n  methods: {\n    onClickLeft() {\n      this.$emit('click-left');\n    },\n\n    onClickRight() {\n      this.$emit('click-right');\n    },\n\n    setHeight() {\n      if (!this.data.fixed || !this.data.placeholder) {\n        return;\n      }\n\n      wx.nextTick(() => {\n        getRect(this, '.van-nav-bar').then((res) => {\n          if (res && 'height' in res) {\n            this.setData({ height: res.height });\n          }\n        });\n      });\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'title-class'"
+            ],
+            "props": {
+              "title": "String",
+              "fixed": {
+                "type": "Boolean",
+                "observer": "setHeight"
+              },
+              "placeholder": {
+                "type": "Boolean",
+                "observer": "setHeight"
+              },
+              "leftText": "String",
+              "rightText": "String",
+              "customStyle": "String",
+              "leftArrow": "Boolean",
+              "border": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "zIndex": {
+                "type": "Number",
+                "value": "1"
+              },
+              "safeAreaInsetTop": {
+                "type": "Boolean",
+                "value": "true"
+              }
+            },
+            "data": {
+              "height": "46"
+            },
+            "methods": {
+              "onClickLeft": "onClickLeft() {\n      this.$emit('click-left');\n    }",
+              "onClickRight": "onClickRight() {\n      this.$emit('click-right');\n    }",
+              "setHeight": "setHeight() {\n      if (!this.data.fixed || !this.data.placeholder) {\n        return;\n      }\n\n      wx.nextTick(() => {\n        getRect(this, '.van-nav-bar').then((res) => {\n          if (res && 'height' in res) {\n            this.setData({ height: res.height });\n          }\n        });\n      });\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\n\nfunction barStyle(data) {\n  return style({\n    'z-index': data.zIndex,\n    'padding-top': data.safeAreaInsetTop ? data.statusBarHeight + 'px' : 0,\n  });\n}\n\nmodule.exports = {\n  barStyle: barStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function barStyle(data) {\n  return style({\n    'z-index': data.zIndex,\n    'padding-top': data.safeAreaInsetTop ? data.statusBarHeight + 'px' : 0,\n  });\n}",
+        "name": "barStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  barStyle: barStyle,\n};",
+        "expression": "module.exports = {\n  barStyle: barStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-nav-bar{background-color:var(--nav-bar-background-color,#fff);box-sizing:initial;height:var(--nav-bar-height,46px);line-height:var(--nav-bar-height,46px);position:relative;text-align:center;-webkit-user-select:none;user-select:none}.van-nav-bar__content{height:100%;position:relative}.van-nav-bar__text{color:var(--nav-bar-text-color,#1989fa);display:inline-block;margin:0 calc(var(--padding-md, 16px)*-1);padding:0 var(--padding-md,16px);vertical-align:middle}.van-nav-bar__text--hover{background-color:#f2f3f5}.van-nav-bar__arrow{color:var(--nav-bar-icon-color,#1989fa)!important;font-size:var(--nav-bar-arrow-size,16px)!important;vertical-align:middle}.van-nav-bar__arrow+.van-nav-bar__text{margin-left:-20px;padding-left:25px}.van-nav-bar--fixed{left:0;position:fixed;top:0;width:100%}.van-nav-bar__title{color:var(--nav-bar-title-text-color,#323233);font-size:var(--nav-bar-title-font-size,16px);font-weight:var(--font-weight-bold,500);margin:0 auto;max-width:60%}.van-nav-bar__left,.van-nav-bar__right{align-items:center;bottom:0;display:flex;font-size:var(--font-size-md,14px);position:absolute;top:0}.van-nav-bar__left{left:var(--padding-md,16px)}.van-nav-bar__right{right:var(--padding-md,16px)}"
+}

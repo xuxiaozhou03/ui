@@ -22,7 +22,8 @@ export const parsePackage = (packageName: string) => {
     wxsData = parseTs(wxs);
   }
 
-  const wxss = getDistFileContent(packageName + "/index.wxss");
+  let wxss = getDistFileContent(packageName + "/index.wxss");
+  wxss = wxss ? wxss.replace("@import '../common/index.wxss';", "") : "";
 
   const data = {
     wxml: wxmlData,

@@ -24,7 +24,8 @@ const parsePackage = (packageName) => {
     if (wxs) {
         wxsData = (0, parseTs_1.parseTs)(wxs);
     }
-    const wxss = (0, helper_1.getDistFileContent)(packageName + "/index.wxss");
+    let wxss = (0, helper_1.getDistFileContent)(packageName + "/index.wxss");
+    wxss = wxss ? wxss.replace("@import '../common/index.wxss';", "") : "";
     const data = {
         wxml: wxmlData,
         ts: tsData,

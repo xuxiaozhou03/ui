@@ -1,0 +1,67 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        ":class": "utils.bem('checkbox-group', [{ horizontal: direction === 'horizontal' }])"
+      },
+      "children": [
+        {
+          "tag": "slot"
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { useChildren } from '../common/relation';\nimport { VantComponent } from '../common/component';\n\ntype TrivialInstance = WechatMiniprogram.Component.TrivialInstance;\n\nVantComponent({\n  field: true,\n\n  relation: useChildren('checkbox', function (target) {\n    this.updateChild(target);\n  }),\n\n  props: {\n    max: Number,\n    value: {\n      type: Array,\n      observer: 'updateChildren',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'updateChildren',\n    },\n    direction: {\n      type: String,\n      value: 'vertical',\n    },\n  },\n\n  methods: {\n    updateChildren() {\n      this.children.forEach((child) => this.updateChild(child));\n    },\n\n    updateChild(child: TrivialInstance) {\n      const { value, disabled, direction } = this.data;\n      child.setData({\n        value: value.indexOf(child.data.name) !== -1,\n        parentDisabled: disabled,\n        direction,\n      });\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useChildren } from '../common/relation';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "TypeAliasDeclaration",
+        "text": "type TrivialInstance = WechatMiniprogram.Component.TrivialInstance;",
+        "name": "TrivialInstance"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  field: true,\n\n  relation: useChildren('checkbox', function (target) {\n    this.updateChild(target);\n  }),\n\n  props: {\n    max: Number,\n    value: {\n      type: Array,\n      observer: 'updateChildren',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'updateChildren',\n    },\n    direction: {\n      type: String,\n      value: 'vertical',\n    },\n  },\n\n  methods: {\n    updateChildren() {\n      this.children.forEach((child) => this.updateChild(child));\n    },\n\n    updateChild(child: TrivialInstance) {\n      const { value, disabled, direction } = this.data;\n      child.setData({\n        value: value.indexOf(child.data.name) !== -1,\n        parentDisabled: disabled,\n        direction,\n      });\n    },\n  },\n});",
+        "expression": "VantComponent({\n  field: true,\n\n  relation: useChildren('checkbox', function (target) {\n    this.updateChild(target);\n  }),\n\n  props: {\n    max: Number,\n    value: {\n      type: Array,\n      observer: 'updateChildren',\n    },\n    disabled: {\n      type: Boolean,\n      observer: 'updateChildren',\n    },\n    direction: {\n      type: String,\n      value: 'vertical',\n    },\n  },\n\n  methods: {\n    updateChildren() {\n      this.children.forEach((child) => this.updateChild(child));\n    },\n\n    updateChild(child: TrivialInstance) {\n      const { value, disabled, direction } = this.data;\n      child.setData({\n        value: value.indexOf(child.data.name) !== -1,\n        parentDisabled: disabled,\n        direction,\n      });\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "field": "true",
+            "relation": "useChildren('checkbox', function (target) {\n    this.updateChild(target);\n  })",
+            "props": {
+              "max": "Number",
+              "value": {
+                "type": "Array",
+                "observer": "updateChildren"
+              },
+              "disabled": {
+                "type": "Boolean",
+                "observer": "updateChildren"
+              },
+              "direction": {
+                "type": "String",
+                "value": "vertical"
+              }
+            },
+            "methods": {
+              "updateChildren": "updateChildren() {\n      this.children.forEach((child) => this.updateChild(child));\n    }",
+              "updateChild": "updateChild(child: TrivialInstance) {\n      const { value, disabled, direction } = this.data;\n      child.setData({\n        value: value.indexOf(child.data.name) !== -1,\n        parentDisabled: disabled,\n        direction,\n      });\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-checkbox-group--horizontal{display:flex;flex-wrap:wrap}"
+}

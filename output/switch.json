@@ -1,0 +1,114 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "{{ utils.bem('switch', { on: checked === activeValue, disabled }) }} custom-class",
+        ":style": "rootStyle",
+        "@tap": "onClick"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-switch__node node-class"
+          },
+          "children": [
+            {
+              "tag": "van-loading",
+              "attrs": {
+                "v-if": "loading",
+                ":color": "loadingColor",
+                "custom-class": "van-switch__loading"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\n\nVantComponent({\n  field: true,\n\n  classes: ['node-class'],\n\n  props: {\n    checked: null,\n    loading: Boolean,\n    disabled: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    size: {\n      type: String,\n      value: '30',\n    },\n    activeValue: {\n      type: null,\n      value: true,\n    },\n    inactiveValue: {\n      type: null,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      const { activeValue, inactiveValue, disabled, loading } = this.data;\n\n      if (disabled || loading) {\n        return;\n      }\n\n      const checked = this.data.checked === activeValue;\n      const value = checked ? inactiveValue : activeValue;\n\n      this.$emit('input', value);\n      this.$emit('change', value);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  field: true,\n\n  classes: ['node-class'],\n\n  props: {\n    checked: null,\n    loading: Boolean,\n    disabled: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    size: {\n      type: String,\n      value: '30',\n    },\n    activeValue: {\n      type: null,\n      value: true,\n    },\n    inactiveValue: {\n      type: null,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      const { activeValue, inactiveValue, disabled, loading } = this.data;\n\n      if (disabled || loading) {\n        return;\n      }\n\n      const checked = this.data.checked === activeValue;\n      const value = checked ? inactiveValue : activeValue;\n\n      this.$emit('input', value);\n      this.$emit('change', value);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  field: true,\n\n  classes: ['node-class'],\n\n  props: {\n    checked: null,\n    loading: Boolean,\n    disabled: Boolean,\n    activeColor: String,\n    inactiveColor: String,\n    size: {\n      type: String,\n      value: '30',\n    },\n    activeValue: {\n      type: null,\n      value: true,\n    },\n    inactiveValue: {\n      type: null,\n      value: false,\n    },\n  },\n\n  methods: {\n    onClick() {\n      const { activeValue, inactiveValue, disabled, loading } = this.data;\n\n      if (disabled || loading) {\n        return;\n      }\n\n      const checked = this.data.checked === activeValue;\n      const value = checked ? inactiveValue : activeValue;\n\n      this.$emit('input', value);\n      this.$emit('change', value);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "field": "true",
+            "classes": [
+              "'node-class'"
+            ],
+            "props": {
+              "checked": "null",
+              "loading": "Boolean",
+              "disabled": "Boolean",
+              "activeColor": "String",
+              "inactiveColor": "String",
+              "size": {
+                "type": "String",
+                "value": "30"
+              },
+              "activeValue": {
+                "type": "null",
+                "value": "true"
+              },
+              "inactiveValue": {
+                "type": "null",
+                "value": "false"
+              }
+            },
+            "methods": {
+              "onClick": "onClick() {\n      const { activeValue, inactiveValue, disabled, loading } = this.data;\n\n      if (disabled || loading) {\n        return;\n      }\n\n      const checked = this.data.checked === activeValue;\n      const value = checked ? inactiveValue : activeValue;\n\n      this.$emit('input', value);\n      this.$emit('change', value);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction rootStyle(data) {\n  var currentColor = data.checked === data.activeValue ? data.activeColor : data.inactiveColor;\n\n  return style({\n    'font-size': addUnit(data.size),\n    'background-color': currentColor,\n  });\n}\n\nvar BLUE = '#1989fa';\nvar GRAY_DARK = '#969799';\n\nfunction loadingColor(data) {\n  return data.checked === data.activeValue\n    ? data.activeColor || BLUE\n    : data.inactiveColor || GRAY_DARK;\n}\n\nmodule.exports = {\n  rootStyle: rootStyle,\n  loadingColor: loadingColor,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function rootStyle(data) {\n  var currentColor = data.checked === data.activeValue ? data.activeColor : data.inactiveColor;\n\n  return style({\n    'font-size': addUnit(data.size),\n    'background-color': currentColor,\n  });\n}",
+        "name": "rootStyle"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var BLUE = '#1989fa';"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var GRAY_DARK = '#969799';"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function loadingColor(data) {\n  return data.checked === data.activeValue\n    ? data.activeColor || BLUE\n    : data.inactiveColor || GRAY_DARK;\n}",
+        "name": "loadingColor"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  rootStyle: rootStyle,\n  loadingColor: loadingColor,\n};",
+        "expression": "module.exports = {\n  rootStyle: rootStyle,\n  loadingColor: loadingColor,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-switch{background-color:var(--switch-background-color,#fff);border:var(--switch-border,1px solid rgba(0,0,0,.1));border-radius:var(--switch-node-size,1em);box-sizing:initial;display:inline-block;height:var(--switch-height,1em);position:relative;transition:background-color var(--switch-transition-duration,.3s);width:var(--switch-width,2em)}.van-switch__node{background-color:var(--switch-node-background-color,#fff);border-radius:100%;box-shadow:var(--switch-node-box-shadow,0 3px 1px 0 rgba(0,0,0,.05),0 2px 2px 0 rgba(0,0,0,.1),0 3px 3px 0 rgba(0,0,0,.05));height:var(--switch-node-size,1em);left:0;position:absolute;top:0;transition:var(--switch-transition-duration,.3s) cubic-bezier(.3,1.05,.4,1.05);width:var(--switch-node-size,1em);z-index:var(--switch-node-z-index,1)}.van-switch__loading{height:50%;left:25%;position:absolute!important;top:25%;width:50%}.van-switch--on{background-color:var(--switch-on-background-color,#1989fa)}.van-switch--on .van-switch__node{transform:translateX(calc(var(--switch-width, 2em) - var(--switch-node-size, 1em)))}.van-switch--disabled{opacity:var(--switch-disabled-opacity,.4)}"
+}

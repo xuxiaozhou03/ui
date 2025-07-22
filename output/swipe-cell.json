@@ -1,0 +1,136 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-swipe-cell custom-class",
+        "data-key": "cell",
+        "@catchtap": "onClick",
+        "@touchstart": "startDrag",
+        "@catchtouchmove": "catchMove ? 'noop' : ''",
+        "capture-bind:touchmove": "onDrag",
+        "@touchend": "endDrag",
+        "@touchcancel": "endDrag"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            ":style": "wrapperStyle"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "leftWidth",
+                "class": "van-swipe-cell__left",
+                "data-key": "left",
+                "@catch:tap": "onClick"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "left"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "slot"
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "rightWidth",
+                "class": "van-swipe-cell__right",
+                "data-key": "right",
+                "@catch:tap": "onClick"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "name": "right"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { touch } from '../mixins/touch';\nimport { range } from '../common/utils';\n\nconst THRESHOLD = 0.3;\nlet ARRAY: WechatMiniprogram.Component.TrivialInstance[] = [];\n\nVantComponent({\n  props: {\n    disabled: Boolean,\n    leftWidth: {\n      type: Number,\n      value: 0,\n      observer(leftWidth = 0) {\n        if (this.offset > 0) {\n          this.swipeMove(leftWidth);\n        }\n      },\n    },\n    rightWidth: {\n      type: Number,\n      value: 0,\n      observer(rightWidth = 0) {\n        if (this.offset < 0) {\n          this.swipeMove(-rightWidth);\n        }\n      },\n    },\n    asyncClose: Boolean,\n    name: {\n      type: null,\n      value: '',\n    },\n  },\n\n  mixins: [touch],\n\n  data: {\n    catchMove: false,\n    wrapperStyle: '',\n  },\n\n  created() {\n    this.offset = 0;\n    ARRAY.push(this);\n  },\n\n  destroyed() {\n    ARRAY = ARRAY.filter((item) => item !== this);\n  },\n\n  methods: {\n    open(position: 'left' | 'right') {\n      const { leftWidth, rightWidth } = this.data;\n      const offset = position === 'left' ? leftWidth : -rightWidth;\n      this.swipeMove(offset);\n\n      this.$emit('open', {\n        position,\n        name: this.data.name,\n      });\n    },\n\n    close() {\n      this.swipeMove(0);\n    },\n\n    swipeMove(offset = 0) {\n      this.offset = range(offset, -this.data.rightWidth, this.data.leftWidth);\n\n      const transform = `translate3d(${this.offset}px, 0, 0)`;\n      const transition = this.dragging\n        ? 'none'\n        : 'transform .6s cubic-bezier(0.18, 0.89, 0.32, 1)';\n\n      this.setData({\n        wrapperStyle: `\n        -webkit-transform: ${transform};\n        -webkit-transition: ${transition};\n        transform: ${transform};\n        transition: ${transition};\n      `,\n      });\n    },\n\n    swipeLeaveTransition() {\n      const { leftWidth, rightWidth } = this.data;\n      const { offset } = this;\n\n      if (rightWidth > 0 && -offset > rightWidth * THRESHOLD) {\n        this.open('right');\n      } else if (leftWidth > 0 && offset > leftWidth * THRESHOLD) {\n        this.open('left');\n      } else {\n        this.swipeMove(0);\n      }\n      this.setData({ catchMove: false });\n    },\n\n    startDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.startOffset = this.offset;\n      this.touchStart(event);\n    },\n\n    noop() {},\n\n    onDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.touchMove(event);\n\n      if (this.direction !== 'horizontal') {\n        return;\n      }\n\n      this.dragging = true;\n\n      ARRAY.filter(\n        (item) => item !== this && item.offset !== 0\n      ).forEach((item) => item.close());\n\n      this.setData({ catchMove: true });\n      this.swipeMove(this.startOffset + this.deltaX);\n    },\n\n    endDrag() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.dragging = false;\n      this.swipeLeaveTransition();\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      const { key: position = 'outside' } = event.currentTarget.dataset;\n      this.$emit('click', position);\n\n      if (!this.offset) {\n        return;\n      }\n\n      if (this.data.asyncClose) {\n        this.$emit('close', {\n          position,\n          instance: this,\n          name: this.data.name,\n        });\n      } else {\n        this.swipeMove(0);\n      }\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { touch } from '../mixins/touch';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { range } from '../common/utils';"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "const THRESHOLD = 0.3;"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "let ARRAY: WechatMiniprogram.Component.TrivialInstance[] = [];"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    disabled: Boolean,\n    leftWidth: {\n      type: Number,\n      value: 0,\n      observer(leftWidth = 0) {\n        if (this.offset > 0) {\n          this.swipeMove(leftWidth);\n        }\n      },\n    },\n    rightWidth: {\n      type: Number,\n      value: 0,\n      observer(rightWidth = 0) {\n        if (this.offset < 0) {\n          this.swipeMove(-rightWidth);\n        }\n      },\n    },\n    asyncClose: Boolean,\n    name: {\n      type: null,\n      value: '',\n    },\n  },\n\n  mixins: [touch],\n\n  data: {\n    catchMove: false,\n    wrapperStyle: '',\n  },\n\n  created() {\n    this.offset = 0;\n    ARRAY.push(this);\n  },\n\n  destroyed() {\n    ARRAY = ARRAY.filter((item) => item !== this);\n  },\n\n  methods: {\n    open(position: 'left' | 'right') {\n      const { leftWidth, rightWidth } = this.data;\n      const offset = position === 'left' ? leftWidth : -rightWidth;\n      this.swipeMove(offset);\n\n      this.$emit('open', {\n        position,\n        name: this.data.name,\n      });\n    },\n\n    close() {\n      this.swipeMove(0);\n    },\n\n    swipeMove(offset = 0) {\n      this.offset = range(offset, -this.data.rightWidth, this.data.leftWidth);\n\n      const transform = `translate3d(${this.offset}px, 0, 0)`;\n      const transition = this.dragging\n        ? 'none'\n        : 'transform .6s cubic-bezier(0.18, 0.89, 0.32, 1)';\n\n      this.setData({\n        wrapperStyle: `\n        -webkit-transform: ${transform};\n        -webkit-transition: ${transition};\n        transform: ${transform};\n        transition: ${transition};\n      `,\n      });\n    },\n\n    swipeLeaveTransition() {\n      const { leftWidth, rightWidth } = this.data;\n      const { offset } = this;\n\n      if (rightWidth > 0 && -offset > rightWidth * THRESHOLD) {\n        this.open('right');\n      } else if (leftWidth > 0 && offset > leftWidth * THRESHOLD) {\n        this.open('left');\n      } else {\n        this.swipeMove(0);\n      }\n      this.setData({ catchMove: false });\n    },\n\n    startDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.startOffset = this.offset;\n      this.touchStart(event);\n    },\n\n    noop() {},\n\n    onDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.touchMove(event);\n\n      if (this.direction !== 'horizontal') {\n        return;\n      }\n\n      this.dragging = true;\n\n      ARRAY.filter(\n        (item) => item !== this && item.offset !== 0\n      ).forEach((item) => item.close());\n\n      this.setData({ catchMove: true });\n      this.swipeMove(this.startOffset + this.deltaX);\n    },\n\n    endDrag() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.dragging = false;\n      this.swipeLeaveTransition();\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      const { key: position = 'outside' } = event.currentTarget.dataset;\n      this.$emit('click', position);\n\n      if (!this.offset) {\n        return;\n      }\n\n      if (this.data.asyncClose) {\n        this.$emit('close', {\n          position,\n          instance: this,\n          name: this.data.name,\n        });\n      } else {\n        this.swipeMove(0);\n      }\n    },\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    disabled: Boolean,\n    leftWidth: {\n      type: Number,\n      value: 0,\n      observer(leftWidth = 0) {\n        if (this.offset > 0) {\n          this.swipeMove(leftWidth);\n        }\n      },\n    },\n    rightWidth: {\n      type: Number,\n      value: 0,\n      observer(rightWidth = 0) {\n        if (this.offset < 0) {\n          this.swipeMove(-rightWidth);\n        }\n      },\n    },\n    asyncClose: Boolean,\n    name: {\n      type: null,\n      value: '',\n    },\n  },\n\n  mixins: [touch],\n\n  data: {\n    catchMove: false,\n    wrapperStyle: '',\n  },\n\n  created() {\n    this.offset = 0;\n    ARRAY.push(this);\n  },\n\n  destroyed() {\n    ARRAY = ARRAY.filter((item) => item !== this);\n  },\n\n  methods: {\n    open(position: 'left' | 'right') {\n      const { leftWidth, rightWidth } = this.data;\n      const offset = position === 'left' ? leftWidth : -rightWidth;\n      this.swipeMove(offset);\n\n      this.$emit('open', {\n        position,\n        name: this.data.name,\n      });\n    },\n\n    close() {\n      this.swipeMove(0);\n    },\n\n    swipeMove(offset = 0) {\n      this.offset = range(offset, -this.data.rightWidth, this.data.leftWidth);\n\n      const transform = `translate3d(${this.offset}px, 0, 0)`;\n      const transition = this.dragging\n        ? 'none'\n        : 'transform .6s cubic-bezier(0.18, 0.89, 0.32, 1)';\n\n      this.setData({\n        wrapperStyle: `\n        -webkit-transform: ${transform};\n        -webkit-transition: ${transition};\n        transform: ${transform};\n        transition: ${transition};\n      `,\n      });\n    },\n\n    swipeLeaveTransition() {\n      const { leftWidth, rightWidth } = this.data;\n      const { offset } = this;\n\n      if (rightWidth > 0 && -offset > rightWidth * THRESHOLD) {\n        this.open('right');\n      } else if (leftWidth > 0 && offset > leftWidth * THRESHOLD) {\n        this.open('left');\n      } else {\n        this.swipeMove(0);\n      }\n      this.setData({ catchMove: false });\n    },\n\n    startDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.startOffset = this.offset;\n      this.touchStart(event);\n    },\n\n    noop() {},\n\n    onDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.touchMove(event);\n\n      if (this.direction !== 'horizontal') {\n        return;\n      }\n\n      this.dragging = true;\n\n      ARRAY.filter(\n        (item) => item !== this && item.offset !== 0\n      ).forEach((item) => item.close());\n\n      this.setData({ catchMove: true });\n      this.swipeMove(this.startOffset + this.deltaX);\n    },\n\n    endDrag() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.dragging = false;\n      this.swipeLeaveTransition();\n    },\n\n    onClick(event: WechatMiniprogram.TouchEvent) {\n      const { key: position = 'outside' } = event.currentTarget.dataset;\n      this.$emit('click', position);\n\n      if (!this.offset) {\n        return;\n      }\n\n      if (this.data.asyncClose) {\n        this.$emit('close', {\n          position,\n          instance: this,\n          name: this.data.name,\n        });\n      } else {\n        this.swipeMove(0);\n      }\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "disabled": "Boolean",
+              "leftWidth": {
+                "type": "Number",
+                "value": "0"
+              },
+              "rightWidth": {
+                "type": "Number",
+                "value": "0"
+              },
+              "asyncClose": "Boolean",
+              "name": {
+                "type": "null",
+                "value": ""
+              }
+            },
+            "mixins": [
+              "touch"
+            ],
+            "data": {
+              "catchMove": "false",
+              "wrapperStyle": ""
+            },
+            "methods": {
+              "open": "open(position: 'left' | 'right') {\n      const { leftWidth, rightWidth } = this.data;\n      const offset = position === 'left' ? leftWidth : -rightWidth;\n      this.swipeMove(offset);\n\n      this.$emit('open', {\n        position,\n        name: this.data.name,\n      });\n    }",
+              "close": "close() {\n      this.swipeMove(0);\n    }",
+              "swipeMove": "swipeMove(offset = 0) {\n      this.offset = range(offset, -this.data.rightWidth, this.data.leftWidth);\n\n      const transform = `translate3d(${this.offset}px, 0, 0)`;\n      const transition = this.dragging\n        ? 'none'\n        : 'transform .6s cubic-bezier(0.18, 0.89, 0.32, 1)';\n\n      this.setData({\n        wrapperStyle: `\n        -webkit-transform: ${transform};\n        -webkit-transition: ${transition};\n        transform: ${transform};\n        transition: ${transition};\n      `,\n      });\n    }",
+              "swipeLeaveTransition": "swipeLeaveTransition() {\n      const { leftWidth, rightWidth } = this.data;\n      const { offset } = this;\n\n      if (rightWidth > 0 && -offset > rightWidth * THRESHOLD) {\n        this.open('right');\n      } else if (leftWidth > 0 && offset > leftWidth * THRESHOLD) {\n        this.open('left');\n      } else {\n        this.swipeMove(0);\n      }\n      this.setData({ catchMove: false });\n    }",
+              "startDrag": "startDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.startOffset = this.offset;\n      this.touchStart(event);\n    }",
+              "noop": "noop() {}",
+              "onDrag": "onDrag(event: WechatMiniprogram.TouchEvent) {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.touchMove(event);\n\n      if (this.direction !== 'horizontal') {\n        return;\n      }\n\n      this.dragging = true;\n\n      ARRAY.filter(\n        (item) => item !== this && item.offset !== 0\n      ).forEach((item) => item.close());\n\n      this.setData({ catchMove: true });\n      this.swipeMove(this.startOffset + this.deltaX);\n    }",
+              "endDrag": "endDrag() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      this.dragging = false;\n      this.swipeLeaveTransition();\n    }",
+              "onClick": "onClick(event: WechatMiniprogram.TouchEvent) {\n      const { key: position = 'outside' } = event.currentTarget.dataset;\n      this.$emit('click', position);\n\n      if (!this.offset) {\n        return;\n      }\n\n      if (this.data.asyncClose) {\n        this.$emit('close', {\n          position,\n          instance: this,\n          name: this.data.name,\n        });\n      } else {\n        this.swipeMove(0);\n      }\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-swipe-cell{overflow:hidden;position:relative}.van-swipe-cell__left,.van-swipe-cell__right{height:100%;position:absolute;top:0}.van-swipe-cell__left{left:0;transform:translate3d(-100%,0,0)}.van-swipe-cell__right{right:0;transform:translate3d(100%,0,0)}"
+}

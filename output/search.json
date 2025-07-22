@@ -1,0 +1,207 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "{{ utils.bem('search', { withaction: showAction || useActionSlot }) }} custom-class",
+        "style": "background: {{ background }}"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            ":class": "utils.bem('search__content', [shape])"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-search__label",
+                "v-if": "label"
+              }
+            },
+            {
+              "tag": "slot",
+              "attrs": {
+                "v-else": "",
+                "name": "label"
+              }
+            },
+            {
+              "tag": "van-field",
+              "attrs": {
+                "type": "search",
+                ":left-icon": "!useLeftIconSlot ? leftIcon : ''",
+                ":right-icon": "!useRightIconSlot ? rightIcon : ''",
+                ":focus": "focus",
+                ":error": "error",
+                ":border": "false",
+                "confirm-type": "search",
+                "class": "van-search__field field-class",
+                ":value": "value",
+                ":disabled": "disabled",
+                ":readonly": "readonly",
+                ":clearable": "clearable",
+                ":clear-trigger": "clearTrigger",
+                ":clear-icon": "clearIcon",
+                ":maxlength": "maxlength",
+                ":input-align": "inputAlign",
+                "input-class": "input-class",
+                ":placeholder": "placeholder",
+                ":placeholder-style": "placeholderStyle",
+                ":cursor-spacing": "cursorSpacing",
+                "custom-style": "padding: 5px 10px 5px 0; background-color: transparent;",
+                "@blur": "onBlur",
+                "@focus": "onFocus",
+                "@change": "onChange",
+                "@confirm": "onSearch",
+                "@clear": "onClear",
+                "@click-input": "onClickInput"
+              },
+              "children": [
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-if": "useLeftIconSlot",
+                    "name": "left-icon",
+                    "slot": "left-icon"
+                  }
+                },
+                {
+                  "tag": "slot",
+                  "attrs": {
+                    "v-if": "useRightIconSlot",
+                    "name": "right-icon",
+                    "slot": "right-icon"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            "v-if": "showAction || useActionSlot",
+            "class": "van-search__action",
+            "hover-class": "van-search__action--hover",
+            "hover-stay-time": "70"
+          },
+          "children": [
+            {
+              "tag": "slot",
+              "attrs": {
+                "v-if": "useActionSlot",
+                "name": "action"
+              }
+            },
+            {
+              "tag": "div",
+              "attrs": {
+                "v-else": "",
+                "@tap": "onCancel",
+                "class": "van-search__action-button cancel-class"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { canIUseModel } from '../common/version';\n\nVantComponent({\n  field: true,\n\n  classes: ['field-class', 'input-class', 'cancel-class'],\n\n  props: {\n    value: {\n      type: String,\n      value: '',\n    },\n    label: String,\n    focus: Boolean,\n    error: Boolean,\n    disabled: Boolean,\n    readonly: Boolean,\n    inputAlign: String,\n    showAction: Boolean,\n    useActionSlot: Boolean,\n    useLeftIconSlot: Boolean,\n    useRightIconSlot: Boolean,\n    leftIcon: {\n      type: String,\n      value: 'search',\n    },\n    rightIcon: String,\n    placeholder: String,\n    placeholderStyle: String,\n    actionText: {\n      type: String,\n      value: '取消',\n    },\n    background: {\n      type: String,\n      value: '#ffffff',\n    },\n    maxlength: {\n      type: Number,\n      value: -1,\n    },\n    shape: {\n      type: String,\n      value: 'square',\n    },\n    clearable: {\n      type: Boolean,\n      value: true,\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    cursorSpacing: {\n      type: Number,\n      value: 0,\n    },\n  },\n\n  methods: {\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (canIUseModel()) {\n        this.setData({ value: event.detail });\n      }\n      this.$emit('change', event.detail);\n    },\n\n    onCancel() {\n      /**\n       * 修复修改输入框值时，输入框失焦和赋值同时触发，赋值失效\n       * https://github.com/youzan/vant-weapp/issues/1768\n       */\n      setTimeout(() => {\n        if (canIUseModel()) {\n          this.setData({ value: '' });\n        }\n        this.$emit('cancel');\n        this.$emit('change', '');\n      }, 200);\n    },\n\n    onSearch(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('search', event.detail);\n    },\n\n    onFocus(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('blur', event.detail);\n    },\n\n    onClear(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('clear', event.detail);\n    },\n\n    onClickInput(event) {\n      this.$emit('click-input', event.detail);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { canIUseModel } from '../common/version';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  field: true,\n\n  classes: ['field-class', 'input-class', 'cancel-class'],\n\n  props: {\n    value: {\n      type: String,\n      value: '',\n    },\n    label: String,\n    focus: Boolean,\n    error: Boolean,\n    disabled: Boolean,\n    readonly: Boolean,\n    inputAlign: String,\n    showAction: Boolean,\n    useActionSlot: Boolean,\n    useLeftIconSlot: Boolean,\n    useRightIconSlot: Boolean,\n    leftIcon: {\n      type: String,\n      value: 'search',\n    },\n    rightIcon: String,\n    placeholder: String,\n    placeholderStyle: String,\n    actionText: {\n      type: String,\n      value: '取消',\n    },\n    background: {\n      type: String,\n      value: '#ffffff',\n    },\n    maxlength: {\n      type: Number,\n      value: -1,\n    },\n    shape: {\n      type: String,\n      value: 'square',\n    },\n    clearable: {\n      type: Boolean,\n      value: true,\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    cursorSpacing: {\n      type: Number,\n      value: 0,\n    },\n  },\n\n  methods: {\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (canIUseModel()) {\n        this.setData({ value: event.detail });\n      }\n      this.$emit('change', event.detail);\n    },\n\n    onCancel() {\n      /**\n       * 修复修改输入框值时，输入框失焦和赋值同时触发，赋值失效\n       * https://github.com/youzan/vant-weapp/issues/1768\n       */\n      setTimeout(() => {\n        if (canIUseModel()) {\n          this.setData({ value: '' });\n        }\n        this.$emit('cancel');\n        this.$emit('change', '');\n      }, 200);\n    },\n\n    onSearch(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('search', event.detail);\n    },\n\n    onFocus(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('blur', event.detail);\n    },\n\n    onClear(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('clear', event.detail);\n    },\n\n    onClickInput(event) {\n      this.$emit('click-input', event.detail);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  field: true,\n\n  classes: ['field-class', 'input-class', 'cancel-class'],\n\n  props: {\n    value: {\n      type: String,\n      value: '',\n    },\n    label: String,\n    focus: Boolean,\n    error: Boolean,\n    disabled: Boolean,\n    readonly: Boolean,\n    inputAlign: String,\n    showAction: Boolean,\n    useActionSlot: Boolean,\n    useLeftIconSlot: Boolean,\n    useRightIconSlot: Boolean,\n    leftIcon: {\n      type: String,\n      value: 'search',\n    },\n    rightIcon: String,\n    placeholder: String,\n    placeholderStyle: String,\n    actionText: {\n      type: String,\n      value: '取消',\n    },\n    background: {\n      type: String,\n      value: '#ffffff',\n    },\n    maxlength: {\n      type: Number,\n      value: -1,\n    },\n    shape: {\n      type: String,\n      value: 'square',\n    },\n    clearable: {\n      type: Boolean,\n      value: true,\n    },\n    clearTrigger: {\n      type: String,\n      value: 'focus',\n    },\n    clearIcon: {\n      type: String,\n      value: 'clear',\n    },\n    cursorSpacing: {\n      type: Number,\n      value: 0,\n    },\n  },\n\n  methods: {\n    onChange(event: WechatMiniprogram.CustomEvent) {\n      if (canIUseModel()) {\n        this.setData({ value: event.detail });\n      }\n      this.$emit('change', event.detail);\n    },\n\n    onCancel() {\n      /**\n       * 修复修改输入框值时，输入框失焦和赋值同时触发，赋值失效\n       * https://github.com/youzan/vant-weapp/issues/1768\n       */\n      setTimeout(() => {\n        if (canIUseModel()) {\n          this.setData({ value: '' });\n        }\n        this.$emit('cancel');\n        this.$emit('change', '');\n      }, 200);\n    },\n\n    onSearch(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('search', event.detail);\n    },\n\n    onFocus(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('focus', event.detail);\n    },\n\n    onBlur(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('blur', event.detail);\n    },\n\n    onClear(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('clear', event.detail);\n    },\n\n    onClickInput(event) {\n      this.$emit('click-input', event.detail);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "field": "true",
+            "classes": [
+              "'field-class'",
+              "'input-class'",
+              "'cancel-class'"
+            ],
+            "props": {
+              "value": {
+                "type": "String",
+                "value": ""
+              },
+              "label": "String",
+              "focus": "Boolean",
+              "error": "Boolean",
+              "disabled": "Boolean",
+              "readonly": "Boolean",
+              "inputAlign": "String",
+              "showAction": "Boolean",
+              "useActionSlot": "Boolean",
+              "useLeftIconSlot": "Boolean",
+              "useRightIconSlot": "Boolean",
+              "leftIcon": {
+                "type": "String",
+                "value": "search"
+              },
+              "rightIcon": "String",
+              "placeholder": "String",
+              "placeholderStyle": "String",
+              "actionText": {
+                "type": "String",
+                "value": "取消"
+              },
+              "background": {
+                "type": "String",
+                "value": "#ffffff"
+              },
+              "maxlength": {
+                "type": "Number",
+                "value": "-1"
+              },
+              "shape": {
+                "type": "String",
+                "value": "square"
+              },
+              "clearable": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "clearTrigger": {
+                "type": "String",
+                "value": "focus"
+              },
+              "clearIcon": {
+                "type": "String",
+                "value": "clear"
+              },
+              "cursorSpacing": {
+                "type": "Number",
+                "value": "0"
+              }
+            },
+            "methods": {
+              "onChange": "onChange(event: WechatMiniprogram.CustomEvent) {\n      if (canIUseModel()) {\n        this.setData({ value: event.detail });\n      }\n      this.$emit('change', event.detail);\n    }",
+              "onCancel": "onCancel() {\n      /**\n       * 修复修改输入框值时，输入框失焦和赋值同时触发，赋值失效\n       * https://github.com/youzan/vant-weapp/issues/1768\n       */\n      setTimeout(() => {\n        if (canIUseModel()) {\n          this.setData({ value: '' });\n        }\n        this.$emit('cancel');\n        this.$emit('change', '');\n      }, 200);\n    }",
+              "onSearch": "onSearch(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('search', event.detail);\n    }",
+              "onFocus": "onFocus(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('focus', event.detail);\n    }",
+              "onBlur": "onBlur(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('blur', event.detail);\n    }",
+              "onClear": "onClear(event: WechatMiniprogram.CustomEvent) {\n      this.$emit('clear', event.detail);\n    }",
+              "onClickInput": "onClickInput(event) {\n      this.$emit('click-input', event.detail);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-search{align-items:center;box-sizing:border-box;display:flex;padding:var(--search-padding,10px 12px)}.van-search__content{background-color:var(--search-background-color,#f7f8fa);border-radius:2px;display:flex;flex:1;padding-left:var(--padding-sm,12px)}.van-search__content--round{border-radius:999px}.van-search__label{color:var(--search-label-color,#323233);font-size:var(--search-label-font-size,14px);line-height:var(--search-input-height,34px);padding:var(--search-label-padding,0 5px)}.van-search__field{flex:1}.van-search__field__left-icon{color:var(--search-left-icon-color,#969799)}.van-search--withaction{padding-right:0}.van-search__action{color:var(--search-action-text-color,#323233);font-size:var(--search-action-font-size,14px);line-height:var(--search-input-height,34px)}.van-search__action--hover{background-color:#f2f3f5}.van-search__action-button{padding:var(--search-action-padding,0 8px)}"
+}

@@ -1,0 +1,141 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-collapse-item custom-class {{ index !== 0 ? 'van-hairline--top' : '' }}"
+      },
+      "children": [
+        {
+          "tag": "van-cell",
+          "attrs": {
+            ":size": "size",
+            ":title": "title",
+            "title-class": "title-class",
+            ":icon": "icon",
+            ":value": "value",
+            ":label": "label",
+            ":is-link": "isLink",
+            ":clickable": "clickable",
+            ":border": "border && expanded",
+            ":class": "utils.bem('collapse-item__title', { disabled, expanded })",
+            "right-icon-class": "van-cell__right-icon",
+            "custom-class": "van-cell",
+            "hover-class": "van-cell--hover",
+            "@click": "onClick"
+          },
+          "children": [
+            {
+              "tag": "slot",
+              "attrs": {
+                "name": "title",
+                "slot": "title"
+              }
+            },
+            {
+              "tag": "slot",
+              "attrs": {
+                "name": "icon",
+                "slot": "icon"
+              }
+            },
+            {
+              "tag": "slot",
+              "attrs": {
+                "name": "value"
+              }
+            },
+            {
+              "tag": "slot",
+              "attrs": {
+                "name": "right-icon",
+                "slot": "right-icon"
+              }
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attrs": {
+            ":class": "utils.bem('collapse-item__wrapper')",
+            "style": "height: 0;",
+            ":animation": "animation"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "van-collapse-item__content content-class"
+              },
+              "children": [
+                {
+                  "tag": "slot"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { useParent } from '../common/relation';\nimport { setContentAnimate } from './animate';\n\nVantComponent({\n  classes: ['title-class', 'content-class'],\n\n  relation: useParent('collapse'),\n\n  props: {\n    size: String,\n    name: null,\n    title: null,\n    value: null,\n    icon: String,\n    label: String,\n    disabled: Boolean,\n    clickable: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    isLink: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    expanded: false,\n  },\n\n  mounted() {\n    this.updateExpanded();\n    this.mounted = true;\n  },\n\n  methods: {\n    updateExpanded() {\n      if (!this.parent) {\n        return;\n      }\n\n      const { value, accordion } = this.parent.data;\n      const { children = [] } = this.parent;\n      const { name } = this.data;\n\n      const index = children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      const expanded = accordion\n        ? value === currentName\n        : (value || []).some((name: string | number) => name === currentName);\n\n      if (expanded !== this.data.expanded) {\n        setContentAnimate(this, expanded, this.mounted);\n      }\n\n      this.setData({ index, expanded });\n    },\n\n    onClick() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      const { name, expanded } = this.data;\n      const index = this.parent.children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      this.parent.switch(currentName, !expanded);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useParent } from '../common/relation';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { setContentAnimate } from './animate';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['title-class', 'content-class'],\n\n  relation: useParent('collapse'),\n\n  props: {\n    size: String,\n    name: null,\n    title: null,\n    value: null,\n    icon: String,\n    label: String,\n    disabled: Boolean,\n    clickable: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    isLink: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    expanded: false,\n  },\n\n  mounted() {\n    this.updateExpanded();\n    this.mounted = true;\n  },\n\n  methods: {\n    updateExpanded() {\n      if (!this.parent) {\n        return;\n      }\n\n      const { value, accordion } = this.parent.data;\n      const { children = [] } = this.parent;\n      const { name } = this.data;\n\n      const index = children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      const expanded = accordion\n        ? value === currentName\n        : (value || []).some((name: string | number) => name === currentName);\n\n      if (expanded !== this.data.expanded) {\n        setContentAnimate(this, expanded, this.mounted);\n      }\n\n      this.setData({ index, expanded });\n    },\n\n    onClick() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      const { name, expanded } = this.data;\n      const index = this.parent.children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      this.parent.switch(currentName, !expanded);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['title-class', 'content-class'],\n\n  relation: useParent('collapse'),\n\n  props: {\n    size: String,\n    name: null,\n    title: null,\n    value: null,\n    icon: String,\n    label: String,\n    disabled: Boolean,\n    clickable: Boolean,\n    border: {\n      type: Boolean,\n      value: true,\n    },\n    isLink: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  data: {\n    expanded: false,\n  },\n\n  mounted() {\n    this.updateExpanded();\n    this.mounted = true;\n  },\n\n  methods: {\n    updateExpanded() {\n      if (!this.parent) {\n        return;\n      }\n\n      const { value, accordion } = this.parent.data;\n      const { children = [] } = this.parent;\n      const { name } = this.data;\n\n      const index = children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      const expanded = accordion\n        ? value === currentName\n        : (value || []).some((name: string | number) => name === currentName);\n\n      if (expanded !== this.data.expanded) {\n        setContentAnimate(this, expanded, this.mounted);\n      }\n\n      this.setData({ index, expanded });\n    },\n\n    onClick() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      const { name, expanded } = this.data;\n      const index = this.parent.children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      this.parent.switch(currentName, !expanded);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'title-class'",
+              "'content-class'"
+            ],
+            "relation": "useParent('collapse')",
+            "props": {
+              "size": "String",
+              "name": "null",
+              "title": "null",
+              "value": "null",
+              "icon": "String",
+              "label": "String",
+              "disabled": "Boolean",
+              "clickable": "Boolean",
+              "border": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "isLink": {
+                "type": "Boolean",
+                "value": "true"
+              }
+            },
+            "data": {
+              "expanded": "false"
+            },
+            "methods": {
+              "updateExpanded": "updateExpanded() {\n      if (!this.parent) {\n        return;\n      }\n\n      const { value, accordion } = this.parent.data;\n      const { children = [] } = this.parent;\n      const { name } = this.data;\n\n      const index = children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      const expanded = accordion\n        ? value === currentName\n        : (value || []).some((name: string | number) => name === currentName);\n\n      if (expanded !== this.data.expanded) {\n        setContentAnimate(this, expanded, this.mounted);\n      }\n\n      this.setData({ index, expanded });\n    }",
+              "onClick": "onClick() {\n      if (this.data.disabled) {\n        return;\n      }\n\n      const { name, expanded } = this.data;\n      const index = this.parent.children.indexOf(this);\n      const currentName = name == null ? index : name;\n\n      this.parent.switch(currentName, !expanded);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-collapse-item__title .van-cell__right-icon{transform:rotate(90deg);transition:transform var(--collapse-item-transition-duration,.3s)}.van-collapse-item__title--expanded .van-cell__right-icon{transform:rotate(-90deg)}.van-collapse-item__title--disabled .van-cell,.van-collapse-item__title--disabled .van-cell__right-icon{color:var(--collapse-item-title-disabled-color,#c8c9cc)!important}.van-collapse-item__title--disabled .van-cell--hover{background-color:#fff!important}.van-collapse-item__wrapper{overflow:hidden}.van-collapse-item__content{background-color:var(--collapse-item-content-background-color,#fff);color:var(--collapse-item-content-text-color,#969799);font-size:var(--collapse-item-content-font-size,13px);line-height:var(--collapse-item-content-line-height,1.5);padding:var(--collapse-item-content-padding,15px)}"
+}

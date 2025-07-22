@@ -6,24 +6,36 @@ interface WxmlNode {
   children?: WxmlNode[];
 }
 
-const parseAttrs = (attrs: any, tag: string) => {
+const parseClass = (key: string, value: string) => {
+  return {
+    [key]: value,
+  };
+};
+
+const parseAttrs = (attrs: any, isCustomElement: boolean) => {
   const newAttrs = Object.entries(attrs).reduce(
     (acc: Record<string, string>, [key, value]: [string, any]) => {
-      if (key.startsWith("bind")) {
-        key = key.replace("bind", "@");
-      }
-
       const map = {
         "wx:for": "v-for",
         "wx:for-item": "v-for-item",
         "wx:for-index": "v-for-index",
-        "wx:key": "v-key",
+        "wx:key": ":key",
         "wx:if": "v-if",
         "wx:else": "v-else",
         "wx:elif": "v-else-if",
       } as Record<string, string>;
       if (map[key]) {
         key = map[key];
+      }
+
+      if (key.startsWith("bind:")) {
+        key = key.replace("bind:", "@");
+      }
+      if (key.startsWith("bind")) {
+        key = key.replace("bind", "@");
+      }
+      if (key.startsWith("catch")) {
+        key = key.replace("catch", "@catch");
       }
 
       if (value.startsWith("{{") && value.endsWith("}}")) {
@@ -80,7 +92,7 @@ export const parseWxml = (wxml: string): WxmlNode[] => {
       const tag = parseTag(node.name);
       const resultNode: WxmlNode = {
         tag,
-        attrs: parseAttrs(node.attribs || {}, tag),
+        attrs: parseAttrs(node.attribs || {}, tag.includes("-")),
         children,
       };
       if (children.length === 0) {

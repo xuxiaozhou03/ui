@@ -1,0 +1,315 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-uploader"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-uploader__wrapper"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "previewImage",
+                "v-for": "lists",
+                ":key": "index",
+                "class": "van-uploader__preview",
+                ":data-index": "index",
+                "@tap": "onClickPreview"
+              },
+              "children": [
+                {
+                  "tag": "image",
+                  "attrs": {
+                    "v-if": "item.isImage",
+                    ":mode": "imageFit",
+                    ":src": "item.thumb || item.url",
+                    ":alt": "item.name || ('图片' + index)",
+                    "class": "van-uploader__preview-image",
+                    ":style": "sizeStyle",
+                    ":data-index": "index",
+                    "@tap": "onPreviewImage"
+                  }
+                },
+                {
+                  "tag": "video",
+                  "attrs": {
+                    "v-else-if": "item.isVideo",
+                    ":src": "item.url",
+                    ":title": "item.name || ('视频' + index)",
+                    ":poster": "item.thumb",
+                    ":autoplay": "item.autoplay",
+                    ":object-fit": "videoFit",
+                    ":referrer-policy": "videoReferrerPolicy",
+                    "class": "van-uploader__preview-image",
+                    ":style": "sizeStyle",
+                    ":data-index": "index",
+                    "@tap": "onPreviewVideo"
+                  }
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-else": "",
+                    "class": "van-uploader__file",
+                    ":style": "sizeStyle",
+                    ":data-index": "index",
+                    "@tap": "onPreviewFile"
+                  },
+                  "children": [
+                    {
+                      "tag": "van-icon",
+                      "attrs": {
+                        "name": "description",
+                        "class": "van-uploader__file-icon"
+                      }
+                    },
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "van-uploader__file-name van-ellipsis"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-if": "item.status === 'uploading' || item.status === 'failed'",
+                    "class": "van-uploader__mask"
+                  },
+                  "children": [
+                    {
+                      "tag": "van-icon",
+                      "attrs": {
+                        "v-if": "item.status === 'failed'",
+                        "name": "close",
+                        "class": "van-uploader__mask-icon"
+                      }
+                    },
+                    {
+                      "tag": "van-loading",
+                      "attrs": {
+                        "v-else": "",
+                        "custom-class": "van-uploader__loading"
+                      }
+                    },
+                    {
+                      "tag": "text",
+                      "attrs": {
+                        "v-if": "item.message",
+                        "class": "van-uploader__mask-message"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-if": "deletable && item.deletable",
+                    ":data-index": "index",
+                    "class": "van-uploader__preview-delete",
+                    "@catch:tap": "deleteItem"
+                  },
+                  "children": [
+                    {
+                      "tag": "van-icon",
+                      "attrs": {
+                        "name": "cross",
+                        "class": "van-uploader__preview-delete-icon"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "template",
+              "attrs": {
+                "v-if": "isInCount"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "class": "van-uploader__slot",
+                    "@tap": "startUpload"
+                  },
+                  "children": [
+                    {
+                      "tag": "slot"
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "v-if": "showUpload",
+                    "class": "van-uploader__upload {{ disabled ? 'van-uploader__upload--disabled': ''}}",
+                    ":style": "sizeStyle",
+                    "@tap": "startUpload"
+                  },
+                  "children": [
+                    {
+                      "tag": "van-icon",
+                      "attrs": {
+                        ":name": "uploadIcon",
+                        "class": "van-uploader__upload-icon"
+                      }
+                    },
+                    {
+                      "tag": "text",
+                      "attrs": {
+                        "v-if": "uploadText",
+                        "class": "van-uploader__upload-text"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { isBoolean, isPromise } from '../common/validator';\nimport { imageProps, mediaProps, messageFileProps, videoProps } from './shared';\nimport { chooseFile, File, isImageFile, isVideoFile } from './utils';\n\nVantComponent({\n  props: {\n    disabled: Boolean,\n    multiple: Boolean,\n    uploadText: String,\n    useBeforeRead: Boolean,\n    afterRead: null,\n    beforeRead: null,\n    previewSize: {\n      type: null,\n      value: 80,\n    },\n    name: {\n      type: null,\n      value: '',\n    },\n    accept: {\n      type: String,\n      value: 'image',\n    },\n    fileList: {\n      type: Array,\n      value: [],\n      observer: 'formatFileList',\n    },\n    maxSize: {\n      type: Number,\n      value: Number.MAX_VALUE,\n    },\n    maxCount: {\n      type: Number,\n      value: 100,\n    },\n    deletable: {\n      type: Boolean,\n      value: true,\n    },\n    showUpload: {\n      type: Boolean,\n      value: true,\n    },\n    previewImage: {\n      type: Boolean,\n      value: true,\n    },\n    previewFullImage: {\n      type: Boolean,\n      value: true,\n    },\n    videoFit: {\n      type: String,\n      value: 'contain',\n    },\n    imageFit: {\n      type: String,\n      value: 'scaleToFill',\n    },\n    uploadIcon: {\n      type: String,\n      value: 'photograph',\n    },\n    ...imageProps,\n    ...videoProps,\n    ...mediaProps,\n    ...messageFileProps,\n  },\n\n  data: {\n    lists: [] as File[],\n    isInCount: true,\n  },\n\n  methods: {\n    formatFileList() {\n      const { fileList = [], maxCount } = this.data;\n      const lists = fileList.map((item) => ({\n        ...item,\n        isImage: isImageFile(item),\n        isVideo: isVideoFile(item),\n        deletable: isBoolean(item.deletable) ? item.deletable : true,\n      }));\n\n      this.setData({ lists, isInCount: lists.length < maxCount });\n    },\n\n    getDetail(index?: number) {\n      return {\n        name: this.data.name,\n        index: index == null ? this.data.fileList.length : index,\n      };\n    },\n\n    startUpload() {\n      const { maxCount, multiple, lists, disabled } = this.data;\n\n      if (disabled) return;\n\n      chooseFile({\n        ...this.data,\n        maxCount: maxCount - lists.length,\n      })\n        .then((res) => {\n          this.onBeforeRead(multiple ? res : res[0]);\n        })\n        .catch((error) => {\n          this.$emit('error', error);\n        });\n    },\n\n    onBeforeRead(file: File) {\n      const { beforeRead, useBeforeRead } = this.data;\n      let res: boolean | Promise<void> = true;\n\n      if (typeof beforeRead === 'function') {\n        res = beforeRead(file, this.getDetail());\n      }\n\n      if (useBeforeRead) {\n        res = new Promise<void>((resolve, reject) => {\n          this.$emit('before-read', {\n            file,\n            ...this.getDetail(),\n            callback: (ok: boolean) => {\n              ok ? resolve() : reject();\n            },\n          });\n        });\n      }\n\n      if (!res) {\n        return;\n      }\n\n      if (isPromise(res)) {\n        res.then((data: any) => this.onAfterRead(data || file));\n      } else {\n        this.onAfterRead(file);\n      }\n    },\n\n    onAfterRead(file) {\n      const { maxSize, afterRead } = this.data;\n      const oversize = Array.isArray(file)\n        ? file.some((item) => item.size > maxSize)\n        : file.size > maxSize;\n\n      if (oversize) {\n        this.$emit('oversize', { file, ...this.getDetail() });\n        return;\n      }\n\n      if (typeof afterRead === 'function') {\n        afterRead(file, this.getDetail());\n      }\n\n      this.$emit('after-read', { file, ...this.getDetail() });\n    },\n\n    deleteItem(event) {\n      const { index } = event.currentTarget.dataset;\n\n      this.$emit('delete', {\n        ...this.getDetail(index),\n        file: this.data.fileList[index],\n      });\n    },\n\n    onPreviewImage(event) {\n      if (!this.data.previewFullImage) return;\n\n      const { index } = event.currentTarget.dataset;\n      const { lists, showmenu } = this.data;\n      const item = lists[index];\n\n      wx.previewImage({\n        urls: lists.filter((item) => isImageFile(item)).map((item) => item.url),\n        current: item.url,\n        showmenu,\n        fail() {\n          wx.showToast({ title: '预览图片失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewVideo(event) {\n      if (!this.data.previewFullImage) return;\n      const { index } = event.currentTarget.dataset;\n      const { lists } = this.data as { lists: File[] };\n\n      const sources: WechatMiniprogram.MediaSource[] = [];\n\n      const current = lists.reduce((sum, cur, curIndex) => {\n        if (!isVideoFile(cur)) {\n          return sum;\n        }\n\n        sources.push({ ...cur, type: 'video' });\n\n        if (curIndex < index) {\n          sum++;\n        }\n\n        return sum;\n      }, 0);\n\n      wx.previewMedia({\n        sources,\n        current,\n        fail() {\n          wx.showToast({ title: '预览视频失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewFile(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n\n      wx.openDocument({\n        filePath: this.data.lists[index].url,\n        showMenu: true,\n      });\n    },\n\n    onClickPreview(event) {\n      const { index } = event.currentTarget.dataset;\n      const item: File = this.data.lists[index];\n\n      this.$emit('click-preview', {\n        ...item,\n        ...this.getDetail(index),\n      });\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { isBoolean, isPromise } from '../common/validator';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { imageProps, mediaProps, messageFileProps, videoProps } from './shared';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { chooseFile, File, isImageFile, isVideoFile } from './utils';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    disabled: Boolean,\n    multiple: Boolean,\n    uploadText: String,\n    useBeforeRead: Boolean,\n    afterRead: null,\n    beforeRead: null,\n    previewSize: {\n      type: null,\n      value: 80,\n    },\n    name: {\n      type: null,\n      value: '',\n    },\n    accept: {\n      type: String,\n      value: 'image',\n    },\n    fileList: {\n      type: Array,\n      value: [],\n      observer: 'formatFileList',\n    },\n    maxSize: {\n      type: Number,\n      value: Number.MAX_VALUE,\n    },\n    maxCount: {\n      type: Number,\n      value: 100,\n    },\n    deletable: {\n      type: Boolean,\n      value: true,\n    },\n    showUpload: {\n      type: Boolean,\n      value: true,\n    },\n    previewImage: {\n      type: Boolean,\n      value: true,\n    },\n    previewFullImage: {\n      type: Boolean,\n      value: true,\n    },\n    videoFit: {\n      type: String,\n      value: 'contain',\n    },\n    imageFit: {\n      type: String,\n      value: 'scaleToFill',\n    },\n    uploadIcon: {\n      type: String,\n      value: 'photograph',\n    },\n    ...imageProps,\n    ...videoProps,\n    ...mediaProps,\n    ...messageFileProps,\n  },\n\n  data: {\n    lists: [] as File[],\n    isInCount: true,\n  },\n\n  methods: {\n    formatFileList() {\n      const { fileList = [], maxCount } = this.data;\n      const lists = fileList.map((item) => ({\n        ...item,\n        isImage: isImageFile(item),\n        isVideo: isVideoFile(item),\n        deletable: isBoolean(item.deletable) ? item.deletable : true,\n      }));\n\n      this.setData({ lists, isInCount: lists.length < maxCount });\n    },\n\n    getDetail(index?: number) {\n      return {\n        name: this.data.name,\n        index: index == null ? this.data.fileList.length : index,\n      };\n    },\n\n    startUpload() {\n      const { maxCount, multiple, lists, disabled } = this.data;\n\n      if (disabled) return;\n\n      chooseFile({\n        ...this.data,\n        maxCount: maxCount - lists.length,\n      })\n        .then((res) => {\n          this.onBeforeRead(multiple ? res : res[0]);\n        })\n        .catch((error) => {\n          this.$emit('error', error);\n        });\n    },\n\n    onBeforeRead(file: File) {\n      const { beforeRead, useBeforeRead } = this.data;\n      let res: boolean | Promise<void> = true;\n\n      if (typeof beforeRead === 'function') {\n        res = beforeRead(file, this.getDetail());\n      }\n\n      if (useBeforeRead) {\n        res = new Promise<void>((resolve, reject) => {\n          this.$emit('before-read', {\n            file,\n            ...this.getDetail(),\n            callback: (ok: boolean) => {\n              ok ? resolve() : reject();\n            },\n          });\n        });\n      }\n\n      if (!res) {\n        return;\n      }\n\n      if (isPromise(res)) {\n        res.then((data: any) => this.onAfterRead(data || file));\n      } else {\n        this.onAfterRead(file);\n      }\n    },\n\n    onAfterRead(file) {\n      const { maxSize, afterRead } = this.data;\n      const oversize = Array.isArray(file)\n        ? file.some((item) => item.size > maxSize)\n        : file.size > maxSize;\n\n      if (oversize) {\n        this.$emit('oversize', { file, ...this.getDetail() });\n        return;\n      }\n\n      if (typeof afterRead === 'function') {\n        afterRead(file, this.getDetail());\n      }\n\n      this.$emit('after-read', { file, ...this.getDetail() });\n    },\n\n    deleteItem(event) {\n      const { index } = event.currentTarget.dataset;\n\n      this.$emit('delete', {\n        ...this.getDetail(index),\n        file: this.data.fileList[index],\n      });\n    },\n\n    onPreviewImage(event) {\n      if (!this.data.previewFullImage) return;\n\n      const { index } = event.currentTarget.dataset;\n      const { lists, showmenu } = this.data;\n      const item = lists[index];\n\n      wx.previewImage({\n        urls: lists.filter((item) => isImageFile(item)).map((item) => item.url),\n        current: item.url,\n        showmenu,\n        fail() {\n          wx.showToast({ title: '预览图片失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewVideo(event) {\n      if (!this.data.previewFullImage) return;\n      const { index } = event.currentTarget.dataset;\n      const { lists } = this.data as { lists: File[] };\n\n      const sources: WechatMiniprogram.MediaSource[] = [];\n\n      const current = lists.reduce((sum, cur, curIndex) => {\n        if (!isVideoFile(cur)) {\n          return sum;\n        }\n\n        sources.push({ ...cur, type: 'video' });\n\n        if (curIndex < index) {\n          sum++;\n        }\n\n        return sum;\n      }, 0);\n\n      wx.previewMedia({\n        sources,\n        current,\n        fail() {\n          wx.showToast({ title: '预览视频失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewFile(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n\n      wx.openDocument({\n        filePath: this.data.lists[index].url,\n        showMenu: true,\n      });\n    },\n\n    onClickPreview(event) {\n      const { index } = event.currentTarget.dataset;\n      const item: File = this.data.lists[index];\n\n      this.$emit('click-preview', {\n        ...item,\n        ...this.getDetail(index),\n      });\n    },\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    disabled: Boolean,\n    multiple: Boolean,\n    uploadText: String,\n    useBeforeRead: Boolean,\n    afterRead: null,\n    beforeRead: null,\n    previewSize: {\n      type: null,\n      value: 80,\n    },\n    name: {\n      type: null,\n      value: '',\n    },\n    accept: {\n      type: String,\n      value: 'image',\n    },\n    fileList: {\n      type: Array,\n      value: [],\n      observer: 'formatFileList',\n    },\n    maxSize: {\n      type: Number,\n      value: Number.MAX_VALUE,\n    },\n    maxCount: {\n      type: Number,\n      value: 100,\n    },\n    deletable: {\n      type: Boolean,\n      value: true,\n    },\n    showUpload: {\n      type: Boolean,\n      value: true,\n    },\n    previewImage: {\n      type: Boolean,\n      value: true,\n    },\n    previewFullImage: {\n      type: Boolean,\n      value: true,\n    },\n    videoFit: {\n      type: String,\n      value: 'contain',\n    },\n    imageFit: {\n      type: String,\n      value: 'scaleToFill',\n    },\n    uploadIcon: {\n      type: String,\n      value: 'photograph',\n    },\n    ...imageProps,\n    ...videoProps,\n    ...mediaProps,\n    ...messageFileProps,\n  },\n\n  data: {\n    lists: [] as File[],\n    isInCount: true,\n  },\n\n  methods: {\n    formatFileList() {\n      const { fileList = [], maxCount } = this.data;\n      const lists = fileList.map((item) => ({\n        ...item,\n        isImage: isImageFile(item),\n        isVideo: isVideoFile(item),\n        deletable: isBoolean(item.deletable) ? item.deletable : true,\n      }));\n\n      this.setData({ lists, isInCount: lists.length < maxCount });\n    },\n\n    getDetail(index?: number) {\n      return {\n        name: this.data.name,\n        index: index == null ? this.data.fileList.length : index,\n      };\n    },\n\n    startUpload() {\n      const { maxCount, multiple, lists, disabled } = this.data;\n\n      if (disabled) return;\n\n      chooseFile({\n        ...this.data,\n        maxCount: maxCount - lists.length,\n      })\n        .then((res) => {\n          this.onBeforeRead(multiple ? res : res[0]);\n        })\n        .catch((error) => {\n          this.$emit('error', error);\n        });\n    },\n\n    onBeforeRead(file: File) {\n      const { beforeRead, useBeforeRead } = this.data;\n      let res: boolean | Promise<void> = true;\n\n      if (typeof beforeRead === 'function') {\n        res = beforeRead(file, this.getDetail());\n      }\n\n      if (useBeforeRead) {\n        res = new Promise<void>((resolve, reject) => {\n          this.$emit('before-read', {\n            file,\n            ...this.getDetail(),\n            callback: (ok: boolean) => {\n              ok ? resolve() : reject();\n            },\n          });\n        });\n      }\n\n      if (!res) {\n        return;\n      }\n\n      if (isPromise(res)) {\n        res.then((data: any) => this.onAfterRead(data || file));\n      } else {\n        this.onAfterRead(file);\n      }\n    },\n\n    onAfterRead(file) {\n      const { maxSize, afterRead } = this.data;\n      const oversize = Array.isArray(file)\n        ? file.some((item) => item.size > maxSize)\n        : file.size > maxSize;\n\n      if (oversize) {\n        this.$emit('oversize', { file, ...this.getDetail() });\n        return;\n      }\n\n      if (typeof afterRead === 'function') {\n        afterRead(file, this.getDetail());\n      }\n\n      this.$emit('after-read', { file, ...this.getDetail() });\n    },\n\n    deleteItem(event) {\n      const { index } = event.currentTarget.dataset;\n\n      this.$emit('delete', {\n        ...this.getDetail(index),\n        file: this.data.fileList[index],\n      });\n    },\n\n    onPreviewImage(event) {\n      if (!this.data.previewFullImage) return;\n\n      const { index } = event.currentTarget.dataset;\n      const { lists, showmenu } = this.data;\n      const item = lists[index];\n\n      wx.previewImage({\n        urls: lists.filter((item) => isImageFile(item)).map((item) => item.url),\n        current: item.url,\n        showmenu,\n        fail() {\n          wx.showToast({ title: '预览图片失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewVideo(event) {\n      if (!this.data.previewFullImage) return;\n      const { index } = event.currentTarget.dataset;\n      const { lists } = this.data as { lists: File[] };\n\n      const sources: WechatMiniprogram.MediaSource[] = [];\n\n      const current = lists.reduce((sum, cur, curIndex) => {\n        if (!isVideoFile(cur)) {\n          return sum;\n        }\n\n        sources.push({ ...cur, type: 'video' });\n\n        if (curIndex < index) {\n          sum++;\n        }\n\n        return sum;\n      }, 0);\n\n      wx.previewMedia({\n        sources,\n        current,\n        fail() {\n          wx.showToast({ title: '预览视频失败', icon: 'none' });\n        },\n      });\n    },\n\n    onPreviewFile(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n\n      wx.openDocument({\n        filePath: this.data.lists[index].url,\n        showMenu: true,\n      });\n    },\n\n    onClickPreview(event) {\n      const { index } = event.currentTarget.dataset;\n      const item: File = this.data.lists[index];\n\n      this.$emit('click-preview', {\n        ...item,\n        ...this.getDetail(index),\n      });\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "disabled": "Boolean",
+              "multiple": "Boolean",
+              "uploadText": "String",
+              "useBeforeRead": "Boolean",
+              "afterRead": "null",
+              "beforeRead": "null",
+              "previewSize": {
+                "type": "null",
+                "value": "80"
+              },
+              "name": {
+                "type": "null",
+                "value": ""
+              },
+              "accept": {
+                "type": "String",
+                "value": "image"
+              },
+              "fileList": {
+                "type": "Array",
+                "value": [],
+                "observer": "formatFileList"
+              },
+              "maxSize": {
+                "type": "Number",
+                "value": "Number.MAX_VALUE"
+              },
+              "maxCount": {
+                "type": "Number",
+                "value": "100"
+              },
+              "deletable": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "showUpload": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "previewImage": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "previewFullImage": {
+                "type": "Boolean",
+                "value": "true"
+              },
+              "videoFit": {
+                "type": "String",
+                "value": "contain"
+              },
+              "imageFit": {
+                "type": "String",
+                "value": "scaleToFill"
+              },
+              "uploadIcon": {
+                "type": "String",
+                "value": "photograph"
+              }
+            },
+            "data": {
+              "lists": "[] as File[]",
+              "isInCount": "true"
+            },
+            "methods": {
+              "formatFileList": "formatFileList() {\n      const { fileList = [], maxCount } = this.data;\n      const lists = fileList.map((item) => ({\n        ...item,\n        isImage: isImageFile(item),\n        isVideo: isVideoFile(item),\n        deletable: isBoolean(item.deletable) ? item.deletable : true,\n      }));\n\n      this.setData({ lists, isInCount: lists.length < maxCount });\n    }",
+              "getDetail": "getDetail(index?: number) {\n      return {\n        name: this.data.name,\n        index: index == null ? this.data.fileList.length : index,\n      };\n    }",
+              "startUpload": "startUpload() {\n      const { maxCount, multiple, lists, disabled } = this.data;\n\n      if (disabled) return;\n\n      chooseFile({\n        ...this.data,\n        maxCount: maxCount - lists.length,\n      })\n        .then((res) => {\n          this.onBeforeRead(multiple ? res : res[0]);\n        })\n        .catch((error) => {\n          this.$emit('error', error);\n        });\n    }",
+              "onBeforeRead": "onBeforeRead(file: File) {\n      const { beforeRead, useBeforeRead } = this.data;\n      let res: boolean | Promise<void> = true;\n\n      if (typeof beforeRead === 'function') {\n        res = beforeRead(file, this.getDetail());\n      }\n\n      if (useBeforeRead) {\n        res = new Promise<void>((resolve, reject) => {\n          this.$emit('before-read', {\n            file,\n            ...this.getDetail(),\n            callback: (ok: boolean) => {\n              ok ? resolve() : reject();\n            },\n          });\n        });\n      }\n\n      if (!res) {\n        return;\n      }\n\n      if (isPromise(res)) {\n        res.then((data: any) => this.onAfterRead(data || file));\n      } else {\n        this.onAfterRead(file);\n      }\n    }",
+              "onAfterRead": "onAfterRead(file) {\n      const { maxSize, afterRead } = this.data;\n      const oversize = Array.isArray(file)\n        ? file.some((item) => item.size > maxSize)\n        : file.size > maxSize;\n\n      if (oversize) {\n        this.$emit('oversize', { file, ...this.getDetail() });\n        return;\n      }\n\n      if (typeof afterRead === 'function') {\n        afterRead(file, this.getDetail());\n      }\n\n      this.$emit('after-read', { file, ...this.getDetail() });\n    }",
+              "deleteItem": "deleteItem(event) {\n      const { index } = event.currentTarget.dataset;\n\n      this.$emit('delete', {\n        ...this.getDetail(index),\n        file: this.data.fileList[index],\n      });\n    }",
+              "onPreviewImage": "onPreviewImage(event) {\n      if (!this.data.previewFullImage) return;\n\n      const { index } = event.currentTarget.dataset;\n      const { lists, showmenu } = this.data;\n      const item = lists[index];\n\n      wx.previewImage({\n        urls: lists.filter((item) => isImageFile(item)).map((item) => item.url),\n        current: item.url,\n        showmenu,\n        fail() {\n          wx.showToast({ title: '预览图片失败', icon: 'none' });\n        },\n      });\n    }",
+              "onPreviewVideo": "onPreviewVideo(event) {\n      if (!this.data.previewFullImage) return;\n      const { index } = event.currentTarget.dataset;\n      const { lists } = this.data as { lists: File[] };\n\n      const sources: WechatMiniprogram.MediaSource[] = [];\n\n      const current = lists.reduce((sum, cur, curIndex) => {\n        if (!isVideoFile(cur)) {\n          return sum;\n        }\n\n        sources.push({ ...cur, type: 'video' });\n\n        if (curIndex < index) {\n          sum++;\n        }\n\n        return sum;\n      }, 0);\n\n      wx.previewMedia({\n        sources,\n        current,\n        fail() {\n          wx.showToast({ title: '预览视频失败', icon: 'none' });\n        },\n      });\n    }",
+              "onPreviewFile": "onPreviewFile(event: WechatMiniprogram.TouchEvent) {\n      const { index } = event.currentTarget.dataset;\n\n      wx.openDocument({\n        filePath: this.data.lists[index].url,\n        showMenu: true,\n      });\n    }",
+              "onClickPreview": "onClickPreview(event) {\n      const { index } = event.currentTarget.dataset;\n      const item: File = this.data.lists[index];\n\n      this.$emit('click-preview', {\n        ...item,\n        ...this.getDetail(index),\n      });\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction sizeStyle(data) {\n  return \"Array\" === data.previewSize.constructor ? style({\n    width: addUnit(data.previewSize[0]),\n    height: addUnit(data.previewSize[1]),\n  }) : style({\n    width: addUnit(data.previewSize),\n    height: addUnit(data.previewSize),\n  });\n}\n\nmodule.exports = {\n  sizeStyle: sizeStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function sizeStyle(data) {\n  return \"Array\" === data.previewSize.constructor ? style({\n    width: addUnit(data.previewSize[0]),\n    height: addUnit(data.previewSize[1]),\n  }) : style({\n    width: addUnit(data.previewSize),\n    height: addUnit(data.previewSize),\n  });\n}",
+        "name": "sizeStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  sizeStyle: sizeStyle,\n};",
+        "expression": "module.exports = {\n  sizeStyle: sizeStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-uploader{display:inline-block;position:relative}.van-uploader__wrapper{display:flex;flex-wrap:wrap}.van-uploader__slot:empty{display:none}.van-uploader__slot:not(:empty)+.van-uploader__upload{display:none!important}.van-uploader__upload{align-items:center;background-color:var(--uploader-upload-background-color,#f7f8fa);box-sizing:border-box;display:flex;flex-direction:column;height:var(--uploader-size,80px);justify-content:center;margin:0 8px 8px 0;position:relative;width:var(--uploader-size,80px)}.van-uploader__upload:active{background-color:var(--uploader-upload-active-color,#f2f3f5)}.van-uploader__upload-icon{color:var(--uploader-icon-color,#dcdee0);font-size:var(--uploader-icon-size,24px)}.van-uploader__upload-text{color:var(--uploader-text-color,#969799);font-size:var(--uploader-text-font-size,12px);margin-top:var(--padding-xs,8px)}.van-uploader__upload--disabled{opacity:var(--uploader-disabled-opacity,.5)}.van-uploader__preview{cursor:pointer;margin:0 8px 8px 0;position:relative}.van-uploader__preview-image{display:block;height:var(--uploader-size,80px);overflow:hidden;width:var(--uploader-size,80px)}.van-uploader__preview-delete,.van-uploader__preview-delete:after{height:var(--uploader-delete-icon-size,14px);position:absolute;right:0;top:0;width:var(--uploader-delete-icon-size,14px)}.van-uploader__preview-delete:after{background-color:var(--uploader-delete-background-color,rgba(0,0,0,.7));border-radius:0 0 0 12px;content:\"\"}.van-uploader__preview-delete-icon{color:var(--uploader-delete-color,#fff);font-size:var(--uploader-delete-icon-size,14px);position:absolute;right:0;top:0;transform:scale(.7) translate(10%,-10%);z-index:1}.van-uploader__file{align-items:center;background-color:var(--uploader-file-background-color,#f7f8fa);display:flex;flex-direction:column;height:var(--uploader-size,80px);justify-content:center;width:var(--uploader-size,80px)}.van-uploader__file-icon{color:var(--uploader-file-icon-color,#646566);font-size:var(--uploader-file-icon-size,20px)}.van-uploader__file-name{box-sizing:border-box;color:var(--uploader-file-name-text-color,#646566);font-size:var(--uploader-file-name-font-size,12px);margin-top:var(--uploader-file-name-margin-top,8px);padding:var(--uploader-file-name-padding,0 4px);text-align:center;width:100%}.van-uploader__mask{align-items:center;background-color:var(--uploader-mask-background-color,rgba(50,50,51,.88));bottom:0;color:#fff;display:flex;flex-direction:column;justify-content:center;left:0;position:absolute;right:0;top:0}.van-uploader__mask-icon{font-size:var(--uploader-mask-icon-size,22px)}.van-uploader__mask-message{font-size:var(--uploader-mask-message-font-size,12px);line-height:var(--uploader-mask-message-line-height,14px);margin-top:6px;padding:0 var(--padding-base,4px)}.van-uploader__loading{color:var(--uploader-loading-icon-color,#fff)!important;height:var(--uploader-loading-icon-size,22px);width:var(--uploader-loading-icon-size,22px)}"
+}

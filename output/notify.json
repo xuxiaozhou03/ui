@@ -1,0 +1,129 @@
+{
+  "wxml": [
+    {
+      "tag": "van-transition",
+      "attrs": {
+        "name": "slide-down",
+        ":show": "show",
+        "custom-class": "van-notify__container",
+        ":custom-style": "rootStyle",
+        "@tap": "onTap"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "van-notify van-notify--{{ type }}",
+            ":style": "notifyStyle"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "attrs": {
+                "v-if": "safeAreaInsetTop",
+                "style": "height: {{ statusBarHeight }}px"
+              }
+            },
+            {
+              "tag": "text"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { WHITE } from '../common/color';\nimport { getSystemInfoSync } from '../common/utils';\n\nVantComponent({\n  props: {\n    message: String,\n    background: String,\n    type: {\n      type: String,\n      value: 'danger',\n    },\n    color: {\n      type: String,\n      value: WHITE,\n    },\n    duration: {\n      type: Number,\n      value: 3000,\n    },\n    zIndex: {\n      type: Number,\n      value: 110,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: false,\n    },\n    top: null,\n  },\n\n  data: {\n    show: false,\n    onOpened: (null as unknown) as () => void,\n    onClose: (null as unknown) as () => void,\n    onClick: (null as unknown) as (detail: Record<string, null>) => void,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n    this.setData({ statusBarHeight });\n  },\n\n  methods: {\n    show() {\n      const { duration, onOpened } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: true });\n\n      wx.nextTick(onOpened);\n\n      if (duration > 0 && duration !== Infinity) {\n        this.timer = setTimeout(() => {\n          this.hide();\n        }, duration);\n      }\n    },\n\n    hide() {\n      const { onClose } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: false });\n\n      wx.nextTick(onClose);\n    },\n\n    onTap(event: WechatMiniprogram.TouchEvent) {\n      const { onClick } = this.data;\n      if (onClick) {\n        onClick(event.detail);\n      }\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { WHITE } from '../common/color';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { getSystemInfoSync } from '../common/utils';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  props: {\n    message: String,\n    background: String,\n    type: {\n      type: String,\n      value: 'danger',\n    },\n    color: {\n      type: String,\n      value: WHITE,\n    },\n    duration: {\n      type: Number,\n      value: 3000,\n    },\n    zIndex: {\n      type: Number,\n      value: 110,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: false,\n    },\n    top: null,\n  },\n\n  data: {\n    show: false,\n    onOpened: (null as unknown) as () => void,\n    onClose: (null as unknown) as () => void,\n    onClick: (null as unknown) as (detail: Record<string, null>) => void,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n    this.setData({ statusBarHeight });\n  },\n\n  methods: {\n    show() {\n      const { duration, onOpened } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: true });\n\n      wx.nextTick(onOpened);\n\n      if (duration > 0 && duration !== Infinity) {\n        this.timer = setTimeout(() => {\n          this.hide();\n        }, duration);\n      }\n    },\n\n    hide() {\n      const { onClose } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: false });\n\n      wx.nextTick(onClose);\n    },\n\n    onTap(event: WechatMiniprogram.TouchEvent) {\n      const { onClick } = this.data;\n      if (onClick) {\n        onClick(event.detail);\n      }\n    },\n  },\n});",
+        "expression": "VantComponent({\n  props: {\n    message: String,\n    background: String,\n    type: {\n      type: String,\n      value: 'danger',\n    },\n    color: {\n      type: String,\n      value: WHITE,\n    },\n    duration: {\n      type: Number,\n      value: 3000,\n    },\n    zIndex: {\n      type: Number,\n      value: 110,\n    },\n    safeAreaInsetTop: {\n      type: Boolean,\n      value: false,\n    },\n    top: null,\n  },\n\n  data: {\n    show: false,\n    onOpened: (null as unknown) as () => void,\n    onClose: (null as unknown) as () => void,\n    onClick: (null as unknown) as (detail: Record<string, null>) => void,\n  },\n\n  created() {\n    const { statusBarHeight } = getSystemInfoSync();\n    this.setData({ statusBarHeight });\n  },\n\n  methods: {\n    show() {\n      const { duration, onOpened } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: true });\n\n      wx.nextTick(onOpened);\n\n      if (duration > 0 && duration !== Infinity) {\n        this.timer = setTimeout(() => {\n          this.hide();\n        }, duration);\n      }\n    },\n\n    hide() {\n      const { onClose } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: false });\n\n      wx.nextTick(onClose);\n    },\n\n    onTap(event: WechatMiniprogram.TouchEvent) {\n      const { onClick } = this.data;\n      if (onClick) {\n        onClick(event.detail);\n      }\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "props": {
+              "message": "String",
+              "background": "String",
+              "type": {
+                "type": "String",
+                "value": "danger"
+              },
+              "color": {
+                "type": "String",
+                "value": "WHITE"
+              },
+              "duration": {
+                "type": "Number",
+                "value": "3000"
+              },
+              "zIndex": {
+                "type": "Number",
+                "value": "110"
+              },
+              "safeAreaInsetTop": {
+                "type": "Boolean",
+                "value": "false"
+              },
+              "top": "null"
+            },
+            "data": {
+              "show": "false",
+              "onOpened": "(null as unknown) as () => void",
+              "onClose": "(null as unknown) as () => void",
+              "onClick": "(null as unknown) as (detail: Record<string, null>) => void"
+            },
+            "methods": {
+              "show": "show() {\n      const { duration, onOpened } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: true });\n\n      wx.nextTick(onOpened);\n\n      if (duration > 0 && duration !== Infinity) {\n        this.timer = setTimeout(() => {\n          this.hide();\n        }, duration);\n      }\n    }",
+              "hide": "hide() {\n      const { onClose } = this.data;\n\n      clearTimeout(this.timer);\n      this.setData({ show: false });\n\n      wx.nextTick(onClose);\n    }",
+              "onTap": "onTap(event: WechatMiniprogram.TouchEvent) {\n      const { onClick } = this.data;\n      if (onClick) {\n        onClick(event.detail);\n      }\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": {
+    "kind": "SourceFile",
+    "text": "var style = require('../wxs/style.wxs');\nvar addUnit = require('../wxs/add-unit.wxs');\n\nfunction rootStyle(data) {\n  return style({\n    'z-index': data.zIndex,\n    top: addUnit(data.top),\n  });\n}\n\nfunction notifyStyle(data) {\n  return style({\n    background: data.background,\n    color: data.color,\n  });\n}\n\nmodule.exports = {\n  rootStyle: rootStyle,\n  notifyStyle: notifyStyle,\n};\n",
+    "statements": [
+      {
+        "kind": "FirstStatement",
+        "text": "var style = require('../wxs/style.wxs');"
+      },
+      {
+        "kind": "FirstStatement",
+        "text": "var addUnit = require('../wxs/add-unit.wxs');"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function rootStyle(data) {\n  return style({\n    'z-index': data.zIndex,\n    top: addUnit(data.top),\n  });\n}",
+        "name": "rootStyle"
+      },
+      {
+        "kind": "FunctionDeclaration",
+        "text": "function notifyStyle(data) {\n  return style({\n    background: data.background,\n    color: data.color,\n  });\n}",
+        "name": "notifyStyle"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "module.exports = {\n  rootStyle: rootStyle,\n  notifyStyle: notifyStyle,\n};",
+        "expression": "module.exports = {\n  rootStyle: rootStyle,\n  notifyStyle: notifyStyle,\n}"
+      }
+    ]
+  },
+  "wxss": ".van-notify{word-wrap:break-word;font-size:var(--notify-font-size,14px);line-height:var(--notify-line-height,20px);padding:var(--notify-padding,6px 15px);text-align:center}.van-notify__container{box-sizing:border-box;left:0;position:fixed;top:0;width:100%}.van-notify--primary{background-color:var(--notify-primary-background-color,#1989fa)}.van-notify--success{background-color:var(--notify-success-background-color,#07c160)}.van-notify--danger{background-color:var(--notify-danger-background-color,#ee0a24)}.van-notify--warning{background-color:var(--notify-warning-background-color,#ff976a)}"
+}

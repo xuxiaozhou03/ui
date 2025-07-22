@@ -1,0 +1,151 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "v-if": "showWrapper",
+        "class": "{{ utils.bem('dropdown-item', direction) }} custom-class",
+        ":style": "wrapperStyle"
+      },
+      "children": [
+        {
+          "tag": "van-popup",
+          "attrs": {
+            ":show": "showPopup",
+            "custom-style": "position: absolute;{{ popupStyle }}",
+            "overlay-style": "position: absolute;",
+            ":overlay": "overlay",
+            ":position": "direction === 'down' ? 'top' : 'bottom'",
+            ":duration": "transition ? duration : 0",
+            ":safe-area-tab-bar": "safeAreaTabBar",
+            ":close-on-click-overlay": "closeOnClickOverlay",
+            ":rootPortal": "rootPortal",
+            "@enter": "onOpen",
+            "@leave": "onClose",
+            "@close": "toggle",
+            "@after-enter": "onOpened",
+            "@after-leave": "onClosed"
+          },
+          "children": [
+            {
+              "tag": "van-cell",
+              "attrs": {
+                "v-for": "options",
+                ":key": "value",
+                ":data-option": "item",
+                ":class": "utils.bem('dropdown-item__option', { active: item.value === value } )",
+                "clickable": "",
+                ":icon": "item.icon",
+                "@tap": "onOptionTap"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "attrs": {
+                    "slot": "title",
+                    "class": "van-dropdown-item__title item-title-class",
+                    ":style": "item.value === value  ? 'color:' + activeColor : ''"
+                  }
+                },
+                {
+                  "tag": "van-icon",
+                  "attrs": {
+                    "v-if": "item.value === value",
+                    "name": "success",
+                    "class": "van-dropdown-item__icon",
+                    ":color": "activeColor"
+                  }
+                }
+              ]
+            },
+            {
+              "tag": "slot"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { useParent } from '../common/relation';\nimport { VantComponent } from '../common/component';\nimport { Option } from './shared';\n\nVantComponent({\n  classes: ['item-title-class'],\n  field: true,\n\n  relation: useParent('dropdown-menu', function () {\n    this.updateDataFromParent();\n  }),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'rerender',\n    },\n    title: {\n      type: String,\n      observer: 'rerender',\n    },\n    disabled: Boolean,\n    titleClass: {\n      type: String,\n      observer: 'rerender',\n    },\n    options: {\n      type: Array,\n      value: [],\n      observer: 'rerender',\n    },\n    popupStyle: String,\n    useBeforeToggle: {\n      type: Boolean,\n      value: false,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    transition: true,\n    showPopup: false,\n    showWrapper: false,\n    displayTitle: '',\n    safeAreaTabBar: false,\n  },\n\n  methods: {\n    rerender() {\n      wx.nextTick(() => {\n        this.parent?.updateItemListData();\n      });\n    },\n\n    updateDataFromParent() {\n      if (this.parent) {\n        const {\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        } = this.parent.data;\n\n        this.setData({\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        });\n      }\n    },\n\n    onOpen() {\n      this.$emit('open');\n    },\n\n    onOpened() {\n      this.$emit('opened');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClosed() {\n      this.$emit('closed');\n      this.setData({ showWrapper: false });\n    },\n\n    onOptionTap(event: WechatMiniprogram.TouchEvent) {\n      const { option } = event.currentTarget.dataset;\n      const { value } = option as unknown as Option;\n\n      const shouldEmitChange = this.data.value !== value;\n      this.setData({ showPopup: false, value });\n      this.$emit('close');\n\n      this.rerender();\n\n      if (shouldEmitChange) {\n        this.$emit('change', value);\n      }\n    },\n\n    toggle(show?: boolean, options: { immediate?: boolean } = {}) {\n      const { showPopup } = this.data;\n\n      if (typeof show !== 'boolean') {\n        show = !showPopup;\n      }\n\n      if (show === showPopup) {\n        return;\n      }\n\n      this.onBeforeToggle(show).then((status) => {\n        if (!status) {\n          return;\n        }\n\n        this.setData({\n          transition: !options.immediate,\n          showPopup: show,\n        });\n\n        if (show) {\n          this.parent?.getChildWrapperStyle().then((wrapperStyle: string) => {\n            this.setData({ wrapperStyle, showWrapper: true });\n            this.rerender();\n          });\n        } else {\n          this.rerender();\n        }\n      });\n    },\n    onBeforeToggle(status: boolean): Promise<boolean> {\n      const { useBeforeToggle } = this.data;\n\n      if (!useBeforeToggle) {\n        return Promise.resolve(true);\n      }\n\n      return new Promise((resolve) => {\n        this.$emit('before-toggle', {\n          status,\n          callback: (value: boolean) => resolve(value),\n        });\n      });\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useParent } from '../common/relation';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { Option } from './shared';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  classes: ['item-title-class'],\n  field: true,\n\n  relation: useParent('dropdown-menu', function () {\n    this.updateDataFromParent();\n  }),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'rerender',\n    },\n    title: {\n      type: String,\n      observer: 'rerender',\n    },\n    disabled: Boolean,\n    titleClass: {\n      type: String,\n      observer: 'rerender',\n    },\n    options: {\n      type: Array,\n      value: [],\n      observer: 'rerender',\n    },\n    popupStyle: String,\n    useBeforeToggle: {\n      type: Boolean,\n      value: false,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    transition: true,\n    showPopup: false,\n    showWrapper: false,\n    displayTitle: '',\n    safeAreaTabBar: false,\n  },\n\n  methods: {\n    rerender() {\n      wx.nextTick(() => {\n        this.parent?.updateItemListData();\n      });\n    },\n\n    updateDataFromParent() {\n      if (this.parent) {\n        const {\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        } = this.parent.data;\n\n        this.setData({\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        });\n      }\n    },\n\n    onOpen() {\n      this.$emit('open');\n    },\n\n    onOpened() {\n      this.$emit('opened');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClosed() {\n      this.$emit('closed');\n      this.setData({ showWrapper: false });\n    },\n\n    onOptionTap(event: WechatMiniprogram.TouchEvent) {\n      const { option } = event.currentTarget.dataset;\n      const { value } = option as unknown as Option;\n\n      const shouldEmitChange = this.data.value !== value;\n      this.setData({ showPopup: false, value });\n      this.$emit('close');\n\n      this.rerender();\n\n      if (shouldEmitChange) {\n        this.$emit('change', value);\n      }\n    },\n\n    toggle(show?: boolean, options: { immediate?: boolean } = {}) {\n      const { showPopup } = this.data;\n\n      if (typeof show !== 'boolean') {\n        show = !showPopup;\n      }\n\n      if (show === showPopup) {\n        return;\n      }\n\n      this.onBeforeToggle(show).then((status) => {\n        if (!status) {\n          return;\n        }\n\n        this.setData({\n          transition: !options.immediate,\n          showPopup: show,\n        });\n\n        if (show) {\n          this.parent?.getChildWrapperStyle().then((wrapperStyle: string) => {\n            this.setData({ wrapperStyle, showWrapper: true });\n            this.rerender();\n          });\n        } else {\n          this.rerender();\n        }\n      });\n    },\n    onBeforeToggle(status: boolean): Promise<boolean> {\n      const { useBeforeToggle } = this.data;\n\n      if (!useBeforeToggle) {\n        return Promise.resolve(true);\n      }\n\n      return new Promise((resolve) => {\n        this.$emit('before-toggle', {\n          status,\n          callback: (value: boolean) => resolve(value),\n        });\n      });\n    },\n  },\n});",
+        "expression": "VantComponent({\n  classes: ['item-title-class'],\n  field: true,\n\n  relation: useParent('dropdown-menu', function () {\n    this.updateDataFromParent();\n  }),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'rerender',\n    },\n    title: {\n      type: String,\n      observer: 'rerender',\n    },\n    disabled: Boolean,\n    titleClass: {\n      type: String,\n      observer: 'rerender',\n    },\n    options: {\n      type: Array,\n      value: [],\n      observer: 'rerender',\n    },\n    popupStyle: String,\n    useBeforeToggle: {\n      type: Boolean,\n      value: false,\n    },\n    rootPortal: {\n      type: Boolean,\n      value: false,\n    },\n  },\n\n  data: {\n    transition: true,\n    showPopup: false,\n    showWrapper: false,\n    displayTitle: '',\n    safeAreaTabBar: false,\n  },\n\n  methods: {\n    rerender() {\n      wx.nextTick(() => {\n        this.parent?.updateItemListData();\n      });\n    },\n\n    updateDataFromParent() {\n      if (this.parent) {\n        const {\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        } = this.parent.data;\n\n        this.setData({\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        });\n      }\n    },\n\n    onOpen() {\n      this.$emit('open');\n    },\n\n    onOpened() {\n      this.$emit('opened');\n    },\n\n    onClose() {\n      this.$emit('close');\n    },\n\n    onClosed() {\n      this.$emit('closed');\n      this.setData({ showWrapper: false });\n    },\n\n    onOptionTap(event: WechatMiniprogram.TouchEvent) {\n      const { option } = event.currentTarget.dataset;\n      const { value } = option as unknown as Option;\n\n      const shouldEmitChange = this.data.value !== value;\n      this.setData({ showPopup: false, value });\n      this.$emit('close');\n\n      this.rerender();\n\n      if (shouldEmitChange) {\n        this.$emit('change', value);\n      }\n    },\n\n    toggle(show?: boolean, options: { immediate?: boolean } = {}) {\n      const { showPopup } = this.data;\n\n      if (typeof show !== 'boolean') {\n        show = !showPopup;\n      }\n\n      if (show === showPopup) {\n        return;\n      }\n\n      this.onBeforeToggle(show).then((status) => {\n        if (!status) {\n          return;\n        }\n\n        this.setData({\n          transition: !options.immediate,\n          showPopup: show,\n        });\n\n        if (show) {\n          this.parent?.getChildWrapperStyle().then((wrapperStyle: string) => {\n            this.setData({ wrapperStyle, showWrapper: true });\n            this.rerender();\n          });\n        } else {\n          this.rerender();\n        }\n      });\n    },\n    onBeforeToggle(status: boolean): Promise<boolean> {\n      const { useBeforeToggle } = this.data;\n\n      if (!useBeforeToggle) {\n        return Promise.resolve(true);\n      }\n\n      return new Promise((resolve) => {\n        this.$emit('before-toggle', {\n          status,\n          callback: (value: boolean) => resolve(value),\n        });\n      });\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "classes": [
+              "'item-title-class'"
+            ],
+            "field": "true",
+            "relation": "useParent('dropdown-menu', function () {\n    this.updateDataFromParent();\n  })",
+            "props": {
+              "value": {
+                "type": "null",
+                "observer": "rerender"
+              },
+              "title": {
+                "type": "String",
+                "observer": "rerender"
+              },
+              "disabled": "Boolean",
+              "titleClass": {
+                "type": "String",
+                "observer": "rerender"
+              },
+              "options": {
+                "type": "Array",
+                "value": [],
+                "observer": "rerender"
+              },
+              "popupStyle": "String",
+              "useBeforeToggle": {
+                "type": "Boolean",
+                "value": "false"
+              },
+              "rootPortal": {
+                "type": "Boolean",
+                "value": "false"
+              }
+            },
+            "data": {
+              "transition": "true",
+              "showPopup": "false",
+              "showWrapper": "false",
+              "displayTitle": "",
+              "safeAreaTabBar": "false"
+            },
+            "methods": {
+              "rerender": "rerender() {\n      wx.nextTick(() => {\n        this.parent?.updateItemListData();\n      });\n    }",
+              "updateDataFromParent": "updateDataFromParent() {\n      if (this.parent) {\n        const {\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        } = this.parent.data;\n\n        this.setData({\n          overlay,\n          duration,\n          activeColor,\n          closeOnClickOverlay,\n          direction,\n          safeAreaTabBar,\n        });\n      }\n    }",
+              "onOpen": "onOpen() {\n      this.$emit('open');\n    }",
+              "onOpened": "onOpened() {\n      this.$emit('opened');\n    }",
+              "onClose": "onClose() {\n      this.$emit('close');\n    }",
+              "onClosed": "onClosed() {\n      this.$emit('closed');\n      this.setData({ showWrapper: false });\n    }",
+              "onOptionTap": "onOptionTap(event: WechatMiniprogram.TouchEvent) {\n      const { option } = event.currentTarget.dataset;\n      const { value } = option as unknown as Option;\n\n      const shouldEmitChange = this.data.value !== value;\n      this.setData({ showPopup: false, value });\n      this.$emit('close');\n\n      this.rerender();\n\n      if (shouldEmitChange) {\n        this.$emit('change', value);\n      }\n    }",
+              "toggle": "toggle(show?: boolean, options: { immediate?: boolean } = {}) {\n      const { showPopup } = this.data;\n\n      if (typeof show !== 'boolean') {\n        show = !showPopup;\n      }\n\n      if (show === showPopup) {\n        return;\n      }\n\n      this.onBeforeToggle(show).then((status) => {\n        if (!status) {\n          return;\n        }\n\n        this.setData({\n          transition: !options.immediate,\n          showPopup: show,\n        });\n\n        if (show) {\n          this.parent?.getChildWrapperStyle().then((wrapperStyle: string) => {\n            this.setData({ wrapperStyle, showWrapper: true });\n            this.rerender();\n          });\n        } else {\n          this.rerender();\n        }\n      });\n    }",
+              "onBeforeToggle": "onBeforeToggle(status: boolean): Promise<boolean> {\n      const { useBeforeToggle } = this.data;\n\n      if (!useBeforeToggle) {\n        return Promise.resolve(true);\n      }\n\n      return new Promise((resolve) => {\n        this.$emit('before-toggle', {\n          status,\n          callback: (value: boolean) => resolve(value),\n        });\n      });\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-dropdown-item{left:0;overflow:hidden;position:fixed;right:0}.van-dropdown-item__option{text-align:left}.van-dropdown-item__option--active .van-dropdown-item__icon,.van-dropdown-item__option--active .van-dropdown-item__title{color:var(--dropdown-menu-option-active-color,#ee0a24)}.van-dropdown-item--up{top:0}.van-dropdown-item--down{bottom:0}.van-dropdown-item__icon{display:block;line-height:inherit}"
+}

@@ -1,0 +1,60 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "custom-class van-collapse {{ border ? 'van-hairline--top-bottom' : '' }}"
+      },
+      "children": [
+        {
+          "tag": "slot"
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { useChildren } from '../common/relation';\n\nVantComponent({\n  relation: useChildren('collapse-item'),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'updateExpanded',\n    },\n    accordion: {\n      type: Boolean,\n      observer: 'updateExpanded',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  methods: {\n    updateExpanded() {\n      this.children.forEach((child) => {\n        child.updateExpanded();\n      });\n    },\n\n    switch(name: string | number, expanded: boolean) {\n      const { accordion, value } = this.data;\n      const changeItem = name;\n      if (!accordion) {\n        name = expanded\n          ? (value || []).concat(name)\n          : (value || []).filter(\n              (activeName: string | number) => activeName !== name\n            );\n      } else {\n        name = expanded ? name : '';\n      }\n\n      if (expanded) {\n        this.$emit('open', changeItem);\n      } else {\n        this.$emit('close', changeItem);\n      }\n\n      this.$emit('change', name);\n      this.$emit('input', name);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useChildren } from '../common/relation';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  relation: useChildren('collapse-item'),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'updateExpanded',\n    },\n    accordion: {\n      type: Boolean,\n      observer: 'updateExpanded',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  methods: {\n    updateExpanded() {\n      this.children.forEach((child) => {\n        child.updateExpanded();\n      });\n    },\n\n    switch(name: string | number, expanded: boolean) {\n      const { accordion, value } = this.data;\n      const changeItem = name;\n      if (!accordion) {\n        name = expanded\n          ? (value || []).concat(name)\n          : (value || []).filter(\n              (activeName: string | number) => activeName !== name\n            );\n      } else {\n        name = expanded ? name : '';\n      }\n\n      if (expanded) {\n        this.$emit('open', changeItem);\n      } else {\n        this.$emit('close', changeItem);\n      }\n\n      this.$emit('change', name);\n      this.$emit('input', name);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  relation: useChildren('collapse-item'),\n\n  props: {\n    value: {\n      type: null,\n      observer: 'updateExpanded',\n    },\n    accordion: {\n      type: Boolean,\n      observer: 'updateExpanded',\n    },\n    border: {\n      type: Boolean,\n      value: true,\n    },\n  },\n\n  methods: {\n    updateExpanded() {\n      this.children.forEach((child) => {\n        child.updateExpanded();\n      });\n    },\n\n    switch(name: string | number, expanded: boolean) {\n      const { accordion, value } = this.data;\n      const changeItem = name;\n      if (!accordion) {\n        name = expanded\n          ? (value || []).concat(name)\n          : (value || []).filter(\n              (activeName: string | number) => activeName !== name\n            );\n      } else {\n        name = expanded ? name : '';\n      }\n\n      if (expanded) {\n        this.$emit('open', changeItem);\n      } else {\n        this.$emit('close', changeItem);\n      }\n\n      this.$emit('change', name);\n      this.$emit('input', name);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "relation": "useChildren('collapse-item')",
+            "props": {
+              "value": {
+                "type": "null",
+                "observer": "updateExpanded"
+              },
+              "accordion": {
+                "type": "Boolean",
+                "observer": "updateExpanded"
+              },
+              "border": {
+                "type": "Boolean",
+                "value": "true"
+              }
+            },
+            "methods": {
+              "updateExpanded": "updateExpanded() {\n      this.children.forEach((child) => {\n        child.updateExpanded();\n      });\n    }",
+              "switch": "switch(name: string | number, expanded: boolean) {\n      const { accordion, value } = this.data;\n      const changeItem = name;\n      if (!accordion) {\n        name = expanded\n          ? (value || []).concat(name)\n          : (value || []).filter(\n              (activeName: string | number) => activeName !== name\n            );\n      } else {\n        name = expanded ? name : '';\n      }\n\n      if (expanded) {\n        this.$emit('open', changeItem);\n      } else {\n        this.$emit('close', changeItem);\n      }\n\n      this.$emit('change', name);\n      this.$emit('input', name);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ""
+}

@@ -1,0 +1,52 @@
+{
+  "wxml": [
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "van-sidebar custom-class"
+      },
+      "children": [
+        {
+          "tag": "slot"
+        }
+      ]
+    }
+  ],
+  "ts": {
+    "kind": "SourceFile",
+    "text": "import { VantComponent } from '../common/component';\nimport { useChildren } from '../common/relation';\n\nVantComponent({\n  relation: useChildren('sidebar-item', function () {\n    this.setActive(this.data.activeKey);\n  }),\n\n  props: {\n    activeKey: {\n      type: Number,\n      value: 0,\n      observer: 'setActive',\n    },\n  },\n\n  beforeCreate() {\n    this.currentActive = -1;\n  },\n\n  methods: {\n    setActive(activeKey: number) {\n      const { children, currentActive } = this;\n\n      if (!children.length) {\n        return Promise.resolve();\n      }\n\n      this.currentActive = activeKey;\n\n      const stack: Promise<unknown>[] = [];\n\n      if (currentActive !== activeKey && children[currentActive]) {\n        stack.push(children[currentActive].setActive(false));\n      }\n\n      if (children[activeKey]) {\n        stack.push(children[activeKey].setActive(true));\n      }\n\n      return Promise.all(stack);\n    },\n  },\n});\n",
+    "statements": [
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { VantComponent } from '../common/component';"
+      },
+      {
+        "kind": "ImportDeclaration",
+        "text": "import { useChildren } from '../common/relation';"
+      },
+      {
+        "kind": "ExpressionStatement",
+        "text": "VantComponent({\n  relation: useChildren('sidebar-item', function () {\n    this.setActive(this.data.activeKey);\n  }),\n\n  props: {\n    activeKey: {\n      type: Number,\n      value: 0,\n      observer: 'setActive',\n    },\n  },\n\n  beforeCreate() {\n    this.currentActive = -1;\n  },\n\n  methods: {\n    setActive(activeKey: number) {\n      const { children, currentActive } = this;\n\n      if (!children.length) {\n        return Promise.resolve();\n      }\n\n      this.currentActive = activeKey;\n\n      const stack: Promise<unknown>[] = [];\n\n      if (currentActive !== activeKey && children[currentActive]) {\n        stack.push(children[currentActive].setActive(false));\n      }\n\n      if (children[activeKey]) {\n        stack.push(children[activeKey].setActive(true));\n      }\n\n      return Promise.all(stack);\n    },\n  },\n});",
+        "expression": "VantComponent({\n  relation: useChildren('sidebar-item', function () {\n    this.setActive(this.data.activeKey);\n  }),\n\n  props: {\n    activeKey: {\n      type: Number,\n      value: 0,\n      observer: 'setActive',\n    },\n  },\n\n  beforeCreate() {\n    this.currentActive = -1;\n  },\n\n  methods: {\n    setActive(activeKey: number) {\n      const { children, currentActive } = this;\n\n      if (!children.length) {\n        return Promise.resolve();\n      }\n\n      this.currentActive = activeKey;\n\n      const stack: Promise<unknown>[] = [];\n\n      if (currentActive !== activeKey && children[currentActive]) {\n        stack.push(children[currentActive].setActive(false));\n      }\n\n      if (children[activeKey]) {\n        stack.push(children[activeKey].setActive(true));\n      }\n\n      return Promise.all(stack);\n    },\n  },\n})",
+        "callee": "VantComponent",
+        "arguments": [
+          {
+            "relation": "useChildren('sidebar-item', function () {\n    this.setActive(this.data.activeKey);\n  })",
+            "props": {
+              "activeKey": {
+                "type": "Number",
+                "value": "0",
+                "observer": "setActive"
+              }
+            },
+            "methods": {
+              "setActive": "setActive(activeKey: number) {\n      const { children, currentActive } = this;\n\n      if (!children.length) {\n        return Promise.resolve();\n      }\n\n      this.currentActive = activeKey;\n\n      const stack: Promise<unknown>[] = [];\n\n      if (currentActive !== activeKey && children[currentActive]) {\n        stack.push(children[currentActive].setActive(false));\n      }\n\n      if (children[activeKey]) {\n        stack.push(children[activeKey].setActive(true));\n      }\n\n      return Promise.all(stack);\n    }"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "wxs": null,
+  "wxss": ".van-sidebar{width:var(--sidebar-width,80px)}"
+}
