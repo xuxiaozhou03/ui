@@ -54,6 +54,7 @@ const parseClass = (key, value) => {
             [key]: value,
         };
     }
+    console.log(value);
     // 处理 van-calendar__popup--{{ position }}
     // custom-class van-collapse {{ border ? 'van-hairline--top-bottom' : '' }}
     if (value.includes("{{") && value.includes("}}") && !value.includes("util")) {
