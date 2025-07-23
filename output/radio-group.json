@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        ":class": "utils.bem('radio-group', [direction])"
+        ":class": "bem('radio-group', [direction])"
       },
       "children": [
         {

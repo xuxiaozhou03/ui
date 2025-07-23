@@ -33,7 +33,7 @@
                 "v-for": "options",
                 ":key": "value",
                 ":data-option": "item",
-                ":class": "utils.bem('dropdown-item__option', { active: item.value === value } )",
+                ":class": "bem('dropdown-item__option', { active: item.value === value } )",
                 "clickable": "",
                 ":icon": "item.icon",
                 "@tap": "onOptionTap"
@@ -43,7 +43,7 @@
                   "tag": "div",
                   "attrs": {
                     "slot": "title",
-                    "class": "van-dropdown-item__title item-title-class",
+                    ":class": "cn('van-dropdown-item__title', itemTitleClass)",
                     ":style": "item.value === value  ? 'color:' + activeColor : ''"
                   }
                 },

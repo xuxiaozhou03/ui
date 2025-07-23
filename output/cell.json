@@ -4,7 +4,7 @@
       "tag": "div",
       "attrs": {
         "class": "custom-class {{ utils.bem('cell', [size, { center, required, borderless: !border, clickable: isLink || clickable }]) }}",
-        "hover-class": "van-cell--hover hover-class",
+        ":hover-class": "cn('van-cell--hover', hoverClass)",
         "hover-stay-time": "70",
         ":style": "customStyle",
         "@tap": "onClick"
@@ -29,7 +29,7 @@
           "tag": "div",
           "attrs": {
             ":style": "titleStyle",
-            "class": "van-cell__title title-class"
+            ":class": "cn('van-cell__title', titleClass)"
           },
           "children": [
             {
@@ -49,7 +49,7 @@
               "tag": "div",
               "attrs": {
                 "v-if": "label || useLabelSlot",
-                "class": "van-cell__label label-class"
+                ":class": "cn('van-cell__label', labelClass)"
               },
               "children": [
                 {
@@ -72,7 +72,7 @@
         {
           "tag": "div",
           "attrs": {
-            "class": "van-cell__value value-class"
+            ":class": "cn('van-cell__value', valueClass)"
           },
           "children": [
             {
@@ -94,7 +94,7 @@
           "attrs": {
             "v-if": "isLink",
             ":name": "arrowDirection ? 'arrow' + '-' + arrowDirection : 'arrow'",
-            "custom-class": "van-cell__right-icon-wrap right-icon-class van-cell__right-icon"
+            ":custom-class": "cn('van-cell__right-icon-wrap van-cell__right-icon', rightIconClass)"
           }
         },
         {

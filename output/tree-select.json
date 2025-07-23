@@ -27,9 +27,9 @@
                   "attrs": {
                     "v-for": "items",
                     ":key": "index",
-                    "custom-class": "main-item-class",
-                    "active-class": "main-active-class",
-                    "disabled-class": "main-disabled-class",
+                    ":custom-class": "cn( mainItemClass)",
+                    ":active-class": "cn( mainActiveClass)",
+                    ":disabled-class": "cn( mainDisabledClass)",
                     ":badge": "item.badge",
                     ":dot": "item.dot",
                     ":title": "item.text",

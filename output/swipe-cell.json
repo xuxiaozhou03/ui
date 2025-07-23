@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-swipe-cell custom-class",
+        ":class": "cn('van-swipe-cell', customClass)",
         "data-key": "cell",
         "@catchtap": "onClick",
         "@touchstart": "startDrag",

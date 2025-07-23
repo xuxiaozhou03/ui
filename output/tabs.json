@@ -34,7 +34,7 @@
                     ":scroll-x": "scrollable",
                     ":scroll-with-animation": "scrollWithAnimation",
                     ":scroll-left": "scrollLeft",
-                    ":class": "utils.bem('tabs__scroll', [type])",
+                    ":class": "bem('tabs__scroll', [type])",
                     ":style": "color ? 'border-color: ' + color : ''"
                   },
                   "children": [

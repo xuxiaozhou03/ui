@@ -11,7 +11,7 @@
           "attrs": {
             ":size": "size",
             ":title": "title",
-            "title-class": "title-class",
+            ":title-class": "cn( titleClass)",
             ":icon": "icon",
             ":value": "value",
             ":label": "label",
@@ -56,7 +56,7 @@
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('collapse-item__wrapper')",
+            ":class": "bem('collapse-item__wrapper')",
             "style": "height: 0;",
             ":animation": "animation"
           },
@@ -64,7 +64,7 @@
             {
               "tag": "div",
               "attrs": {
-                "class": "van-collapse-item__content content-class"
+                ":class": "cn('van-collapse-item__content', contentClass)"
               },
               "children": [
                 {

@@ -3,14 +3,14 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "custom-class van-sticky",
+        ":class": "cn('van-sticky', customClass)",
         ":style": "containerStyle"
       },
       "children": [
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('sticky-wrap', { fixed })",
+            ":class": "bem('sticky-wrap', { fixed })",
             ":style": "wrapStyle"
           },
           "children": [

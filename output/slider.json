@@ -11,7 +11,7 @@
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('slider__bar')",
+            ":class": "bem('slider__bar')",
             ":style": "barStyle }}; {{ style({ backgroundColor: activeColor })"
           },
           "children": [
@@ -19,7 +19,7 @@
               "tag": "div",
               "attrs": {
                 "v-if": "range",
-                ":class": "utils.bem('slider__button-wrapper-left')",
+                ":class": "bem('slider__button-wrapper-left')",
                 ":data-index": "0",
                 "@touchstart": "onTouchStart",
                 "@catch:touchmove": "onTouchMove",
@@ -38,7 +38,7 @@
                   "tag": "div",
                   "attrs": {
                     "v-else": "",
-                    ":class": "utils.bem('slider__button')"
+                    ":class": "bem('slider__button')"
                   }
                 }
               ]
@@ -47,7 +47,7 @@
               "tag": "div",
               "attrs": {
                 "v-if": "range",
-                ":class": "utils.bem('slider__button-wrapper-right')",
+                ":class": "bem('slider__button-wrapper-right')",
                 ":data-index": "1",
                 "@touchstart": "onTouchStart",
                 "@catch:touchmove": "onTouchMove",
@@ -66,7 +66,7 @@
                   "tag": "div",
                   "attrs": {
                     "v-else": "",
-                    ":class": "utils.bem('slider__button')"
+                    ":class": "bem('slider__button')"
                   }
                 }
               ]
@@ -75,7 +75,7 @@
               "tag": "div",
               "attrs": {
                 "v-if": "!range",
-                ":class": "utils.bem('slider__button-wrapper')",
+                ":class": "bem('slider__button-wrapper')",
                 "@touchstart": "onTouchStart",
                 "@catch:touchmove": "onTouchMove",
                 "@touchend": "onTouchEnd",
@@ -93,7 +93,7 @@
                   "tag": "div",
                   "attrs": {
                     "v-else": "",
-                    ":class": "utils.bem('slider__button')"
+                    ":class": "bem('slider__button')"
                   }
                 }
               ]

@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-picker-column custom-class",
+        ":class": "cn('van-picker-column', customClass)",
         ":style": "rootStyle",
         "@touchstart": "onTouchStart",
         "@catch:touchmove": "onTouchMove",

@@ -1,85 +1,11 @@
 import { parseDocument } from "htmlparser2";
+import parseClass from "./parseClass";
 
 interface WxmlNode {
   tag: string;
   attrs?: Record<string, string>;
   children?: WxmlNode[];
 }
-function splitClassNames(str: string) {
-  const dynamicMatches = [...str.matchAll(/\{\{[^}]+\}\}/g)];
-  // 用占位符替换动态表达式
-  let replaced = str;
-  dynamicMatches.forEach((m, i) => {
-    replaced = replaced.replace(m[0], `__DYNAMIC_${i}__`);
-  });
-  // 按空格分割
-  const parts = replaced.split(/\s+/).filter(Boolean);
-  // 恢复动态表达式
-  return parts.map((p: any) => {
-    if (p.startsWith("__DYNAMIC_")) {
-      const idx = Number(p.match(/\d+/)[0]);
-      return dynamicMatches[idx][0];
-    }
-    return p;
-  });
-}
-const parseClass = (key: string, value: string) => {
-  // // 处理纯文本
-  // if (!value.includes("{{") && !value.includes("bem") && !value.includes("?")) {
-  //   let classes = value.split(" ").filter(Boolean);
-  //   let isVar = false;
-  //   classes = classes
-  //     .filter(Boolean)
-  //     .map((cls) => {
-  //       if (cls.includes("-class")) {
-  //         isVar = true;
-  //         const newCls = cls.split("-").reduce((acc, part, index) => {
-  //           if (index === 0) {
-  //             return acc + part;
-  //           }
-  //           return acc + part.charAt(0).toUpperCase() + part.slice(1);
-  //         }, "");
-  //         return newCls;
-  //       }
-  //       return cls;
-  //     })
-  //     .sort((a, b) => {
-  //       if (a.includes("Class")) {
-  //         return 1;
-  //       }
-  //       if (b.includes("Class")) {
-  //         return -1;
-  //       }
-  //       return 1;
-  //     });
-  //   if (isVar) {
-  //     key = `:${key}`;
-  //     value = classes
-  //       .map((cls) => {
-  //         if (cls.includes("Class")) {
-  //           return cls.replace("Class", "class");
-  //         }
-  //         return `'${cls}'`;
-  //       })
-  //       .join(", ");
-  //     value = `cn(${value})`;
-  //   } else {
-  //     value = classes.join(" ");
-  //   }
-  //   return { [key]: value };
-  // }
-
-  // if (value.includes("{{") && !value.includes("utils")) {
-  //   const data = splitClassNames(value);
-  //   console.log(data, value);
-  // }
-
-  console.log("parseClass", splitClassNames(value));
-
-  return {
-    [key]: value,
-  };
-};
 
 const parseAttrs = (attrs: any, isCustomElement: boolean) => {
   if (isCustomElement) {

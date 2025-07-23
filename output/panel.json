@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-panel van-hairline--top-bottom custom-class"
+        ":class": "cn('van-panel van-hairline--top-bottom', customClass)"
       },
       "children": [
         {
@@ -13,7 +13,7 @@
             ":title": "title",
             ":label": "desc",
             ":value": "status",
-            "custom-class": "header-class",
+            ":custom-class": "cn( headerClass)",
             "value-class": "van-panel__header-value"
           }
         },
@@ -38,7 +38,7 @@
         {
           "tag": "div",
           "attrs": {
-            "class": "van-panel__footer van-hairline--top footer-class"
+            ":class": "cn('van-panel__footer van-hairline--top', footerClass)"
           },
           "children": [
             {

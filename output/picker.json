@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-picker custom-class"
+        ":class": "cn('van-picker', customClass)"
       },
       "children": [
         {
@@ -42,13 +42,13 @@
                 "v-for": "columns",
                 ":key": "index",
                 ":data-index": "index",
-                "custom-class": "van-picker__column column-class",
+                ":custom-class": "cn('van-picker__column', columnClass)",
                 ":value-key": "valueKey",
                 ":initial-options": "item.values",
                 ":default-index": "item.defaultIndex || defaultIndex",
                 ":item-height": "itemHeight",
                 ":visible-item-count": "visibleItemCount",
-                "active-class": "active-class",
+                ":active-class": "cn( activeClass)",
                 "@change": "onChange"
               }
             },

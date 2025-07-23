@@ -3,13 +3,13 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "custom-class van-card"
+        ":class": "cn('van-card', customClass)"
       },
       "children": [
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('card__header', { center: centered })"
+            ":class": "bem('card__header', { center: centered })"
           },
           "children": [
             {
@@ -26,7 +26,7 @@
                     ":src": "thumb",
                     ":mode": "thumbMode",
                     ":lazy-load": "lazyLoad",
-                    "class": "van-card__img thumb-class"
+                    ":class": "cn('van-card__img', thumbClass)"
                   }
                 },
                 {
@@ -67,7 +67,7 @@
                       "tag": "div",
                       "attrs": {
                         "v-if": "title",
-                        "class": "van-card__title title-class"
+                        ":class": "cn('van-card__title', titleClass)"
                       }
                     },
                     {
@@ -81,7 +81,7 @@
                       "tag": "div",
                       "attrs": {
                         "v-if": "desc",
-                        "class": "van-card__desc desc-class"
+                        ":class": "cn('van-card__desc', descClass)"
                       }
                     },
                     {
@@ -115,7 +115,7 @@
                       "tag": "div",
                       "attrs": {
                         "v-if": "price || price === 0",
-                        "class": "van-card__price price-class"
+                        ":class": "cn('van-card__price', priceClass)"
                       },
                       "children": [
                         {
@@ -146,7 +146,7 @@
                       "tag": "div",
                       "attrs": {
                         "v-if": "originPrice || originPrice === 0",
-                        "class": "van-card__origin-price origin-price-class"
+                        ":class": "cn('van-card__origin-price', originPriceClass)"
                       }
                     },
                     {
@@ -160,7 +160,7 @@
                       "tag": "div",
                       "attrs": {
                         "v-if": "num",
-                        "class": "van-card__num num-class"
+                        ":class": "cn('van-card__num', numClass)"
                       }
                     },
                     {

@@ -65,7 +65,7 @@
             {
               "tag": "div",
               "attrs": {
-                "class": "van-nav-bar__title title-class van-ellipsis"
+                ":class": "cn('van-nav-bar__title van-ellipsis', titleClass)"
               },
               "children": [
                 {

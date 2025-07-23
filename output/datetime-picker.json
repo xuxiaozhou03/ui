@@ -4,9 +4,9 @@
       "tag": "van-picker",
       "attrs": {
         "class": "van-datetime-picker",
-        "active-class": "active-class",
-        "toolbar-class": "toolbar-class",
-        "column-class": "column-class",
+        ":active-class": "cn( activeClass)",
+        ":toolbar-class": "cn( toolbarClass)",
+        ":column-class": "cn( columnClass)",
         ":title": "title",
         ":columns": "columns",
         ":item-height": "itemHeight",

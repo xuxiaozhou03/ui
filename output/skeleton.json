@@ -18,7 +18,7 @@
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('skeleton__content')"
+            ":class": "bem('skeleton__content')"
           },
           "children": [
             {
@@ -47,7 +47,7 @@
       "tag": "div",
       "attrs": {
         "v-else": "",
-        ":class": "utils.bem('skeleton__content')"
+        ":class": "bem('skeleton__content')"
       },
       "children": [
         {

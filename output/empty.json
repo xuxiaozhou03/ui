@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "custom-class van-empty"
+        ":class": "cn('van-empty', customClass)"
       },
       "children": [
         {

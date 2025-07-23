@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-submit-bar custom-class"
+        ":class": "cn('van-submit-bar', customClass)"
       },
       "children": [
         {
@@ -45,7 +45,7 @@
         {
           "tag": "div",
           "attrs": {
-            "class": "bar-class van-submit-bar__bar"
+            ":class": "cn('van-submit-bar__bar', barClass)"
           },
           "children": [
             {
@@ -64,7 +64,7 @@
                 {
                   "tag": "text",
                   "attrs": {
-                    "class": "van-submit-bar__price price-class"
+                    ":class": "cn('van-submit-bar__price', priceClass)"
                   },
                   "children": [
                     {
@@ -99,7 +99,7 @@
                 ":type": "buttonType",
                 ":loading": "loading",
                 ":disabled": "disabled",
-                "custom-class": "van-submit-bar__button button-class",
+                ":custom-class": "cn('van-submit-bar__button', buttonClass)",
                 "custom-style": "width: 100%;",
                 "@click": "onSubmit"
               }

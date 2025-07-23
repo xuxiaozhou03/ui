@@ -11,7 +11,7 @@
         {
           "tag": "div",
           "attrs": {
-            "class": "van-switch__node node-class"
+            ":class": "cn('van-switch__node', nodeClass)"
           },
           "children": [
             {

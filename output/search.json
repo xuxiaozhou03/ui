@@ -10,7 +10,7 @@
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('search__content', [shape])"
+            ":class": "bem('search__content', [shape])"
           },
           "children": [
             {
@@ -37,7 +37,7 @@
                 ":error": "error",
                 ":border": "false",
                 "confirm-type": "search",
-                "class": "van-search__field field-class",
+                ":class": "cn('van-search__field', fieldClass)",
                 ":value": "value",
                 ":disabled": "disabled",
                 ":readonly": "readonly",
@@ -46,7 +46,7 @@
                 ":clear-icon": "clearIcon",
                 ":maxlength": "maxlength",
                 ":input-align": "inputAlign",
-                "input-class": "input-class",
+                ":input-class": "cn( inputClass)",
                 ":placeholder": "placeholder",
                 ":placeholder-style": "placeholderStyle",
                 ":cursor-spacing": "cursorSpacing",
@@ -100,7 +100,7 @@
               "attrs": {
                 "v-else": "",
                 "@tap": "onCancel",
-                "class": "van-search__action-button cancel-class"
+                ":class": "cn('van-search__action-button', cancelClass)"
               }
             }
           ]

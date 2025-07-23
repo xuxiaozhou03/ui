@@ -19,7 +19,7 @@
           "tag": "div",
           "attrs": {
             "v-if": "title || useTitleSlot",
-            ":class": "utils.bem('dialog__header', { isolated: !(message || useSlot) })"
+            ":class": "bem('dialog__header', { isolated: !(message || useSlot) })"
           },
           "children": [
             {
@@ -47,7 +47,7 @@
           "tag": "div",
           "attrs": {
             "v-else-if": "message",
-            ":class": "utils.bem('dialog__message', [theme, messageAlign, { hasTitle: title }])"
+            ":class": "bem('dialog__message', [theme, messageAlign, { hasTitle: title }])"
           },
           "children": [
             {
@@ -71,7 +71,7 @@
                 "v-if": "showCancelButton",
                 "size": "large",
                 ":loading": "loading.cancel",
-                "custom-class": "van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class",
+                ":custom-class": "cn('van-dialog__button van-hairline--right van-dialog__cancel', cancleButtonClass)",
                 "custom-style": "color: {{ cancelButtonColor }}",
                 "@click": "onCancel"
               }
@@ -82,7 +82,7 @@
                 "v-if": "showConfirmButton",
                 "size": "large",
                 ":loading": "loading.confirm",
-                "custom-class": "van-dialog__button van-dialog__confirm confirm-button-class",
+                ":custom-class": "cn('van-dialog__button van-dialog__confirm', confirmButtonClass)",
                 "custom-style": "color: {{ confirmButtonColor }}",
                 ":button-id": "confirmButtonId",
                 ":open-type": "confirmButtonOpenType",
@@ -133,7 +133,7 @@
                     "v-else": "",
                     "size": "large",
                     ":loading": "loading.cancel",
-                    "custom-class": "van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class",
+                    ":custom-class": "cn('van-dialog__button van-hairline--right van-dialog__cancel', cancleButtonClass)",
                     "custom-style": "color: {{ cancelButtonColor }}",
                     "@click": "onCancel"
                   }
@@ -159,7 +159,7 @@
                     "v-else": "",
                     "size": "large",
                     ":loading": "loading.confirm",
-                    "custom-class": "van-dialog__button van-dialog__confirm confirm-button-class",
+                    ":custom-class": "cn('van-dialog__button van-dialog__confirm', confirmButtonClass)",
                     "custom-style": "color: {{ confirmButtonColor }}",
                     ":button-id": "confirmButtonId",
                     ":open-type": "confirmButtonOpenType",

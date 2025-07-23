@@ -16,7 +16,7 @@
             ":mode": "mode",
             ":lazy-load": "lazyLoad",
             ":webp": "webp",
-            "class": "image-class van-image__img",
+            ":class": "cn('van-image__img', imageClass)",
             ":show-menu-by-longpress": "showMenuByLongpress",
             "@load": "onLoad",
             "@error": "onError"
@@ -26,7 +26,7 @@
           "tag": "div",
           "attrs": {
             "v-if": "loading && showLoading",
-            "class": "loading-class van-image__loading"
+            ":class": "cn('van-image__loading', loadingClass)"
           },
           "children": [
             {
@@ -50,7 +50,7 @@
           "tag": "div",
           "attrs": {
             "v-if": "error && showError",
-            "class": "error-class van-image__error"
+            ":class": "cn('van-image__error', errorClass)"
           },
           "children": [
             {

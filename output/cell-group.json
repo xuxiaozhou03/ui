@@ -4,7 +4,7 @@
       "tag": "div",
       "attrs": {
         "v-if": "title",
-        ":class": "utils.bem('cell-group__title', { inset })"
+        ":class": "bem('cell-group__title', { inset })"
       }
     },
     {

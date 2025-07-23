@@ -10,7 +10,7 @@
         {
           "tag": "div",
           "attrs": {
-            ":class": "utils.bem('rate__item')",
+            ":class": "bem('rate__item')",
             "v-for": "innerCountArray",
             ":key": "index",
             ":style": "style({ paddingRight: index !== count - 1 ? utils.addUnit(gutter) : null })"

@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        "class": "van-progress custom-class",
+        ":class": "cn('van-progress', customClass)",
         ":style": "rootStyle"
       },
       "children": [

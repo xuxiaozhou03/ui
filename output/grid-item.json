@@ -35,7 +35,7 @@
                 {
                   "tag": "div",
                   "attrs": {
-                    "class": "van-grid-item__icon icon-class"
+                    ":class": "cn('van-grid-item__icon', iconClass)"
                   },
                   "children": [
                     {
@@ -62,7 +62,7 @@
                 {
                   "tag": "div",
                   "attrs": {
-                    "class": "van-grid-item__text text-class"
+                    ":class": "cn('van-grid-item__text', textClass)"
                   },
                   "children": [
                     {

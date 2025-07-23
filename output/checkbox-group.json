@@ -3,7 +3,7 @@
     {
       "tag": "div",
       "attrs": {
-        ":class": "utils.bem('checkbox-group', [{ horizontal: direction === 'horizontal' }])"
+        ":class": "bem('checkbox-group', [{ horizontal: direction === 'horizontal' }])"
       },
       "children": [
         {

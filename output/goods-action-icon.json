@@ -37,8 +37,8 @@
             ":size": "size",
             ":color": "color",
             ":class-prefix": "classPrefix",
-            "custom-class": "van-goods-action-icon__icon icon-class",
-            "info-class": "info-class"
+            ":custom-class": "cn('van-goods-action-icon__icon', iconClass)",
+            ":info-class": "cn( infoClass)"
           }
         },
         {
@@ -58,7 +58,7 @@
         {
           "tag": "text",
           "attrs": {
-            "class": "text-class"
+            ":class": "cn( textClass)"
           }
         }
       ]
