@@ -2,6 +2,26 @@ import * as fs from "fs";
 import * as path from "path";
 import { parseDocument } from "htmlparser2";
 
+const pickStyleFromString = (str: string) => {
+  return str.split(";").reduce((acc, cur) => {
+    if (!cur.trim()) {
+      return acc;
+    }
+    let [key, value] = cur.split(":");
+    key = key.trim();
+    value = value.trim();
+
+    key = key.split("-").reduce((ac, cu, index) => {
+      return ac + (index === 0 ? cu : cu[0].toUpperCase() + cu.slice(1));
+    }, "");
+
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {});
+};
+
 class Wxml {
   ast: any;
   constructor(public content: string) {
@@ -46,9 +66,82 @@ class Wxml {
     }
 
     if (value.startsWith("{{") && value.endsWith("}}")) {
-      value = value.slice(2, -2).trim();
-      key = addDynamicBinding(key);
+      if (
+        !value.includes("?") &&
+        !value.includes("utils.") &&
+        !value.includes("computed.") &&
+        !value.includes(":") &&
+        !value.includes("style")
+      ) {
+        value = value.slice(2, -2).trim();
+        key = addDynamicBinding(key);
+        return {
+          [key]: value,
+        };
+      }
+      if (value.includes("computed")) {
+        const regex = /computed\.(\w+)\s*\(([^)]*)\)/;
+        value = value.match(regex)?.[1] || "";
+        key = addDynamicBinding(key);
+        return {
+          [key]: value,
+        };
+      }
+      console.log(value);
+      return {
+        [key]: value,
+      };
     }
+    if (
+      !value.includes("{{") &&
+      !value.includes("utils.") &&
+      !value.includes(":")
+    ) {
+      if (value.includes("-class")) {
+        const arr: string[] = [];
+        value
+          .split(" ")
+          .sort((a, b) => {
+            if (a.includes("-class")) {
+              return 1;
+            }
+            if (b.includes("-class")) {
+              return -1;
+            }
+            return 1;
+          })
+          .forEach((item) => {
+            if (item.includes("-class")) {
+              const val = item
+                .split("-")
+                .filter(Boolean)
+                .reduce((acc, cur, index) => {
+                  return (
+                    acc +
+                    (index === 0 ? cur : cur[0].toUpperCase() + cur.slice(1))
+                  );
+                }, "");
+              arr.push(val);
+            } else {
+              arr.push("'" + item + "'");
+            }
+          });
+        value = `cn(${arr.join(",")})`;
+        key = addDynamicBinding(key);
+      }
+      return {
+        [key]: value,
+      };
+    }
+
+    // line-height: inherit;
+    if (!value.includes("{{")) {
+      return {
+        [addDynamicBinding(key)]: pickStyleFromString(value),
+      };
+    }
+
+    // console.log(value);
 
     return {
       [key]: value,
@@ -119,7 +212,7 @@ class Package {
     this.generate();
   }
   generate() {
-    const outputDir = path.join(__dirname, "..", "..", "output");
+    const outputDir = path.join(__dirname, "..", "output");
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -139,6 +232,9 @@ class Package {
       .replace('<wxs src="../wxs/utils.wxs" module="utils" />', "")
       .replace('<wxs src="./index.wxs" module="computed" />', "")
       .replace('<wxs src="./index.wxs" module="computed" />', "")
+      .replace('<wxs src="./index.wxs" module="utils" />', "")
+      .replace('<wxs src="./index.wxs" module="wxs" />', "")
+      .replace('<wxs src="../wxs/style.wxs" module="style" />', "")
       .trim();
     return new Wxml(wxml).template;
   }
