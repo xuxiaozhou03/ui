@@ -3,9 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseWxml = void 0;
+exports.generateTemplate = void 0;
 const htmlparser2_1 = require("htmlparser2");
 const parseClass_1 = __importDefault(require("./parseClass"));
+// todo 处理复杂的class 语法
+// todo 处理 style， 从字符串改成对象
 const parseAttrs = (attrs, isCustomElement) => {
     if (isCustomElement) {
         if (attrs["custom-class"] && attrs.class) {
@@ -107,4 +109,25 @@ const parseWxml = (wxml) => {
     }
     return result;
 };
-exports.parseWxml = parseWxml;
+const generateTemplateByNodes = (nodes) => {
+    return nodes
+        .map((node) => {
+        const attrs = node.attrs
+            ? Object.entries(node.attrs)
+                .map(([key, value]) => {
+                return ` ${key}="${value}"`;
+            })
+                .join("")
+            : "";
+        const children = node.children
+            ? generateTemplateByNodes(node.children)
+            : "";
+        return `<${node.tag}${attrs}>${children}</${node.tag}>`;
+    })
+        .join("");
+};
+const generateTemplate = (wxml) => {
+    const nodes = parseWxml(wxml);
+    return generateTemplateByNodes(nodes);
+};
+exports.generateTemplate = generateTemplate;

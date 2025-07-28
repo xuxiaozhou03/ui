@@ -9,29 +9,39 @@ const helper_1 = require("./helper");
 const parseTs_1 = require("./parseTs");
 const parseWxml_1 = require("./parseWxml");
 const parsePackage = (packageName) => {
-    let wxmlData = null;
+    const dirName = `van-${packageName}`;
+    // 确保目录存在
+    const packagePath = `${helper_1.outputPath}/${dirName}`;
+    if (!fs_1.default.existsSync(packagePath)) {
+        fs_1.default.mkdirSync(packagePath, { recursive: true });
+    }
+    const componentName = dirName + ".vue";
+    let template = null;
     const wxml = (0, helper_1.getFileContent)(packageName + "/index.wxml");
     if (wxml) {
-        wxmlData = (0, parseWxml_1.parseWxml)(wxml);
+        template = (0, parseWxml_1.generateTemplate)(wxml);
     }
-    let tsData = null;
+    let tsData = "";
     const ts = (0, helper_1.getFileContent)(packageName + "/index.ts");
     if (ts) {
-        tsData = (0, parseTs_1.parseTs)(ts);
+        tsData = (0, parseTs_1.generateScript)(ts);
     }
     let wxs = (0, helper_1.getFileContent)(packageName + "/index.wxs");
     let wxsData = null;
     if (wxs) {
-        wxsData = (0, parseTs_1.parseTs)(wxs);
+        // wxsData = parseTs(wxs);
     }
     let wxss = (0, helper_1.getDistFileContent)(packageName + "/index.wxss");
     wxss = wxss ? wxss.replace("@import '../common/index.wxss';", "") : "";
-    const data = {
-        wxml: wxmlData,
-        ts: tsData,
-        wxs: wxsData,
-        wxss: wxss,
-    };
-    fs_1.default.writeFileSync(`${helper_1.outputPath}/${packageName}.json`, JSON.stringify(data, null, 2));
+    const vue = `
+  <template>
+  ${template}
+  </template>
+  <script lang="ts" setup>
+  ${tsData}
+  </script>
+  <style>${wxss}</style>
+  `;
+    fs_1.default.writeFileSync(`${packagePath}/${componentName}`, vue);
 };
 exports.parsePackage = parsePackage;

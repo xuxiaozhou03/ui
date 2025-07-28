@@ -4,7 +4,11 @@ import * as path from "path";
 export const rootPath = path.resolve(__dirname, "..", "..", "vant-weapp-dev");
 export const packagesPath = path.join(rootPath, "packages");
 export const distPath = path.join(rootPath, "dist");
-export const outputPath = path.join(rootPath, "..", "output");
+export const outputPath = path.join(
+  rootPath,
+  "..",
+  "app/src/uni-modules/vant/components"
+);
 
 export const directories = fs
   .readdirSync(packagesPath)

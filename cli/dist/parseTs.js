@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseTs = void 0;
+exports.generateScript = void 0;
 const ts = __importStar(require("typescript"));
 function serializeAst(node) {
     if (!node)
@@ -124,6 +124,17 @@ function serializeAst(node) {
 }
 const parseTs = (tsCode) => {
     const sourceFile = ts.createSourceFile("temp.ts", tsCode, ts.ScriptTarget.Latest, true);
-    return serializeAst(sourceFile);
+    const ast = serializeAst(sourceFile);
+    if (!ast) {
+        return "";
+    }
+    return ast.statements.filter((item) => !item.text.includes("import { VantComponent }"));
 };
-exports.parseTs = parseTs;
+const generateScript = (tsCode) => {
+    const asts = parseTs(tsCode);
+    console.log(asts);
+    return `
+  import { cn, bem } from '../../utils';
+  `;
+};
+exports.generateScript = generateScript;

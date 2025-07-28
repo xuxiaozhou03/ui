@@ -109,12 +109,26 @@ function serializeAst(node: ts.Node): any {
   return obj;
 }
 
-export const parseTs = (tsCode: string) => {
+const parseTs = (tsCode: string) => {
   const sourceFile = ts.createSourceFile(
     "temp.ts",
     tsCode,
     ts.ScriptTarget.Latest,
     true
   );
-  return serializeAst(sourceFile);
+  const ast = serializeAst(sourceFile);
+  if (!ast) {
+    return "";
+  }
+  return ast.statements.filter(
+    (item: any) => !item.text.includes("import { VantComponent }")
+  );
+};
+
+export const generateScript = (tsCode: string): string => {
+  const asts = parseTs(tsCode);
+  console.log(asts);
+  return `
+  import { cn, bem } from '../../utils';
+  `;
 };

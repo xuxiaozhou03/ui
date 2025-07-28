@@ -7,6 +7,9 @@ interface WxmlNode {
   children?: WxmlNode[];
 }
 
+// todo 处理复杂的class 语法
+// todo 处理 style， 从字符串改成对象
+
 const parseAttrs = (attrs: any, isCustomElement: boolean) => {
   if (isCustomElement) {
     if (attrs["custom-class"] && attrs.class) {
@@ -83,7 +86,7 @@ const parseTag = (tag: string): string => {
   } as Record<string, string>;
   return tagMap[tag] || tag;
 };
-export const parseWxml = (wxml: string): WxmlNode[] => {
+const parseWxml = (wxml: string): WxmlNode[] => {
   const ast = parseDocument(wxml, { xmlMode: true });
   const result: WxmlNode[] = [];
 
@@ -121,4 +124,26 @@ export const parseWxml = (wxml: string): WxmlNode[] => {
     });
   }
   return result;
+};
+
+const generateTemplateByNodes = (nodes: WxmlNode[]): string => {
+  return nodes
+    .map((node) => {
+      const attrs = node.attrs
+        ? Object.entries(node.attrs)
+            .map(([key, value]) => {
+              return ` ${key}="${value}"`;
+            })
+            .join("")
+        : "";
+      const children = node.children
+        ? generateTemplateByNodes(node.children)
+        : "";
+      return `<${node.tag}${attrs}>${children}</${node.tag}>`;
+    })
+    .join("");
+};
+export const generateTemplate = (wxml: string) => {
+  const nodes = parseWxml(wxml);
+  return generateTemplateByNodes(nodes);
 };

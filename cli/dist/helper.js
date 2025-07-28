@@ -29,7 +29,7 @@ const path = __importStar(require("path"));
 exports.rootPath = path.resolve(__dirname, "..", "..", "vant-weapp-dev");
 exports.packagesPath = path.join(exports.rootPath, "packages");
 exports.distPath = path.join(exports.rootPath, "dist");
-exports.outputPath = path.join(exports.rootPath, "..", "output");
+exports.outputPath = path.join(exports.rootPath, "..", "app/src/uni-modules/vant/components");
 exports.directories = fs
     .readdirSync(exports.packagesPath)
     .filter((file) => fs.statSync(path.join(exports.packagesPath, file)).isDirectory() &&
