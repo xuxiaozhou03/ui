@@ -1,41 +1,104 @@
 <template>
   <view class="content">
-    <image class="logo" src="/static/logo.png" />
-    <view class="text-area">
-      <text class="title">{{ title }}</text>
+    <view
+      class="item"
+      v-for="item in noOkItems"
+      :key="item"
+      @click="jump(item)"
+    >
+      {{ item }}
+    </view>
+    <div class="divider"></div>
+    <view class="item" v-for="item in okItems" :key="item" @click="jump(item)">
+      {{ item }}
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-const title = ref("Hello");
+const noOkItems = [
+  "action-sheet",
+  "area",
+  "button",
+  "calendar",
+  "card",
+  "cascader",
+  "cell",
+  "checkbox",
+  "circle",
+  "col",
+  "collapse",
+  "config-provider",
+  "count-down",
+  "datetime-picker",
+  "dialog",
+  "divider",
+  "dropdown-menu",
+  "empty",
+  "field",
+  "goods-action",
+  "grid",
+  "icon",
+  "image",
+  "index-bar",
+  "nav-bar",
+  "notice-bar",
+  "notify",
+  "overlay",
+  "panel",
+  "picker",
+  "popup",
+  "progress",
+  "radio",
+  "rate",
+  "search",
+  "share-sheet",
+  "sidebar",
+  "skeleton",
+  "slider",
+  "stepper",
+  "steps",
+  "sticky",
+  "submit-bar",
+  "swipe-cell",
+  "switch",
+  "tab",
+  "tabbar",
+  "tag",
+  "toast",
+  "transition",
+  "tree-select",
+  "uploader",
+];
+const okItems: string[] = ["loading"];
+
+const jump = (item: string) => {
+  uni.navigateTo({
+    url: `/pages/${item}/index`,
+  });
+};
 </script>
 
 <style>
 .content {
+  padding: 8px;
+  background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 6px;
+}
+.item {
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 8px 16px;
+  background-color: #fff;
 }
 
-.logo {
-  height: 200rpx;
-  width: 200rpx;
-  margin-top: 200rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50rpx;
-}
-
-.text-area {
-  display: flex;
-  justify-content: center;
-}
-
-.title {
-  font-size: 36rpx;
-  color: #8f8f94;
+.divider {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  height: 1px;
+  width: 100%;
+  background-color: #ddd;
 }
 </style>

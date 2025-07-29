@@ -14,7 +14,5 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "htmlparser2": "^10.0.0"
-  }
+  "dependencies": {}
 }
