@@ -359,7 +359,7 @@ module.exports = {
 };
 
 </script>
-<style lang="scss" scoped>
+<style>
   .tiled-calendar {
   --calendar-height: 618px;
 }

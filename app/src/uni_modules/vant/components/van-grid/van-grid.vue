@@ -85,6 +85,6 @@ module.exports = {
 };
 
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-grid{box-sizing:border-box;overflow:hidden;position:relative}
 </style>

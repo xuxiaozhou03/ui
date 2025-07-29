@@ -111,7 +111,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .slider {
   margin: 0 15px 30px;
 }

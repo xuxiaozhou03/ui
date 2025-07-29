@@ -90,6 +90,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-tabbar{background-color:var(--tabbar-background-color,#fff);box-sizing:initial;display:flex;height:var(--tabbar-height,50px);width:100%}.van-tabbar--fixed{bottom:0;left:0;position:fixed}.van-tabbar--safe{padding-bottom:env(safe-area-inset-bottom)}
 </style>

@@ -45,7 +45,7 @@ const generatePackage = (packageName: string) => {
   // 转换为 Vue 3 的 computed 属性
   ${wxs}
 </script>
-<style lang="scss" scoped>
+<style>
   ${wxss}
 </style>
 `;
@@ -78,7 +78,7 @@ const generateDemo = (packageName: string) => {
   // 转换为 Vue 3 的 computed 属性
   ${wxs}
 </script>
-<style lang="scss" scoped>
+<style>
   ${less}
 </style>
 `;

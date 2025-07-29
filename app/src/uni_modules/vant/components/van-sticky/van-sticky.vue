@@ -176,6 +176,6 @@ module.exports = {
 };
 
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-sticky{position:relative}.van-sticky-wrap--fixed{left:0;position:fixed;right:0}
 </style>

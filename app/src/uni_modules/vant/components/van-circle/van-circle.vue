@@ -244,6 +244,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-circle{display:inline-block;position:relative;text-align:center}.van-circle__text{color:var(--circle-text-color,#323233);left:0;position:absolute;top:50%;transform:translateY(-50%);width:100%}
 </style>

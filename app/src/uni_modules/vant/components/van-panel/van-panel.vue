@@ -36,6 +36,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-panel{background:var(--panel-background-color,#fff)}.van-panel__header-value{color:var(--panel-header-value-color,#ee0a24)}.van-panel__footer{padding:var(--panel-footer-padding,8px 16px)}.van-panel__footer:empty{display:none}
 </style>

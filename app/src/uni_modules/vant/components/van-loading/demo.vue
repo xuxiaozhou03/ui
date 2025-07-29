@@ -28,7 +28,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .demo-loading {
   margin: 4px 16px 4px 0;
 }

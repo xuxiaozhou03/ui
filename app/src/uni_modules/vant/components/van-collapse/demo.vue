@@ -90,7 +90,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .van-icon-question {
   margin-left: 5px;
   font-size: 15px !important;

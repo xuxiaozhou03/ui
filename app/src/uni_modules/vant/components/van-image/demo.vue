@@ -123,7 +123,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .text {
   width: 100%;
   margin: 5px 0 20px;

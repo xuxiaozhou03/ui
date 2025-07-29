@@ -70,7 +70,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .row {
   height: 44px;
   margin-bottom: 15px;

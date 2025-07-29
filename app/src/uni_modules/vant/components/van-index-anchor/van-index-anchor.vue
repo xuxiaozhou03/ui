@@ -49,6 +49,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-index-anchor{background-color:var(--index-anchor-background-color,transparent);color:var(--index-anchor-text-color,#323233);font-size:var(--index-anchor-font-size,14px);font-weight:var(--index-anchor-font-weight,500);line-height:var(--index-anchor-line-height,32px);padding:var(--index-anchor-padding,0 16px)}.van-index-anchor--active{background-color:var(--index-anchor-active-background-color,#fff);color:var(--index-anchor-active-text-color,#07c160);left:0;right:0}
 </style>

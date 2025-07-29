@@ -99,7 +99,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .rate-position {
   margin-left: 15px;
 }

@@ -34,7 +34,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .progress-position {
   margin: 5px 15px 20px;
 }

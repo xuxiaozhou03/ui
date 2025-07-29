@@ -186,6 +186,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-swipe-cell{overflow:hidden;position:relative}.van-swipe-cell__left,.van-swipe-cell__right{height:100%;position:absolute;top:0}.van-swipe-cell__left{left:0;transform:translate3d(-100%,0,0)}.van-swipe-cell__right{right:0;transform:translate3d(100%,0,0)}
 </style>

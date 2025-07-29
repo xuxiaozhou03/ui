@@ -77,6 +77,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';:host{box-sizing:border-box;flex-shrink:0;width:100%}.van-tab__pane{-webkit-overflow-scrolling:touch;box-sizing:border-box;overflow-y:auto}.van-tab__pane--active{height:auto}.van-tab__pane--inactive{height:0;overflow:visible}
 </style>

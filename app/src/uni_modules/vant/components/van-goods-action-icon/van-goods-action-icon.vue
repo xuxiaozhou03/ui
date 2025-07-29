@@ -78,6 +78,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';.van-goods-action-icon{border:none!important;color:var(--goods-action-icon-text-color,#646566)!important;display:flex!important;flex-direction:column;font-size:var(--goods-action-icon-font-size,10px)!important;height:var(--goods-action-icon-height,50px)!important;justify-content:center!important;line-height:1!important;min-width:var(--goods-action-icon-width,48px)}.van-goods-action-icon__icon{color:var(--goods-action-icon-color,#323233);display:flex;font-size:var(--goods-action-icon-size,18px);margin:0 auto 5px}
 </style>

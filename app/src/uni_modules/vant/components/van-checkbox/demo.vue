@@ -190,7 +190,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .demo-checkbox-group {
   margin: 10px 0 0 20px;
 }

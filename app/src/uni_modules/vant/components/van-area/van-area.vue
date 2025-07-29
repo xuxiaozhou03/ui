@@ -325,6 +325,6 @@ module.exports = {
 };
 
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';
 </style>

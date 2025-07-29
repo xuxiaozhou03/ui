@@ -93,7 +93,7 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   .demo-margin-left {
   margin-left: 10px;
 }

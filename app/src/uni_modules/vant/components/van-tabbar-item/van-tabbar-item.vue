@@ -115,6 +115,6 @@ VantComponent({
   // 转换为 Vue 3 的 computed 属性
   
 </script>
-<style lang="scss" scoped>
+<style>
   @import '../common/index.wxss';:host{flex:1}.van-tabbar-item{align-items:center;color:var(--tabbar-item-text-color,#646566);display:flex;flex-direction:column;font-size:var(--tabbar-item-font-size,12px);height:100%;justify-content:center;line-height:var(--tabbar-item-line-height,1)}.van-tabbar-item__icon{font-size:var(--tabbar-item-icon-size,22px);margin-bottom:var(--tabbar-item-margin-bottom,4px);position:relative}.van-tabbar-item__icon__inner{display:block;min-width:1em}.van-tabbar-item--active{color:var(--tabbar-item-active-color,#1989fa)}.van-tabbar-item__info{margin-top:2px}
 </style>
