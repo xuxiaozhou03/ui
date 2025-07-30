@@ -19,7 +19,6 @@
 const noOkItems = [
   "action-sheet",
   "area",
-  "button",
   "calendar",
   "card",
   "cascader",
@@ -38,7 +37,6 @@ const noOkItems = [
   "field",
   "goods-action",
   "grid",
-  "icon",
   "image",
   "index-bar",
   "nav-bar",
@@ -70,7 +68,7 @@ const noOkItems = [
   "tree-select",
   "uploader",
 ];
-const okItems: string[] = ["loading"];
+const okItems: string[] = ["loading", "icon", "button"];
 
 const jump = (item: string) => {
   uni.navigateTo({
