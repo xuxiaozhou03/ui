@@ -1,52 +1,51 @@
 <template>
   <wxs src="../wxs/utils.wxs" module="utils" />
-<wxs src="./index.wxs" module="computed" />
+  <wxs src="./index.wxs" module="computed" />
 
-<view class="{{ utils.bem('stepper', [theme]) }} custom-class">
-  <view
-    wx:if="{{ showMinus }}"
-    data-type="minus"
-    style="{{ computed.buttonStyle({ buttonSize }) }}"
-    class="minus-class {{ utils.bem('stepper__minus', { disabled: disabled || disableMinus || currentValue <= min }) }}"
-    hover-class="van-stepper__minus--hover"
-    hover-stay-time="70"
-    bind:tap="onTap"
-    bind:touchstart="onTouchStart"
-    bind:touchend="onTouchEnd"
-  >
-    <slot name="minus" />
+  <view class="{{ utils.bem('stepper', [theme]) }} custom-class">
+    <view
+      wx:if="{{ showMinus }}"
+      data-type="minus"
+      style="{{ computed.buttonStyle({ buttonSize }) }}"
+      class="minus-class {{ utils.bem('stepper__minus', { disabled: disabled || disableMinus || currentValue <= min }) }}"
+      hover-class="van-stepper__minus--hover"
+      hover-stay-time="70"
+      bind:tap="onTap"
+      bind:touchstart="onTouchStart"
+      bind:touchend="onTouchEnd"
+    >
+      <slot name="minus" />
+    </view>
+    <input
+      type="{{ integer ? 'number' : 'digit' }}"
+      class="input-class {{ utils.bem('stepper__input', { disabled: disabled || disableInput }) }}"
+      style="{{ computed.inputStyle({ buttonSize, inputWidth }) }}"
+      value="{{ currentValue }}"
+      focus="{{ focus }}"
+      disabled="{{ disabled || disableInput }}"
+      always-embed="{{ alwaysEmbed }}"
+      bindinput="onInput"
+      bind:focus="onFocus"
+      bind:blur="onBlur"
+    />
+    <view
+      wx:if="{{ showPlus }}"
+      data-type="plus"
+      style="{{ computed.buttonStyle({ buttonSize }) }}"
+      class="plus-class {{ utils.bem('stepper__plus', { disabled: disabled || disablePlus || currentValue >= max }) }}"
+      hover-class="van-stepper__plus--hover"
+      hover-stay-time="70"
+      bind:tap="onTap"
+      bind:touchstart="onTouchStart"
+      bind:touchend="onTouchEnd"
+    >
+      <slot name="plus" />
+    </view>
   </view>
-  <input
-    type="{{ integer ? 'number' : 'digit' }}"
-    class="input-class {{ utils.bem('stepper__input', { disabled: disabled || disableInput }) }}"
-    style="{{ computed.inputStyle({ buttonSize, inputWidth }) }}"
-    value="{{ currentValue }}"
-    focus="{{ focus }}"
-    disabled="{{ disabled || disableInput }}"
-    always-embed="{{ alwaysEmbed }}"
-    bindinput="onInput"
-    bind:focus="onFocus"
-    bind:blur="onBlur"
-  />
-  <view
-    wx:if="{{ showPlus }}"
-    data-type="plus"
-    style="{{ computed.buttonStyle({ buttonSize }) }}"
-    class="plus-class {{ utils.bem('stepper__plus', { disabled: disabled || disablePlus || currentValue >= max }) }}"
-    hover-class="van-stepper__plus--hover"
-    hover-stay-time="70"
-    bind:tap="onTap"
-    bind:touchstart="onTouchStart"
-    bind:touchend="onTouchEnd"
-  >
-    <slot name="plus" />
-  </view>
-</view>
-
 </template>
 <script lang="ts" setup>
-  import { VantComponent } from '../common/component';
-import { isDef } from '../common/validator';
+import { VantComponent } from "../common/component";
+import { isDef } from "../common/validator";
 
 const LONG_PRESS_START_TIME = 600;
 const LONG_PRESS_INTERVAL = 200;
@@ -64,7 +63,7 @@ function equal(value1: number | string, value2: number | string) {
 VantComponent({
   field: true,
 
-  classes: ['input-class', 'plus-class', 'minus-class'],
+  classes: ["input-class", "plus-class", "minus-class"],
 
   props: {
     value: {
@@ -72,7 +71,7 @@ VantComponent({
     },
     integer: {
       type: Boolean,
-      observer: 'check',
+      observer: "check",
     },
     disabled: Boolean,
     inputWidth: String,
@@ -82,17 +81,17 @@ VantComponent({
     decimalLength: {
       type: Number,
       value: null as unknown as number,
-      observer: 'check',
+      observer: "check",
     },
     min: {
       type: null,
       value: 1,
-      observer: 'check',
+      observer: "check",
     },
     max: {
       type: null,
       value: Number.MAX_SAFE_INTEGER,
-      observer: 'check',
+      observer: "check",
     },
     step: {
       type: null,
@@ -117,7 +116,7 @@ VantComponent({
   },
 
   data: {
-    currentValue: '',
+    currentValue: "",
   },
 
   watch: {
@@ -149,7 +148,7 @@ VantComponent({
       const { disabled, disablePlus, disableMinus, currentValue, max, min } =
         this.data;
 
-      if (type === 'plus') {
+      if (type === "plus") {
         return disabled || disablePlus || +currentValue >= +max;
       }
 
@@ -157,7 +156,7 @@ VantComponent({
     },
 
     onFocus(event: WechatMiniprogram.InputFocus) {
-      this.$emit('focus', event.detail);
+      this.$emit("focus", event.detail);
     },
 
     onBlur(event: WechatMiniprogram.InputBlur) {
@@ -167,7 +166,7 @@ VantComponent({
 
       this.emitChange(value);
 
-      this.$emit('blur', {
+      this.$emit("blur", {
         ...event.detail,
         value,
       });
@@ -175,10 +174,10 @@ VantComponent({
 
     // filter illegal characters
     filter(value) {
-      value = String(value).replace(/[^0-9.-]/g, '');
+      value = String(value).replace(/[^0-9.-]/g, "");
 
-      if (this.data.integer && value.indexOf('.') !== -1) {
-        value = value.split('.')[0];
+      if (this.data.integer && value.indexOf(".") !== -1) {
+        value = value.split(".")[0];
       }
 
       return value;
@@ -189,7 +188,7 @@ VantComponent({
       value = this.filter(value);
 
       // format range
-      value = value === '' ? 0 : +value;
+      value = value === "" ? 0 : +value;
       value = Math.max(Math.min(this.data.max, value), this.data.min);
 
       // format decimal
@@ -201,10 +200,10 @@ VantComponent({
     },
 
     onInput(event: WechatMiniprogram.Input) {
-      const { value = '' } = event.detail || {};
+      const { value = "" } = event.detail || {};
 
       // allow input to be empty
-      if (value === '') {
+      if (value === "") {
         return;
       }
 
@@ -218,18 +217,18 @@ VantComponent({
         this.setData({ currentValue: value });
       }
 
-      this.$emit('change', value);
+      this.$emit("change", value);
     },
 
     onChange() {
       const { type } = this;
 
       if (this.isDisabled(type)) {
-        this.$emit('overlimit', type);
+        this.$emit("overlimit", type);
         return;
       }
 
-      const diff = type === 'minus' ? -this.data.step : +this.data.step;
+      const diff = type === "minus" ? -this.data.step : +this.data.step;
 
       const value = this.format(add(+this.data.currentValue, diff));
 
@@ -277,10 +276,10 @@ VantComponent({
   },
 });
 
-  // 转换为 Vue 3 的 computed 属性
-  /* eslint-disable */
-var style = require('../wxs/style.wxs');
-var addUnit = require('../wxs/add-unit.wxs');
+// 转换为 Vue 3 的 computed 属性
+/* eslint-disable */
+var style = require("../wxs/style.wxs");
+var addUnit = require("../wxs/add-unit.wxs");
 
 function buttonStyle(data) {
   return style({
@@ -300,8 +299,127 @@ module.exports = {
   buttonStyle: buttonStyle,
   inputStyle: inputStyle,
 };
-
 </script>
 <style>
-  @import '../common/index.wxss';.van-stepper{font-size:0}.van-stepper__minus,.van-stepper__plus{background-color:var(--stepper-background-color,#f2f3f5);border:0;box-sizing:border-box;color:var(--stepper-button-icon-color,#323233);display:inline-block;height:var(--stepper-input-height,28px);margin:1px;padding:var(--padding-base,4px);position:relative;vertical-align:middle;width:var(--stepper-input-height,28px)}.van-stepper__minus:before,.van-stepper__plus:before{height:1px;width:9px}.van-stepper__minus:after,.van-stepper__plus:after{height:9px;width:1px}.van-stepper__minus:empty.van-stepper__minus:after,.van-stepper__minus:empty.van-stepper__minus:before,.van-stepper__minus:empty.van-stepper__plus:after,.van-stepper__minus:empty.van-stepper__plus:before,.van-stepper__plus:empty.van-stepper__minus:after,.van-stepper__plus:empty.van-stepper__minus:before,.van-stepper__plus:empty.van-stepper__plus:after,.van-stepper__plus:empty.van-stepper__plus:before{background-color:currentColor;bottom:0;content:"";left:0;margin:auto;position:absolute;right:0;top:0}.van-stepper__minus--hover,.van-stepper__plus--hover{background-color:var(--stepper-active-color,#e8e8e8)}.van-stepper__minus--disabled,.van-stepper__plus--disabled{color:var(--stepper-button-disabled-icon-color,#c8c9cc)}.van-stepper__minus--disabled,.van-stepper__minus--disabled.van-stepper__minus--hover,.van-stepper__minus--disabled.van-stepper__plus--hover,.van-stepper__plus--disabled,.van-stepper__plus--disabled.van-stepper__minus--hover,.van-stepper__plus--disabled.van-stepper__plus--hover{background-color:var(--stepper-button-disabled-color,#f7f8fa)}.van-stepper__minus{border-radius:var(--stepper-border-radius,var(--stepper-border-radius,4px)) 0 0 var(--stepper-border-radius,var(--stepper-border-radius,4px))}.van-stepper__minus:after{display:none}.van-stepper__plus{border-radius:0 var(--stepper-border-radius,var(--stepper-border-radius,4px)) var(--stepper-border-radius,var(--stepper-border-radius,4px)) 0}.van-stepper--round .van-stepper__input{background-color:initial!important}.van-stepper--round .van-stepper__minus,.van-stepper--round .van-stepper__plus{border-radius:100%}.van-stepper--round .van-stepper__minus:active,.van-stepper--round .van-stepper__plus:active{opacity:.7}.van-stepper--round .van-stepper__minus--disabled,.van-stepper--round .van-stepper__minus--disabled:active,.van-stepper--round .van-stepper__plus--disabled,.van-stepper--round .van-stepper__plus--disabled:active{opacity:.3}.van-stepper--round .van-stepper__plus{background-color:#ee0a24;color:#fff}.van-stepper--round .van-stepper__minus{background-color:#fff;border:1px solid #ee0a24;color:#ee0a24}.van-stepper__input{-webkit-appearance:none;background-color:var(--stepper-background-color,#f2f3f5);border:0;border-radius:0;border-width:1px 0;box-sizing:border-box;color:var(--stepper-input-text-color,#323233);display:inline-block;font-size:var(--stepper-input-font-size,14px);height:var(--stepper-input-height,28px);margin:1px;min-height:0;padding:1px;text-align:center;vertical-align:middle;width:var(--stepper-input-width,32px)}.van-stepper__input--disabled{background-color:var(--stepper-input-disabled-background-color,#f2f3f5);color:var(--stepper-input-disabled-text-color,#c8c9cc)}
+@import "../common/index.wxss";
+.van-stepper {
+  font-size: 0;
+}
+.van-stepper__minus,
+.van-stepper__plus {
+  background-color: var(--stepper-background-color, #f2f3f5);
+  border: 0;
+  box-sizing: border-box;
+  color: var(--stepper-button-icon-color, #323233);
+  display: inline-block;
+  height: var(--stepper-input-height, 28px);
+  margin: 1px;
+  padding: var(--padding-base, 4px);
+  position: relative;
+  vertical-align: middle;
+  width: var(--stepper-input-height, 28px);
+}
+.van-stepper__minus:before,
+.van-stepper__plus:before {
+  height: 1px;
+  width: 9px;
+}
+.van-stepper__minus:after,
+.van-stepper__plus:after {
+  height: 9px;
+  width: 1px;
+}
+.van-stepper__minus:empty.van-stepper__minus:after,
+.van-stepper__minus:empty.van-stepper__minus:before,
+.van-stepper__minus:empty.van-stepper__plus:after,
+.van-stepper__minus:empty.van-stepper__plus:before,
+.van-stepper__plus:empty.van-stepper__minus:after,
+.van-stepper__plus:empty.van-stepper__minus:before,
+.van-stepper__plus:empty.van-stepper__plus:after,
+.van-stepper__plus:empty.van-stepper__plus:before {
+  background-color: currentColor;
+  bottom: 0;
+  content: "";
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.van-stepper__minus--hover,
+.van-stepper__plus--hover {
+  background-color: var(--stepper-active-color, #e8e8e8);
+}
+.van-stepper__minus--disabled,
+.van-stepper__plus--disabled {
+  color: var(--stepper-button-disabled-icon-color, #c8c9cc);
+}
+.van-stepper__minus--disabled,
+.van-stepper__minus--disabled.van-stepper__minus--hover,
+.van-stepper__minus--disabled.van-stepper__plus--hover,
+.van-stepper__plus--disabled,
+.van-stepper__plus--disabled.van-stepper__minus--hover,
+.van-stepper__plus--disabled.van-stepper__plus--hover {
+  background-color: var(--stepper-button-disabled-color, #f7f8fa);
+}
+.van-stepper__minus {
+  border-radius: var(--stepper-border-radius, var(--stepper-border-radius, 4px))
+    0 0 var(--stepper-border-radius, var(--stepper-border-radius, 4px));
+}
+.van-stepper__minus:after {
+  display: none;
+}
+.van-stepper__plus {
+  border-radius: 0
+    var(--stepper-border-radius, var(--stepper-border-radius, 4px))
+    var(--stepper-border-radius, var(--stepper-border-radius, 4px)) 0;
+}
+.van-stepper--round .van-stepper__input {
+  background-color: initial !important;
+}
+.van-stepper--round .van-stepper__minus,
+.van-stepper--round .van-stepper__plus {
+  border-radius: 100%;
+}
+.van-stepper--round .van-stepper__minus:active,
+.van-stepper--round .van-stepper__plus:active {
+  opacity: 0.7;
+}
+.van-stepper--round .van-stepper__minus--disabled,
+.van-stepper--round .van-stepper__minus--disabled:active,
+.van-stepper--round .van-stepper__plus--disabled,
+.van-stepper--round .van-stepper__plus--disabled:active {
+  opacity: 0.3;
+}
+.van-stepper--round .van-stepper__plus {
+  background-color: #ee0a24;
+  color: #fff;
+}
+.van-stepper--round .van-stepper__minus {
+  background-color: #fff;
+  border: 1px solid #ee0a24;
+  color: #ee0a24;
+}
+.van-stepper__input {
+  -webkit-appearance: none;
+  background-color: var(--stepper-background-color, #f2f3f5);
+  border: 0;
+  border-radius: 0;
+  border-width: 1px 0;
+  box-sizing: border-box;
+  color: var(--stepper-input-text-color, #323233);
+  display: inline-block;
+  font-size: var(--stepper-input-font-size, 14px);
+  height: var(--stepper-input-height, 28px);
+  margin: 1px;
+  min-height: 0;
+  padding: 1px;
+  text-align: center;
+  vertical-align: middle;
+  width: var(--stepper-input-width, 32px);
+}
+.van-stepper__input--disabled {
+  background-color: var(--stepper-input-disabled-background-color, #f2f3f5);
+  color: var(--stepper-input-disabled-text-color, #c8c9cc);
+}
 </style>

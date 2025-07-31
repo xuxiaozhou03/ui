@@ -8,7 +8,7 @@ export const iconProps = {
   size: { type: String },
   color: { type: String },
   classPrefix: { type: String, default: "van-icon" },
-  name: { type: String, required: true },
+  name: { type: String },
   infoClass: { type: String },
 };
 export type IconProps = ExtractPropTypes<typeof iconProps>;
