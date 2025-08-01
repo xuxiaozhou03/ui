@@ -1,307 +1,210 @@
 <template>
-  <wxs src="../wxs/utils.wxs" module="utils" />
-  <wxs src="./index.wxs" module="computed" />
-
-  <view class="{{ utils.bem('stepper', [theme]) }} custom-class">
-    <view
-      wx:if="{{ showMinus }}"
-      data-type="minus"
-      style="{{ computed.buttonStyle({ buttonSize }) }}"
-      class="minus-class {{ utils.bem('stepper__minus', { disabled: disabled || disableMinus || currentValue <= min }) }}"
-      hover-class="van-stepper__minus--hover"
-      hover-stay-time="70"
-      bind:tap="onTap"
-      bind:touchstart="onTouchStart"
-      bind:touchend="onTouchEnd"
+  <div
+    :class="['van-stepper', theme ? 'van-stepper--' + theme : '', customClass]"
+  >
+    <button
+      v-if="showMinus"
+      type="button"
+      :style="buttonStyle"
+      :class="[
+        'van-stepper__minus',
+        {
+          'van-stepper__minus--disabled':
+            disabled || disableMinus || +currentValue <= +min,
+        },
+        minusClass,
+      ]"
+      @mousedown="onTouchStart('minus')"
+      @mouseup="onTouchEnd"
+      @mouseleave="onTouchEnd"
+      @touchstart="onTouchStart('minus')"
+      @touchend="onTouchEnd"
+      @click="onTap('minus')"
+      :disabled="disabled || disableMinus || +currentValue <= +min"
     >
-      <slot name="minus" />
-    </view>
+      <slot name="minus">-</slot>
+    </button>
     <input
-      type="{{ integer ? 'number' : 'digit' }}"
-      class="input-class {{ utils.bem('stepper__input', { disabled: disabled || disableInput }) }}"
-      style="{{ computed.inputStyle({ buttonSize, inputWidth }) }}"
-      value="{{ currentValue }}"
-      focus="{{ focus }}"
-      disabled="{{ disabled || disableInput }}"
-      always-embed="{{ alwaysEmbed }}"
-      bindinput="onInput"
-      bind:focus="onFocus"
-      bind:blur="onBlur"
+      :type="integer ? 'number' : 'text'"
+      :class="['van-stepper__input', inputClass]"
+      :style="inputStyle"
+      v-model="currentValue"
+      :disabled="disabled || disableInput"
+      @input="onInput"
+      @focus="onFocus"
+      @blur="onBlur"
     />
-    <view
-      wx:if="{{ showPlus }}"
-      data-type="plus"
-      style="{{ computed.buttonStyle({ buttonSize }) }}"
-      class="plus-class {{ utils.bem('stepper__plus', { disabled: disabled || disablePlus || currentValue >= max }) }}"
-      hover-class="van-stepper__plus--hover"
-      hover-stay-time="70"
-      bind:tap="onTap"
-      bind:touchstart="onTouchStart"
-      bind:touchend="onTouchEnd"
+    <button
+      v-if="showPlus"
+      type="button"
+      :style="buttonStyle"
+      :class="[
+        'van-stepper__plus',
+        {
+          'van-stepper__plus--disabled':
+            disabled || disablePlus || +currentValue >= +max,
+        },
+        plusClass,
+      ]"
+      @mousedown="onTouchStart('plus')"
+      @mouseup="onTouchEnd"
+      @mouseleave="onTouchEnd"
+      @touchstart="onTouchStart('plus')"
+      @touchend="onTouchEnd"
+      @click="onTap('plus')"
+      :disabled="disabled || disablePlus || +currentValue >= +max"
     >
-      <slot name="plus" />
-    </view>
-  </view>
+      <slot name="plus">+</slot>
+    </button>
+  </div>
 </template>
 <script lang="ts" setup>
-import { VantComponent } from "../common/component";
-import { isDef } from "../common/validator";
+import {
+  ref,
+  computed,
+  defineProps,
+  defineEmits,
+  watch,
+  type CSSProperties,
+} from "vue";
+import { stepperProps } from "./props";
 
-const LONG_PRESS_START_TIME = 600;
-const LONG_PRESS_INTERVAL = 200;
+const props = defineProps(stepperProps);
 
-// add num and avoid float number
+const emit = defineEmits([
+  "update:modelValue",
+  "change",
+  "focus",
+  "blur",
+  "overlimit",
+  "plus",
+  "minus",
+]);
+
+const currentValue = ref(props.modelValue ?? props.min);
+const isLongPress = ref(false);
+let longPressTimer: any = null;
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    currentValue.value = format(val);
+  }
+);
+
 function add(num1: number, num2: number) {
   const cardinal = 10 ** 10;
   return Math.round((num1 + num2) * cardinal) / cardinal;
 }
 
-function equal(value1: number | string, value2: number | string) {
-  return String(value1) === String(value2);
+function filter(value: any) {
+  value = String(value).replace(/[^0-9.-]/g, "");
+  if (props.integer && value.indexOf(".") !== -1) {
+    value = value.split(".")[0];
+  }
+  return value;
 }
 
-VantComponent({
-  field: true,
+function format(value: any) {
+  value = filter(value);
+  value = value === "" ? 0 : +value;
+  value = Math.max(Math.min(+props.max, value), +props.min);
+  if (props.decimalLength !== undefined && props.decimalLength !== null) {
+    value = value.toFixed(props.decimalLength);
+  }
+  return value;
+}
 
-  classes: ["input-class", "plus-class", "minus-class"],
-
-  props: {
-    value: {
-      type: null,
-    },
-    integer: {
-      type: Boolean,
-      observer: "check",
-    },
-    disabled: Boolean,
-    inputWidth: String,
-    buttonSize: String,
-    asyncChange: Boolean,
-    disableInput: Boolean,
-    decimalLength: {
-      type: Number,
-      value: null as unknown as number,
-      observer: "check",
-    },
-    min: {
-      type: null,
-      value: 1,
-      observer: "check",
-    },
-    max: {
-      type: null,
-      value: Number.MAX_SAFE_INTEGER,
-      observer: "check",
-    },
-    step: {
-      type: null,
-      value: 1,
-    },
-    showPlus: {
-      type: Boolean,
-      value: true,
-    },
-    showMinus: {
-      type: Boolean,
-      value: true,
-    },
-    disablePlus: Boolean,
-    disableMinus: Boolean,
-    longPress: {
-      type: Boolean,
-      value: true,
-    },
-    theme: String,
-    alwaysEmbed: Boolean,
-  },
-
-  data: {
-    currentValue: "",
-  },
-
-  watch: {
-    value() {
-      this.observeValue();
-    },
-  },
-
-  created() {
-    this.setData({
-      currentValue: this.format(this.data.value),
-    });
-  },
-
-  methods: {
-    observeValue() {
-      const { value } = this.data;
-      this.setData({ currentValue: this.format(value) });
-    },
-
-    check() {
-      const val = this.format(this.data.currentValue);
-      if (!equal(val, this.data.currentValue)) {
-        this.setData({ currentValue: val });
-      }
-    },
-
-    isDisabled(type: string) {
-      const { disabled, disablePlus, disableMinus, currentValue, max, min } =
-        this.data;
-
-      if (type === "plus") {
-        return disabled || disablePlus || +currentValue >= +max;
-      }
-
-      return disabled || disableMinus || +currentValue <= +min;
-    },
-
-    onFocus(event: WechatMiniprogram.InputFocus) {
-      this.$emit("focus", event.detail);
-    },
-
-    onBlur(event: WechatMiniprogram.InputBlur) {
-      const value = this.format(event.detail.value);
-
-      this.setData({ currentValue: value });
-
-      this.emitChange(value);
-
-      this.$emit("blur", {
-        ...event.detail,
-        value,
-      });
-    },
-
-    // filter illegal characters
-    filter(value) {
-      value = String(value).replace(/[^0-9.-]/g, "");
-
-      if (this.data.integer && value.indexOf(".") !== -1) {
-        value = value.split(".")[0];
-      }
-
-      return value;
-    },
-
-    // limit value range
-    format(value) {
-      value = this.filter(value);
-
-      // format range
-      value = value === "" ? 0 : +value;
-      value = Math.max(Math.min(this.data.max, value), this.data.min);
-
-      // format decimal
-      if (isDef(this.data.decimalLength)) {
-        value = value.toFixed(this.data.decimalLength);
-      }
-
-      return value;
-    },
-
-    onInput(event: WechatMiniprogram.Input) {
-      const { value = "" } = event.detail || {};
-
-      // allow input to be empty
-      if (value === "") {
-        return;
-      }
-
-      let formatted = this.format(value);
-
-      this.emitChange(formatted);
-    },
-
-    emitChange(value: string) {
-      if (!this.data.asyncChange) {
-        this.setData({ currentValue: value });
-      }
-
-      this.$emit("change", value);
-    },
-
-    onChange() {
-      const { type } = this;
-
-      if (this.isDisabled(type)) {
-        this.$emit("overlimit", type);
-        return;
-      }
-
-      const diff = type === "minus" ? -this.data.step : +this.data.step;
-
-      const value = this.format(add(+this.data.currentValue, diff));
-
-      this.emitChange(value);
-      this.$emit(type);
-    },
-
-    longPressStep() {
-      this.longPressTimer = setTimeout(() => {
-        this.onChange();
-        this.longPressStep();
-      }, LONG_PRESS_INTERVAL);
-    },
-
-    onTap(event: WechatMiniprogram.TouchEvent) {
-      const { type } = event.currentTarget.dataset;
-      this.type = type;
-      this.onChange();
-    },
-
-    onTouchStart(event: WechatMiniprogram.TouchEvent) {
-      if (!this.data.longPress) {
-        return;
-      }
-      clearTimeout(this.longPressTimer);
-
-      const { type } = event.currentTarget.dataset;
-      this.type = type;
-      this.isLongPress = false;
-
-      this.longPressTimer = setTimeout(() => {
-        this.isLongPress = true;
-        this.onChange();
-        this.longPressStep();
-      }, LONG_PRESS_START_TIME);
-    },
-
-    onTouchEnd() {
-      if (!this.data.longPress) {
-        return;
-      }
-
-      clearTimeout(this.longPressTimer);
-    },
-  },
+const buttonStyle = computed(() => {
+  const style: CSSProperties = {};
+  if (props.buttonSize) {
+    style.width = props.buttonSize;
+    style.height = props.buttonSize;
+  }
+  return style;
 });
 
-// 转换为 Vue 3 的 computed 属性
-/* eslint-disable */
-var style = require("../wxs/style.wxs");
-var addUnit = require("../wxs/add-unit.wxs");
+const inputStyle = computed(() => {
+  const style: CSSProperties = {};
+  if (props.inputWidth) style.width = props.inputWidth;
+  if (props.buttonSize) style.height = props.buttonSize;
+  return style;
+});
 
-function buttonStyle(data) {
-  return style({
-    width: addUnit(data.buttonSize),
-    height: addUnit(data.buttonSize),
-  });
+function onInput(e: Event) {
+  const target = e.target as HTMLInputElement;
+  let value = target.value;
+  if (value === "") return;
+  value = format(value);
+  emitChange(value);
 }
 
-function inputStyle(data) {
-  return style({
-    width: addUnit(data.inputWidth),
-    height: addUnit(data.buttonSize),
-  });
+function emitChange(value: any) {
+  if (!props.asyncChange) {
+    currentValue.value = value;
+    emit("update:modelValue", value);
+  }
+  emit("change", value);
 }
 
-module.exports = {
-  buttonStyle: buttonStyle,
-  inputStyle: inputStyle,
-};
+function onFocus(e: FocusEvent) {
+  emit("focus", e);
+}
+
+function onBlur(e: FocusEvent) {
+  const target = e.target as HTMLInputElement;
+  const value = format(target.value);
+  currentValue.value = value;
+  emitChange(value);
+  emit("blur", { ...e, value });
+}
+
+function onTap(type: "plus" | "minus") {
+  if (isDisabled(type)) {
+    emit("overlimit", type);
+    return;
+  }
+  const diff = type === "minus" ? -Number(props.step) : +Number(props.step);
+  const value = format(add(+currentValue.value, diff));
+  emitChange(value);
+  emit(type);
+}
+
+function isDisabled(type: "plus" | "minus") {
+  if (type === "plus") {
+    return (
+      props.disabled || props.disablePlus || +currentValue.value >= +props.max
+    );
+  }
+  return (
+    props.disabled || props.disableMinus || +currentValue.value <= +props.min
+  );
+}
+
+function onTouchStart(type: "plus" | "minus") {
+  if (!props.longPress) return;
+  clearTimeout(longPressTimer);
+  isLongPress.value = false;
+  longPressTimer = setTimeout(() => {
+    isLongPress.value = true;
+    onTap(type);
+    longPressStep(type);
+  }, 600);
+}
+
+function longPressStep(type: "plus" | "minus") {
+  longPressTimer = setTimeout(() => {
+    onTap(type);
+    longPressStep(type);
+  }, 200);
+}
+
+function onTouchEnd() {
+  if (!props.longPress) return;
+  clearTimeout(longPressTimer);
+}
 </script>
 <style>
-@import "../common/index.wxss";
 .van-stepper {
   font-size: 0;
 }
@@ -311,47 +214,27 @@ module.exports = {
   border: 0;
   box-sizing: border-box;
   color: var(--stepper-button-icon-color, #323233);
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   height: var(--stepper-input-height, 28px);
   margin: 1px;
   padding: var(--padding-base, 4px);
   position: relative;
   vertical-align: middle;
   width: var(--stepper-input-height, 28px);
+  border: none;
 }
-.van-stepper__minus:before,
-.van-stepper__plus:before {
-  height: 1px;
-  width: 9px;
-}
-.van-stepper__minus:after,
-.van-stepper__plus:after {
-  height: 9px;
-  width: 1px;
-}
-.van-stepper__minus:empty.van-stepper__minus:after,
-.van-stepper__minus:empty.van-stepper__minus:before,
-.van-stepper__minus:empty.van-stepper__plus:after,
-.van-stepper__minus:empty.van-stepper__plus:before,
-.van-stepper__plus:empty.van-stepper__minus:after,
-.van-stepper__plus:empty.van-stepper__minus:before,
-.van-stepper__plus:empty.van-stepper__plus:after,
-.van-stepper__plus:empty.van-stepper__plus:before {
-  background-color: currentColor;
-  bottom: 0;
-  content: "";
-  left: 0;
-  margin: auto;
-  position: absolute;
-  right: 0;
-  top: 0;
+.van-stepper__minus::after,
+.van-stepper__plus::after {
+  display: none;
 }
 .van-stepper__minus--hover,
 .van-stepper__plus--hover {
   background-color: var(--stepper-active-color, #e8e8e8);
 }
-.van-stepper__minus--disabled,
-.van-stepper__plus--disabled {
+.van-stepper__minus.van-stepper__minus--disabled,
+.van-stepper__plus.van-stepper__plus--disabled {
   color: var(--stepper-button-disabled-icon-color, #c8c9cc);
 }
 .van-stepper__minus--disabled,
@@ -361,13 +244,6 @@ module.exports = {
 .van-stepper__plus--disabled.van-stepper__minus--hover,
 .van-stepper__plus--disabled.van-stepper__plus--hover {
   background-color: var(--stepper-button-disabled-color, #f7f8fa);
-}
-.van-stepper__minus {
-  border-radius: var(--stepper-border-radius, var(--stepper-border-radius, 4px))
-    0 0 var(--stepper-border-radius, var(--stepper-border-radius, 4px));
-}
-.van-stepper__minus:after {
-  display: none;
 }
 .van-stepper__plus {
   border-radius: 0

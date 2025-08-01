@@ -1,86 +1,67 @@
 <template>
   <wxs src="../wxs/utils.wxs" module="utils" />
-<wxs src="../wxs/style.wxs" module="style" />
+  <wxs src="../wxs/style.wxs" module="style" />
 
-<view
-  class="custom-class {{ utils.bem('slider', { disabled, vertical }) }}"
-  style="{{ wrapperStyle }}"
-  bind:tap="onClick"
->
   <view
-    class="{{ utils.bem('slider__bar') }}"
-    style="{{ barStyle }}; {{ style({ backgroundColor: activeColor }) }}"
+    class="custom-class {{ utils.bem('slider', { disabled, vertical }) }}"
+    style="{{ wrapperStyle }}"
+    bind:tap="onClick"
   >
     <view
-      wx:if="{{ range }}"
-      class="{{ utils.bem('slider__button-wrapper-left') }}"
-      data-index="{{ 0 }}"
-      bind:touchstart="onTouchStart"
-      catch:touchmove="onTouchMove"
-      bind:touchend="onTouchEnd"
-      bind:touchcancel="onTouchEnd"
+      class="{{ utils.bem('slider__bar') }}"
+      style="{{ barStyle }}; {{ style({ backgroundColor: activeColor }) }}"
     >
-      <slot
-        wx:if="{{ useButtonSlot }}"
-        name="left-button"
-      />
       <view
-        wx:else
-        class="{{ utils.bem('slider__button') }}"
-      />
-    </view>
-    <view
-      wx:if="{{ range }}"
-      class="{{ utils.bem('slider__button-wrapper-right') }}"
-      data-index="{{ 1 }}"
-      bind:touchstart="onTouchStart"
-      catch:touchmove="onTouchMove"
-      bind:touchend="onTouchEnd"
-      bind:touchcancel="onTouchEnd"
-    >
-      <slot
-        wx:if="{{ useButtonSlot }}"
-        name="right-button"
-      />
+        wx:if="{{ range }}"
+        class="{{ utils.bem('slider__button-wrapper-left') }}"
+        data-index="{{ 0 }}"
+        bind:touchstart="onTouchStart"
+        catch:touchmove="onTouchMove"
+        bind:touchend="onTouchEnd"
+        bind:touchcancel="onTouchEnd"
+      >
+        <slot wx:if="{{ useButtonSlot }}" name="left-button" />
+        <view wx:else class="{{ utils.bem('slider__button') }}" />
+      </view>
       <view
-        wx:else
-        class="{{ utils.bem('slider__button') }}"
-      />
-    </view>
+        wx:if="{{ range }}"
+        class="{{ utils.bem('slider__button-wrapper-right') }}"
+        data-index="{{ 1 }}"
+        bind:touchstart="onTouchStart"
+        catch:touchmove="onTouchMove"
+        bind:touchend="onTouchEnd"
+        bind:touchcancel="onTouchEnd"
+      >
+        <slot wx:if="{{ useButtonSlot }}" name="right-button" />
+        <view wx:else class="{{ utils.bem('slider__button') }}" />
+      </view>
 
-    <view
-      wx:if="{{ !range }}"
-      class="{{ utils.bem('slider__button-wrapper') }}"
-      bind:touchstart="onTouchStart"
-      catch:touchmove="onTouchMove"
-      bind:touchend="onTouchEnd"
-      bind:touchcancel="onTouchEnd"
-    >
-      <slot
-        wx:if="{{ useButtonSlot }}"
-        name="button"
-      />
       <view
-        wx:else
-        class="{{ utils.bem('slider__button') }}"
-      />
+        wx:if="{{ !range }}"
+        class="{{ utils.bem('slider__button-wrapper') }}"
+        bind:touchstart="onTouchStart"
+        catch:touchmove="onTouchMove"
+        bind:touchend="onTouchEnd"
+        bind:touchcancel="onTouchEnd"
+      >
+        <slot wx:if="{{ useButtonSlot }}" name="button" />
+        <view wx:else class="{{ utils.bem('slider__button') }}" />
+      </view>
     </view>
   </view>
-</view>
-
 </template>
 <script lang="ts" setup>
-  import { VantComponent } from '../common/component';
-import { touch } from '../mixins/touch';
-import { canIUseModel } from '../common/version';
-import { getRect, addUnit, nextTick, addNumber, clamp } from '../common/utils';
+import { VantComponent } from "../common/component";
+import { touch } from "../mixins/touch";
+import { canIUseModel } from "../common/version";
+import { getRect, addUnit, nextTick, addNumber, clamp } from "../common/utils";
 
 type SliderValue = number | [number, number];
 
 const DRAG_STATUS = {
-  START: 'start',
-  MOVING: 'moving',
-  END: 'end',
+  START: "start",
+  MOVING: "moving",
+  END: "end",
 };
 
 VantComponent({
@@ -126,7 +107,7 @@ VantComponent({
       if (this.data.disabled) return;
 
       const { index } = event.currentTarget.dataset;
-      if (typeof index === 'number') {
+      if (typeof index === "number") {
         this.buttonIndex = index;
       }
 
@@ -150,13 +131,13 @@ VantComponent({
       if (this.data.disabled) return;
 
       if (this.dragStatus === DRAG_STATUS.START) {
-        this.$emit('drag-start');
+        this.$emit("drag-start");
       }
 
       this.touchMove(event);
       this.dragStatus = DRAG_STATUS.MOVING;
 
-      getRect(this, '.van-slider').then((rect) => {
+      getRect(this, ".van-slider").then((rect) => {
         const { vertical } = this.data;
         const delta = vertical ? this.deltaY : this.deltaX;
         const total = vertical ? rect.height : rect.width;
@@ -181,7 +162,7 @@ VantComponent({
 
         nextTick(() => {
           this.updateValue(this.newValue, true);
-          this.$emit('drag-end');
+          this.$emit("drag-end");
         });
       }
     },
@@ -191,7 +172,7 @@ VantComponent({
 
       const { min } = this.data;
 
-      getRect(this, '.van-slider').then((rect) => {
+      getRect(this, ".van-slider").then((rect) => {
         const { vertical } = this.data;
         const touch = event.touches[0];
         const delta = vertical
@@ -240,29 +221,29 @@ VantComponent({
       this.value = value;
 
       const { vertical } = this.data;
-      const mainAxis = vertical ? 'height' : 'width';
+      const mainAxis = vertical ? "height" : "width";
 
       this.setData({
         wrapperStyle: `
-          background: ${this.data.inactiveColor || ''};
-          ${vertical ? 'width' : 'height'}: ${
-          addUnit(this.data.barHeight) || ''
+          background: ${this.data.inactiveColor || ""};
+          ${vertical ? "width" : "height"}: ${
+          addUnit(this.data.barHeight) || ""
         };
         `,
         barStyle: `
           ${mainAxis}: ${this.calcMainAxis()};
           left: ${vertical ? 0 : this.calcOffset()};
           top: ${vertical ? this.calcOffset() : 0};
-          ${drag ? 'transition: none;' : ''}
+          ${drag ? "transition: none;" : ""}
         `,
       });
 
       if (drag) {
-        this.$emit('drag', { value });
+        this.$emit("drag", { value });
       }
 
       if (end) {
-        this.$emit('change', value);
+        this.$emit("change", value);
       }
 
       if ((drag || end) && canIUseModel()) {
@@ -306,7 +287,7 @@ VantComponent({
       if (this.isRange(value)) {
         return `${((value[0] - Number(min)) * 100) / scope}%`;
       }
-      return '0%';
+      return "0%";
     },
 
     format(value: number) {
@@ -321,10 +302,10 @@ VantComponent({
   },
 });
 
-  // 转换为 Vue 3 的 computed 属性
-  /* eslint-disable */
-var style = require('../wxs/style.wxs');
-var addUnit = require('../wxs/add-unit.wxs');
+// 转换为 Vue 3 的 computed 属性
+/* eslint-disable */
+var style = require("../wxs/style.wxs");
+var addUnit = require("../wxs/add-unit.wxs");
 
 function barStyle(barHeight, activeColor) {
   return style({
@@ -336,8 +317,76 @@ function barStyle(barHeight, activeColor) {
 module.exports = {
   barStyle: barStyle,
 };
-
 </script>
 <style>
-  @import '../common/index.wxss';.van-slider{background-color:var(--slider-inactive-background-color,#ebedf0);border-radius:999px;height:var(--slider-bar-height,2px);position:relative}.van-slider:before{bottom:calc(var(--padding-xs, 8px)*-1);content:"";left:0;position:absolute;right:0;top:calc(var(--padding-xs, 8px)*-1)}.van-slider__bar{background-color:var(--slider-active-background-color,#1989fa);border-radius:inherit;height:100%;position:relative;transition:all .2s;width:100%}.van-slider__button{background-color:var(--slider-button-background-color,#fff);border-radius:var(--slider-button-border-radius,50%);box-shadow:var(--slider-button-box-shadow,0 1px 2px rgba(0,0,0,.5));height:var(--slider-button-height,24px);width:var(--slider-button-width,24px)}.van-slider__button-wrapper,.van-slider__button-wrapper-right{position:absolute;right:0;top:50%;transform:translate3d(50%,-50%,0)}.van-slider__button-wrapper-left{left:0;position:absolute;top:50%;transform:translate3d(-50%,-50%,0)}.van-slider--disabled{opacity:var(--slider-disabled-opacity,.5)}.van-slider--vertical{display:inline-block;height:100%;width:var(--slider-bar-height,2px)}.van-slider--vertical .van-slider__button-wrapper,.van-slider--vertical .van-slider__button-wrapper-right{bottom:0;right:50%;top:auto;transform:translate3d(50%,50%,0)}.van-slider--vertical .van-slider__button-wrapper-left{left:auto;right:50%;top:0;transform:translate3d(50%,-50%,0)}.van-slider--vertical:before{bottom:0;left:-8px;right:-8px;top:0}
+@import "../common/index.wxss";
+.van-slider {
+  background-color: var(--slider-inactive-background-color, #ebedf0);
+  border-radius: 999px;
+  height: var(--slider-bar-height, 2px);
+  position: relative;
+}
+.van-slider:before {
+  bottom: calc(var(--padding-xs, 8px) * -1);
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: calc(var(--padding-xs, 8px) * -1);
+}
+.van-slider__bar {
+  background-color: var(--slider-active-background-color, #1989fa);
+  border-radius: inherit;
+  height: 100%;
+  position: relative;
+  transition: all 0.2s;
+  width: 100%;
+}
+.van-slider__button {
+  background-color: var(--slider-button-background-color, #fff);
+  border-radius: var(--slider-button-border-radius, 50%);
+  box-shadow: var(--slider-button-box-shadow, 0 1px 2px rgba(0, 0, 0, 0.5));
+  height: var(--slider-button-height, 24px);
+  width: var(--slider-button-width, 24px);
+}
+.van-slider__button-wrapper,
+.van-slider__button-wrapper-right {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate3d(50%, -50%, 0);
+}
+.van-slider__button-wrapper-left {
+  left: 0;
+  position: absolute;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+}
+.van-slider--disabled {
+  opacity: var(--slider-disabled-opacity, 0.5);
+}
+.van-slider--vertical {
+  display: inline-block;
+  height: 100%;
+  width: var(--slider-bar-height, 2px);
+}
+.van-slider--vertical .van-slider__button-wrapper,
+.van-slider--vertical .van-slider__button-wrapper-right {
+  bottom: 0;
+  right: 50%;
+  top: auto;
+  transform: translate3d(50%, 50%, 0);
+}
+.van-slider--vertical .van-slider__button-wrapper-left {
+  left: auto;
+  right: 50%;
+  top: 0;
+  transform: translate3d(50%, -50%, 0);
+}
+.van-slider--vertical:before {
+  bottom: 0;
+  left: -8px;
+  right: -8px;
+  top: 0;
+}
 </style>

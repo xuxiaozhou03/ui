@@ -20,7 +20,7 @@
           :style="index === active ? { color: activeColor } : {}"
         >
           <div>{{ item.text }}</div>
-          <div class="desc-class">{{ item.desc }}</div>
+          <div :class="descClass">{{ item.desc }}</div>
         </div>
         <div class="van-step__circle-container">
           <template v-if="index !== active">

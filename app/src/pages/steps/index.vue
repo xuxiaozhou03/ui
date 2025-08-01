@@ -1,9 +1,6 @@
-
-  <template>
+<template>
   <Comp />
-  </template>
-  <script lang="ts" setup>
-// import Comp from "../../uni_modules/vant/components/van-steps/demo.vue";
-import Comp from "../../uni_modules/demo/components/demo-page/demo-page.vue";
-  </script>
-  
+</template>
+<script lang="ts" setup>
+import Comp from "../../uni_modules/vant/components/van-steps/demo.vue";
+</script>

@@ -8,3 +8,4 @@ export function addUnit(value?: string | number | null): string | undefined {
 
 export * from "./bem";
 export * from "./props";
+export * from "./cn";

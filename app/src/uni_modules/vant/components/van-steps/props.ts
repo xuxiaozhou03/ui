@@ -39,6 +39,7 @@ export const stepsProps = {
     default: "checked",
   },
   inactiveIcon: String,
+  descClass: commonProps.customClass,
 };
 
 export type StepsProps = ExtractPropTypes<typeof stepsProps>;
