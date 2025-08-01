@@ -1,289 +1,196 @@
 <template>
-  <wxs src="../wxs/utils.wxs" module="utils" />
-
   <van-popup
-    show="{{ show }}"
-    z-index="{{ zIndex }}"
-    overlay="{{ overlay }}"
-    transition="{{ transition }}"
-    custom-class="van-dialog van-dialog--{{ theme }}{{ className }} custom-class"
-    custom-style="width: {{ utils.addUnit(width) }};{{ customStyle }}"
-    overlay-style="{{ overlayStyle }}"
-    close-on-click-overlay="{{ closeOnClickOverlay }}"
-    root-portal="{{ rootPortal }}"
-    bind:close="onClickOverlay"
+    :show="show"
+    :z-index="zIndex"
+    :overlay="overlay"
+    :transition="transition"
+    :class="['van-dialog', `van-dialog--${theme}`, className, 'custom-class']"
+    :customStyle="{ width: width ? addUnit(width) : undefined, ...customStyle }"
+    :overlay-style="overlayStyle"
+    :close-on-click-overlay="closeOnClickOverlay"
+    :root-portal="rootPortal"
+    @close="onClickOverlay"
   >
-    <view
-      wx:if="{{ title || useTitleSlot  }}"
-      class="{{ utils.bem('dialog__header', { isolated: !(message || useSlot) }) }}"
+    <div
+      v-if="title || useTitleSlot"
+      :class="[
+        'van-dialog__header',
+        { 'van-dialog__header--isolated': !(message || useSlot) },
+      ]"
     >
-      <slot wx:if="{{ useTitleSlot }}" name="title" />
-      <block wx:elif="{{ title }}">{{ title }}</block>
-    </view>
+      <slot v-if="useTitleSlot" name="title" />
+      <template v-else>{{ title }}</template>
+    </div>
 
-    <slot wx:if="{{ useSlot }}" />
-    <view
-      wx:elif="{{ message }}"
-      class="{{ utils.bem('dialog__message', [theme, messageAlign, { hasTitle: title }]) }}"
+    <slot v-if="useSlot" />
+    <div
+      v-else-if="message"
+      :class="[
+        'van-dialog__message',
+        theme,
+        messageAlign,
+        { 'van-dialog__message--hasTitle': title },
+      ]"
     >
-      <text class="van-dialog__message-text">{{ message }}</text>
-    </view>
+      <span class="van-dialog__message-text">{{ message }}</span>
+    </div>
 
     <van-goods-action
-      wx:if="{{ theme === 'round-button' }}"
-      custom-class="van-dialog__footer--round-button"
+      v-if="theme === 'round-button'"
+      class="van-dialog__footer--round-button"
     >
       <van-goods-action-button
-        wx:if="{{ showCancelButton }}"
+        v-if="showCancelButton"
         size="large"
-        loading="{{ loading.cancel }}"
-        class="van-dialog__button van-hairline--right"
-        custom-class="van-dialog__cancel cancle-button-class"
-        custom-style="color: {{ cancelButtonColor }}"
-        bind:click="onCancel"
+        :loading="loading.cancel"
+        class="van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class"
+        :style="{ color: cancelButtonColor }"
+        @click="onCancel"
       >
         {{ cancelButtonText }}
       </van-goods-action-button>
       <van-goods-action-button
-        wx:if="{{ showConfirmButton }}"
+        v-if="showConfirmButton"
         size="large"
-        class="van-dialog__button"
-        loading="{{ loading.confirm }}"
-        custom-class="van-dialog__confirm confirm-button-class"
-        custom-style="color: {{ confirmButtonColor }}"
-        button-id="{{ confirmButtonId }}"
-        open-type="{{ confirmButtonOpenType }}"
-        lang="{{ lang }}"
-        business-id="{{ businessId }}"
-        session-from="{{ sessionFrom }}"
-        send-message-title="{{ sendMessageTitle }}"
-        send-message-path="{{ sendMessagePath }}"
-        send-message-img="{{ sendMessageImg }}"
-        show-message-card="{{ showMessageCard }}"
-        app-parameter="{{ appParameter }}"
-        bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
-        bindgetRealTimePhoneNumber="onGetRealTimePhoneNumber"
-        bind:click="onConfirm"
-        bindgetuserinfo="onGetUserInfo"
-        bindcontact="onContact"
-        bindgetphonenumber="onGetPhoneNumber"
-        binderror="onError"
-        bindlaunchapp="onLaunchApp"
-        bindopensetting="onOpenSetting"
+        :loading="loading.confirm"
+        class="van-dialog__button van-dialog__confirm confirm-button-class"
+        :style="{ color: confirmButtonColor }"
+        :button-id="confirmButtonId"
+        :open-type="confirmButtonOpenType"
+        :lang="lang"
+        :business-id="businessId"
+        :session-from="sessionFrom"
+        :send-message-title="sendMessageTitle"
+        :send-message-path="sendMessagePath"
+        :send-message-img="sendMessageImg"
+        :show-message-card="showMessageCard"
+        :app-parameter="appParameter"
+        @agreeprivacyauthorization="onAgreePrivacyAuthorization"
+        @getRealTimePhoneNumber="onGetRealTimePhoneNumber"
+        @click="onConfirm"
+        @getuserinfo="onGetUserInfo"
+        @contact="onContact"
+        @getphonenumber="onGetPhoneNumber"
+        @error="onError"
+        @launchapp="onLaunchApp"
+        @opensetting="onOpenSetting"
       >
         {{ confirmButtonText }}
       </van-goods-action-button>
     </van-goods-action>
 
-    <view
-      wx:elif="{{ showCancelButton || showConfirmButton }}"
+    <div
+      v-else-if="showCancelButton || showConfirmButton"
       class="van-hairline--top van-dialog__footer"
     >
-      <block wx:if="{{ showCancelButton }}">
-        <slot wx:if="{{ useCancelButtonSlot }}" name="cancel-button" />
-
+      <template v-if="showCancelButton">
+        <slot v-if="useCancelButtonSlot" name="cancel-button" />
         <van-button
-          wx:else
+          v-else
           size="large"
-          loading="{{ loading.cancel }}"
-          class="van-dialog__button van-hairline--right"
-          custom-class="van-dialog__cancel cancle-button-class"
-          custom-style="color: {{ cancelButtonColor }}"
-          bind:click="onCancel"
+          :loading="loading.cancel"
+          class="van-dialog__button van-hairline--right van-dialog__cancel cancle-button-class"
+          :style="{ color: cancelButtonColor }"
+          @click="onCancel"
         >
           {{ cancelButtonText }}
         </van-button>
-      </block>
+      </template>
 
-      <block wx:if="{{ showConfirmButton }}">
-        <slot wx:if="{{ useConfirmButtonSlot }}" name="confirm-button" />
-
+      <template v-if="showConfirmButton">
+        <slot v-if="useConfirmButtonSlot" name="confirm-button" />
         <van-button
-          wx:else
+          v-else
           size="large"
-          class="van-dialog__button"
-          loading="{{ loading.confirm }}"
-          custom-class="van-dialog__confirm confirm-button-class"
-          custom-style="color: {{ confirmButtonColor }}"
-          button-id="{{ confirmButtonId }}"
-          open-type="{{ confirmButtonOpenType }}"
-          lang="{{ lang }}"
-          business-id="{{ businessId }}"
-          session-from="{{ sessionFrom }}"
-          send-message-title="{{ sendMessageTitle }}"
-          send-message-path="{{ sendMessagePath }}"
-          send-message-img="{{ sendMessageImg }}"
-          show-message-card="{{ showMessageCard }}"
-          app-parameter="{{ appParameter }}"
-          bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
-          bindgetRealTimePhoneNumber="onGetRealTimePhoneNumber"
-          bind:click="onConfirm"
-          bindgetuserinfo="onGetUserInfo"
-          bindcontact="onContact"
-          bindgetphonenumber="onGetPhoneNumber"
-          binderror="onError"
-          bindlaunchapp="onLaunchApp"
-          bindopensetting="onOpenSetting"
+          class="van-dialog__button van-dialog__confirm confirm-button-class"
+          :loading="loading.confirm"
+          :style="{ color: confirmButtonColor }"
+          :button-id="confirmButtonId"
+          :open-type="confirmButtonOpenType"
+          :lang="lang"
+          :business-id="businessId"
+          :session-from="sessionFrom"
+          :send-message-title="sendMessageTitle"
+          :send-message-path="sendMessagePath"
+          :send-message-img="sendMessageImg"
+          :show-message-card="showMessageCard"
+          :app-parameter="appParameter"
+          @agreeprivacyauthorization="onAgreePrivacyAuthorization"
+          @getRealTimePhoneNumber="onGetRealTimePhoneNumber"
+          @click="onConfirm"
+          @getuserinfo="onGetUserInfo"
+          @contact="onContact"
+          @getphonenumber="onGetPhoneNumber"
+          @error="onError"
+          @launchapp="onLaunchApp"
+          @opensetting="onOpenSetting"
         >
           {{ confirmButtonText }}
         </van-button>
-      </block>
-    </view>
+      </template>
+    </div>
   </van-popup>
 </template>
-<script lang="ts" setup>
-import { VantComponent } from "../common/component";
-import { button } from "../mixins/button";
-import { GRAY, RED } from "../common/color";
-import { toPromise } from "../common/utils";
-import type { Action } from "./dialog";
+<script setup lang="ts">
+import { ref, watch, computed, type CSSProperties } from "vue";
+import { addUnit } from "../../utils";
+import { dialogProps } from "./props";
 
-VantComponent({
-  mixins: [button],
-  classes: ["cancle-button-class", "confirm-button-class"],
+const props = defineProps(dialogProps);
 
-  props: {
-    show: {
-      type: Boolean,
-      observer(show: boolean) {
-        !show && this.stopLoading();
-      },
-    },
-    title: String,
-    message: String,
-    theme: {
-      type: String,
-      value: "default",
-    },
-    confirmButtonId: String,
-    className: String,
-    customStyle: String,
-    asyncClose: Boolean,
-    messageAlign: String,
-    beforeClose: null,
-    overlayStyle: String,
-    useSlot: Boolean,
-    useTitleSlot: Boolean,
-    useConfirmButtonSlot: Boolean,
-    useCancelButtonSlot: Boolean,
-    showCancelButton: Boolean,
-    closeOnClickOverlay: Boolean,
-    confirmButtonOpenType: String,
-    width: null,
-    zIndex: {
-      type: Number,
-      value: 2000,
-    },
-    confirmButtonText: {
-      type: String,
-      value: "确认",
-    },
-    cancelButtonText: {
-      type: String,
-      value: "取消",
-    },
-    confirmButtonColor: {
-      type: String,
-      value: RED,
-    },
-    cancelButtonColor: {
-      type: String,
-      value: GRAY,
-    },
-    showConfirmButton: {
-      type: Boolean,
-      value: true,
-    },
-    overlay: {
-      type: Boolean,
-      value: true,
-    },
-    transition: {
-      type: String,
-      value: "scale",
-    },
-    rootPortal: {
-      type: Boolean,
-      value: false,
-    },
-  },
+const emit = defineEmits<{
+  (e: "close", action: string): void;
+  (e: "confirm", payload: any): void;
+  (e: "cancel", payload: any): void;
+}>();
 
-  data: {
-    loading: {
-      confirm: false,
-      cancel: false,
-    },
-    callback: (() => {}) as unknown as (
-      action: string,
-      context: WechatMiniprogram.Component.TrivialInstance
-    ) => void,
-  },
+const loading = ref({ confirm: false, cancel: false });
 
-  methods: {
-    onConfirm() {
-      this.handleAction("confirm");
-    },
+watch(
+  () => props.show,
+  (val) => {
+    if (!val) stopLoading();
+  }
+);
 
-    onCancel() {
-      this.handleAction("cancel");
-    },
+function stopLoading() {
+  loading.value = { confirm: false, cancel: false };
+}
 
-    onClickOverlay() {
-      this.close("overlay");
-    },
+function close(action: string) {
+  emit("close", action);
+  stopLoading();
+}
 
-    close(action) {
-      this.setData({ show: false });
-
-      wx.nextTick(() => {
-        this.$emit("close", action);
-
-        const { callback } = this.data;
-        if (callback) {
-          callback(action, this);
-        }
-      });
-    },
-
-    stopLoading() {
-      this.setData({
-        loading: {
-          confirm: false,
-          cancel: false,
-        },
-      });
-    },
-
-    handleAction(action: Action) {
-      this.$emit(action, { dialog: this });
-
-      const { asyncClose, beforeClose } = this.data;
-      if (!asyncClose && !beforeClose) {
-        this.close(action);
-        return;
+function handleAction(action: "confirm" | "cancel") {
+  emit(action, { dialog: null });
+  if (!props.asyncClose && !props.beforeClose) {
+    close(action);
+    return;
+  }
+  loading.value = { ...loading.value, [action]: true };
+  if (props.beforeClose) {
+    Promise.resolve(props.beforeClose(action)).then((value) => {
+      if (value) {
+        close(action);
+      } else {
+        stopLoading();
       }
+    });
+  }
+}
 
-      this.setData({
-        [`loading.${action}`]: true,
-      });
-
-      if (beforeClose) {
-        toPromise(beforeClose(action)).then((value) => {
-          if (value) {
-            this.close(action);
-          } else {
-            this.stopLoading();
-          }
-        });
-      }
-    },
-  },
-});
-
-// 转换为 Vue 3 的 computed 属性
+function onConfirm() {
+  handleAction("confirm");
+}
+function onCancel() {
+  handleAction("cancel");
+}
+function onClickOverlay() {
+  close("overlay");
+}
 </script>
 <style>
-@import "../common/index.wxss";
 .van-dialog {
   background-color: var(--dialog-background-color, #fff);
   border-radius: var(--dialog-border-radius, 16px);
