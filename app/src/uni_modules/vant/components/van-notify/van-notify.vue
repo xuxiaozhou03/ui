@@ -4,54 +4,83 @@
     :show="show"
     custom-class="van-notify__container"
     :custom-style="{
-      zIndex,
-      top: addUnit(top),
+      zIndex: data.zIndex,
+      top: addUnit(data.top),
     }"
     @click="onTap"
   >
     <div
-      :class="['van-notify', `van-notify--${type}`]"
+      :class="['van-notify', `van-notify--${data.type}`]"
       :style="{
-        background,
-        color,
+        background: data.background,
+        color: data.color,
       }"
     >
       <div
-        v-if="safeAreaInsetTop"
+        v-if="data.safeAreaInsetTop"
         :style="{ height: statusBarHeight + 'px' }"
       />
-      <span>{{ message }}</span>
+      <span>{{ data.message }}</span>
     </div>
   </van-transition>
 </template>
 <script lang="ts" setup>
-import { ref, defineProps } from "vue";
-import { notifyProps } from "./props";
+import { ref, defineProps, reactive, onMounted, onUnmounted } from "vue";
 import { addUnit } from "../../utils";
+import {
+  defaultOptions,
+  type NotifyOptions,
+  registerNotify,
+  unregisterNotify,
+} from "./notify";
 
-const props = defineProps(notifyProps);
+const props = defineProps({
+  selector: {
+    type: String,
+    default: defaultOptions.selector!,
+  },
+});
+
+// 把props 变成 state
+const data = reactive<NotifyOptions>({ ...defaultOptions });
 
 const show = ref(false);
-const statusBarHeight = ref(0);
+// todo
+const statusBarHeight = ref(50);
 let timer: any = null;
 
-function openNotify() {
+const openNotify = (option: NotifyOptions) => {
   clearTimeout(timer);
   show.value = true;
-  if (props.duration > 0 && props.duration !== Infinity) {
+  Object.assign(data, option);
+  console.log(data);
+  if (data.duration && data.duration > 0 && data.duration !== Infinity) {
     timer = setTimeout(() => {
       closeNotify();
-    }, props.duration);
+    }, data.duration);
   }
-}
-
-function closeNotify() {
+};
+const closeNotify = () => {
   clearTimeout(timer);
   show.value = false;
-}
+};
 
+onMounted(() => {
+  statusBarHeight.value = uni.getSystemInfoSync().windowTop;
+  registerNotify(props.selector, {
+    openNotify,
+    closeNotify,
+  });
+});
+onUnmounted(() => {
+  // 清理注册
+  unregisterNotify(props.selector);
+});
+
+const emit = defineEmits(["click"]);
 function onTap(e: Event) {
   // 可扩展点击事件
+  emit("click", e);
 }
 </script>
 <style>

@@ -1,142 +1,165 @@
 <template>
-  <wxs src="../wxs/utils.wxs" module="utils" />
-<wxs src="./index.wxs" module="computed" />
-
-<view
-  class="custom-class {{ utils.bem('grid-item', { square }) }}"
-  style="{{ computed.wrapperStyle({ square, gutter, columnNum, index }) }}"
-  bindtap="onClick"
->
-  <view
-    class="content-class {{ utils.bem('grid-item__content', [direction, { center, square, reverse, clickable, surround: border && gutter }]) }} {{ border ? 'van-hairline--surround' : '' }}"
-    style="{{ computed.contentStyle({ square, gutter }) }}"
+  <div
+    :class="['van-grid-item', { 'van-grid-item--square': square }, customClass]"
+    :style="wrapperStyle"
+    @click="onClick"
   >
-    <block wx:if="{{ useSlot }}">
-      <slot />
-    </block>
-    <block wx:else>
-      <view class="van-grid-item__icon icon-class">
-        <van-icon wx:if="{{ icon }}" name="{{ icon }}" color="{{ iconColor }}" class-prefix="{{ iconPrefix }}" dot="{{ dot }}" info="{{ badge || info }}" size="{{ iconSize }}" />
-        <slot wx:else name="icon"></slot>
-      </view>
-      <view class="van-grid-item__text text-class">
-        <text wx:if="{{ text }}">{{ text }}</text>
-        <slot wx:else name="text"></slot>
-      </view>
-    </block>
-  </view>
-</view>
-
+    <div
+      :class="
+        cn([
+          bem('grid-item__content', [
+            direction,
+            { center, square, reverse, clickable, surround: border && gutter },
+          ]),
+          border ? 'van-hairline--surround' : '',
+          contentClass,
+        ])
+      "
+      :style="contentStyle"
+    >
+      <slot v-if="useSlot" />
+      <template v-else>
+        <div :class="cn('van-grid-item__icon', iconClass)">
+          <van-icon
+            v-if="icon"
+            :name="icon"
+            :color="iconColor"
+            :class-prefix="iconPrefix"
+            :dot="dot"
+            :info="badge || info"
+            :size="iconSize"
+          />
+          <slot v-else name="icon" />
+        </div>
+        <div :class="cn('van-grid-item__text', textClass)">
+          <span v-if="text">{{ text }}</span>
+          <slot v-else name="text" />
+        </div>
+      </template>
+    </div>
+  </div>
 </template>
-<script lang="ts" setup>
-  import { VantComponent } from '../common/component';
-import { useParent } from '../common/relation';
-import { link } from '../mixins/link';
 
-VantComponent({
-  relation: useParent('grid'),
+<script setup lang="ts">
+import { computed } from "vue";
+import type { CSSProperties } from "vue";
+import { addUnit, cn, bem } from "../../utils";
+import { gridItemProps } from "./props";
+import { useInjectParent } from "../../composables/useRelation";
+import { gridKey } from "../van-grid/props";
 
-  classes: ['content-class', 'icon-class', 'text-class'],
+const props = defineProps(gridItemProps);
+const emit = defineEmits<{ (e: "click"): void }>();
 
-  mixins: [link],
+const parent = useInjectParent(gridKey);
 
-  props: {
-    icon: String,
-    iconColor: String,
-    iconPrefix: {
-      type: String,
-      value: 'van-icon',
-    },
-    dot: Boolean,
-    info: null,
-    badge: null,
-    text: String,
-    useSlot: Boolean,
-  },
+// const index = computed(() => parent?.children?.indexOf?.(props) ?? 0);
+const columnNum = computed(() => parent?.columnNum ?? 4);
+const border = computed(() => parent?.border ?? true);
+const square = computed(() => parent?.square ?? props.square);
+const gutter = computed(() => parent?.gutter ?? 0);
+const clickable = computed(() => parent?.clickable ?? false);
+const center = computed(() => parent?.center ?? true);
+const direction = computed(() => parent?.direction ?? "");
+const reverse = computed(() => parent?.reverse ?? false);
+const iconSize = computed(() => parent?.iconSize ?? undefined);
 
-  data: {
-    viewStyle: '',
-  },
-
-  mounted() {
-    this.updateStyle();
-  },
-
-  methods: {
-    updateStyle() {
-      if (!this.parent) {
-        return;
-      }
-
-      const { data, children } = this.parent;
-      const {
-        columnNum,
-        border,
-        square,
-        gutter,
-        clickable,
-        center,
-        direction,
-        reverse,
-        iconSize,
-      } = data;
-
-      this.setData({
-        center,
-        border,
-        square,
-        gutter,
-        clickable,
-        direction,
-        reverse,
-        iconSize,
-        index: children.indexOf(this),
-        columnNum,
-      });
-    },
-
-    onClick() {
-      this.$emit('click');
-      this.jumpLink();
-    },
-  },
+const wrapperStyle = computed<CSSProperties>(() => {
+  const width = `${100 / columnNum.value}%`;
+  return {
+    width,
+    paddingTop: square.value ? width : undefined,
+    paddingRight: addUnit(gutter.value),
+    // marginTop:
+    //   index.value >= columnNum.value && !square.value
+    //     ? addUnit(gutter.value)
+    //     : undefined,
+  };
 });
 
-  // 转换为 Vue 3 的 computed 属性
-  /* eslint-disable */
-var style = require('../wxs/style.wxs');
-var addUnit = require('../wxs/add-unit.wxs');
+const contentStyle = computed<CSSProperties>(() => {
+  return square.value
+    ? {
+        right: addUnit(gutter.value),
+        bottom: addUnit(gutter.value),
+        height: "auto",
+      }
+    : {};
+});
 
-function wrapperStyle(data) {
-  var width = 100 / data.columnNum + '%';
-
-  return style({
-    width: width,
-    'padding-top': data.square ? width : null,
-    'padding-right': addUnit(data.gutter),
-    'margin-top':
-      data.index >= data.columnNum && !data.square
-        ? addUnit(data.gutter)
-        : null,
-  });
+function onClick() {
+  emit("click");
 }
-
-function contentStyle(data) {
-  return data.square
-    ? style({
-        right: addUnit(data.gutter),
-        bottom: addUnit(data.gutter),
-        height: 'auto',
-      })
-    : '';
-}
-
-module.exports = {
-  wrapperStyle: wrapperStyle,
-  contentStyle: contentStyle,
-};
-
 </script>
-<style>
-  @import '../common/index.wxss';.van-grid-item{box-sizing:border-box;float:left;position:relative}.van-grid-item--square{height:0}.van-grid-item__content{background-color:var(--grid-item-content-background-color,#fff);box-sizing:border-box;display:flex;flex-direction:column;height:100%;padding:var(--grid-item-content-padding,16px 8px)}.van-grid-item__content:after{border-width:0 1px 1px 0;z-index:1}.van-grid-item__content--surround:after{border-width:1px}.van-grid-item__content--center{align-items:center;justify-content:center}.van-grid-item__content--square{left:0;position:absolute;right:0;top:0}.van-grid-item__content--horizontal{flex-direction:row}.van-grid-item__content--horizontal .van-grid-item__text{margin:0 0 0 8px}.van-grid-item__content--reverse{flex-direction:column-reverse}.van-grid-item__content--reverse .van-grid-item__text{margin:0 0 8px}.van-grid-item__content--horizontal.van-grid-item__content--reverse{flex-direction:row-reverse}.van-grid-item__content--horizontal.van-grid-item__content--reverse .van-grid-item__text{margin:0 8px 0 0}.van-grid-item__content--clickable:active{background-color:var(--grid-item-content-active-color,#f2f3f5)}.van-grid-item__icon{align-items:center;display:flex;font-size:var(--grid-item-icon-size,26px);height:var(--grid-item-icon-size,26px)}.van-grid-item__text{word-wrap:break-word;color:var(--grid-item-text-color,#646566);font-size:var(--grid-item-text-font-size,12px)}.van-grid-item__icon+.van-grid-item__text{margin-top:8px}
+
+<style scoped>
+.van-grid-item {
+  box-sizing: border-box;
+  float: left;
+  position: relative;
+}
+.van-grid-item--square {
+  height: 0;
+}
+.van-grid-item__content {
+  background-color: var(--grid-item-content-background-color, #fff);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--grid-item-content-padding, 16px 8px);
+}
+.van-grid-item__content:after {
+  border-width: 0 1px 1px 0;
+  z-index: 1;
+}
+.van-grid-item__content--surround:after {
+  border-width: 1px;
+}
+.van-grid-item__content--center {
+  align-items: center;
+  justify-content: center;
+}
+.van-grid-item__content--square {
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.van-grid-item__content--horizontal {
+  flex-direction: row;
+}
+.van-grid-item__content--horizontal .van-grid-item__text {
+  margin: 0 0 0 8px;
+}
+.van-grid-item__content--reverse {
+  flex-direction: column-reverse;
+}
+.van-grid-item__content--reverse .van-grid-item__text {
+  margin: 0 0 8px;
+}
+.van-grid-item__content--horizontal.van-grid-item__content--reverse {
+  flex-direction: row-reverse;
+}
+.van-grid-item__content--horizontal.van-grid-item__content--reverse
+  .van-grid-item__text {
+  margin: 0 8px 0 0;
+}
+.van-grid-item__content--clickable:active {
+  background-color: var(--grid-item-content-active-color, #f2f3f5);
+}
+.van-grid-item__icon {
+  align-items: center;
+  display: flex;
+  font-size: var(--grid-item-icon-size, 26px);
+  height: var(--grid-item-icon-size, 26px);
+}
+.van-grid-item__text {
+  word-wrap: break-word;
+  color: var(--grid-item-text-color, #646566);
+  font-size: var(--grid-item-text-font-size, 12px);
+}
+.van-grid-item__icon + .van-grid-item__text {
+  margin-top: 8px;
+}
 </style>

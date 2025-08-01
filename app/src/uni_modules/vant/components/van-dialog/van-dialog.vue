@@ -1,83 +1,40 @@
 <template>
   <wxs src="../wxs/utils.wxs" module="utils" />
 
-<van-popup
-  show="{{ show }}"
-  z-index="{{ zIndex }}"
-  overlay="{{ overlay }}"
-  transition="{{ transition }}"
-  custom-class="van-dialog van-dialog--{{ theme }}{{ className }} custom-class"
-  custom-style="width: {{ utils.addUnit(width) }};{{ customStyle }}"
-  overlay-style="{{ overlayStyle }}"
-  close-on-click-overlay="{{ closeOnClickOverlay }}"
-  root-portal="{{ rootPortal }}"
-  bind:close="onClickOverlay"
->
-  <view
-    wx:if="{{ title || useTitleSlot  }}"
-    class="{{ utils.bem('dialog__header', { isolated: !(message || useSlot) }) }}"
+  <van-popup
+    show="{{ show }}"
+    z-index="{{ zIndex }}"
+    overlay="{{ overlay }}"
+    transition="{{ transition }}"
+    custom-class="van-dialog van-dialog--{{ theme }}{{ className }} custom-class"
+    custom-style="width: {{ utils.addUnit(width) }};{{ customStyle }}"
+    overlay-style="{{ overlayStyle }}"
+    close-on-click-overlay="{{ closeOnClickOverlay }}"
+    root-portal="{{ rootPortal }}"
+    bind:close="onClickOverlay"
   >
-    <slot wx:if="{{ useTitleSlot }}" name="title" />
-    <block wx:elif="{{ title }}">{{ title }}</block>
-  </view>
-
-  <slot wx:if="{{ useSlot }}" />
-  <view
-    wx:elif="{{ message }}"
-    class="{{ utils.bem('dialog__message', [theme, messageAlign, { hasTitle: title }]) }}"
-  >
-    <text class="van-dialog__message-text">{{ message }}</text>
-  </view>
-
-  <van-goods-action wx:if="{{ theme === 'round-button' }}" custom-class="van-dialog__footer--round-button">
-    <van-goods-action-button
-      wx:if="{{ showCancelButton }}"
-      size="large"
-      loading="{{ loading.cancel }}"
-      class="van-dialog__button van-hairline--right"
-      custom-class="van-dialog__cancel cancle-button-class"
-      custom-style="color: {{ cancelButtonColor }}"
-      bind:click="onCancel"
+    <view
+      wx:if="{{ title || useTitleSlot  }}"
+      class="{{ utils.bem('dialog__header', { isolated: !(message || useSlot) }) }}"
     >
-      {{ cancelButtonText }}
-    </van-goods-action-button>
-    <van-goods-action-button
-      wx:if="{{ showConfirmButton }}"
-      size="large"
-      class="van-dialog__button"
-      loading="{{ loading.confirm }}"
-      custom-class="van-dialog__confirm confirm-button-class"
-      custom-style="color: {{ confirmButtonColor }}"
-      button-id="{{ confirmButtonId }}"
-      open-type="{{ confirmButtonOpenType }}"
-      lang="{{ lang }}"
-      business-id="{{ businessId }}"
-      session-from="{{ sessionFrom }}"
-      send-message-title="{{ sendMessageTitle }}"
-      send-message-path="{{ sendMessagePath }}"
-      send-message-img="{{ sendMessageImg }}"
-      show-message-card="{{ showMessageCard }}"
-      app-parameter="{{ appParameter }}"
-      bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
-      bindgetRealTimePhoneNumber="onGetRealTimePhoneNumber"
-      bind:click="onConfirm"
-      bindgetuserinfo="onGetUserInfo"
-      bindcontact="onContact"
-      bindgetphonenumber="onGetPhoneNumber"
-      binderror="onError"
-      bindlaunchapp="onLaunchApp"
-      bindopensetting="onOpenSetting"
+      <slot wx:if="{{ useTitleSlot }}" name="title" />
+      <block wx:elif="{{ title }}">{{ title }}</block>
+    </view>
+
+    <slot wx:if="{{ useSlot }}" />
+    <view
+      wx:elif="{{ message }}"
+      class="{{ utils.bem('dialog__message', [theme, messageAlign, { hasTitle: title }]) }}"
     >
-      {{ confirmButtonText }}
-    </van-goods-action-button>
-  </van-goods-action>
+      <text class="van-dialog__message-text">{{ message }}</text>
+    </view>
 
-  <view wx:elif="{{ showCancelButton || showConfirmButton }}" class="van-hairline--top van-dialog__footer">
-    <block wx:if="{{ showCancelButton }}">
-      <slot wx:if="{{ useCancelButtonSlot }}" name="cancel-button" />
-
-      <van-button
-        wx:else
+    <van-goods-action
+      wx:if="{{ theme === 'round-button' }}"
+      custom-class="van-dialog__footer--round-button"
+    >
+      <van-goods-action-button
+        wx:if="{{ showCancelButton }}"
         size="large"
         loading="{{ loading.cancel }}"
         class="van-dialog__button van-hairline--right"
@@ -86,14 +43,9 @@
         bind:click="onCancel"
       >
         {{ cancelButtonText }}
-      </van-button>
-    </block>
-
-    <block wx:if="{{ showConfirmButton }}">
-      <slot wx:if="{{ useConfirmButtonSlot }}" name="confirm-button" />
-
-      <van-button
-        wx:else
+      </van-goods-action-button>
+      <van-goods-action-button
+        wx:if="{{ showConfirmButton }}"
         size="large"
         class="van-dialog__button"
         loading="{{ loading.confirm }}"
@@ -120,22 +72,75 @@
         bindopensetting="onOpenSetting"
       >
         {{ confirmButtonText }}
-      </van-button>
-    </block>
-  </view>
-</van-popup>
+      </van-goods-action-button>
+    </van-goods-action>
 
+    <view
+      wx:elif="{{ showCancelButton || showConfirmButton }}"
+      class="van-hairline--top van-dialog__footer"
+    >
+      <block wx:if="{{ showCancelButton }}">
+        <slot wx:if="{{ useCancelButtonSlot }}" name="cancel-button" />
+
+        <van-button
+          wx:else
+          size="large"
+          loading="{{ loading.cancel }}"
+          class="van-dialog__button van-hairline--right"
+          custom-class="van-dialog__cancel cancle-button-class"
+          custom-style="color: {{ cancelButtonColor }}"
+          bind:click="onCancel"
+        >
+          {{ cancelButtonText }}
+        </van-button>
+      </block>
+
+      <block wx:if="{{ showConfirmButton }}">
+        <slot wx:if="{{ useConfirmButtonSlot }}" name="confirm-button" />
+
+        <van-button
+          wx:else
+          size="large"
+          class="van-dialog__button"
+          loading="{{ loading.confirm }}"
+          custom-class="van-dialog__confirm confirm-button-class"
+          custom-style="color: {{ confirmButtonColor }}"
+          button-id="{{ confirmButtonId }}"
+          open-type="{{ confirmButtonOpenType }}"
+          lang="{{ lang }}"
+          business-id="{{ businessId }}"
+          session-from="{{ sessionFrom }}"
+          send-message-title="{{ sendMessageTitle }}"
+          send-message-path="{{ sendMessagePath }}"
+          send-message-img="{{ sendMessageImg }}"
+          show-message-card="{{ showMessageCard }}"
+          app-parameter="{{ appParameter }}"
+          bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
+          bindgetRealTimePhoneNumber="onGetRealTimePhoneNumber"
+          bind:click="onConfirm"
+          bindgetuserinfo="onGetUserInfo"
+          bindcontact="onContact"
+          bindgetphonenumber="onGetPhoneNumber"
+          binderror="onError"
+          bindlaunchapp="onLaunchApp"
+          bindopensetting="onOpenSetting"
+        >
+          {{ confirmButtonText }}
+        </van-button>
+      </block>
+    </view>
+  </van-popup>
 </template>
 <script lang="ts" setup>
-  import { VantComponent } from '../common/component';
-import { button } from '../mixins/button';
-import { GRAY, RED } from '../common/color';
-import { toPromise } from '../common/utils';
-import type { Action } from './dialog';
+import { VantComponent } from "../common/component";
+import { button } from "../mixins/button";
+import { GRAY, RED } from "../common/color";
+import { toPromise } from "../common/utils";
+import type { Action } from "./dialog";
 
 VantComponent({
   mixins: [button],
-  classes: ['cancle-button-class', 'confirm-button-class'],
+  classes: ["cancle-button-class", "confirm-button-class"],
 
   props: {
     show: {
@@ -148,7 +153,7 @@ VantComponent({
     message: String,
     theme: {
       type: String,
-      value: 'default',
+      value: "default",
     },
     confirmButtonId: String,
     className: String,
@@ -171,11 +176,11 @@ VantComponent({
     },
     confirmButtonText: {
       type: String,
-      value: '确认',
+      value: "确认",
     },
     cancelButtonText: {
       type: String,
-      value: '取消',
+      value: "取消",
     },
     confirmButtonColor: {
       type: String,
@@ -195,7 +200,7 @@ VantComponent({
     },
     transition: {
       type: String,
-      value: 'scale',
+      value: "scale",
     },
     rootPortal: {
       type: Boolean,
@@ -216,22 +221,22 @@ VantComponent({
 
   methods: {
     onConfirm() {
-      this.handleAction('confirm');
+      this.handleAction("confirm");
     },
 
     onCancel() {
-      this.handleAction('cancel');
+      this.handleAction("cancel");
     },
 
     onClickOverlay() {
-      this.close('overlay');
+      this.close("overlay");
     },
 
     close(action) {
       this.setData({ show: false });
 
       wx.nextTick(() => {
-        this.$emit('close', action);
+        this.$emit("close", action);
 
         const { callback } = this.data;
         if (callback) {
@@ -275,9 +280,81 @@ VantComponent({
   },
 });
 
-  // 转换为 Vue 3 的 computed 属性
-  
+// 转换为 Vue 3 的 computed 属性
 </script>
 <style>
-  @import '../common/index.wxss';.van-dialog{background-color:var(--dialog-background-color,#fff);border-radius:var(--dialog-border-radius,16px);font-size:var(--dialog-font-size,16px);overflow:hidden;top:45%!important;width:var(--dialog-width,320px)}@media (max-width:321px){.van-dialog{width:var(--dialog-small-screen-width,90%)}}.van-dialog__header{font-weight:var(--dialog-header-font-weight,500);line-height:var(--dialog-header-line-height,24px);padding-top:var(--dialog-header-padding-top,24px);text-align:center}.van-dialog__header--isolated{padding:var(--dialog-header-isolated-padding,24px 0)}.van-dialog__message{-webkit-overflow-scrolling:touch;font-size:var(--dialog-message-font-size,14px);line-height:var(--dialog-message-line-height,20px);max-height:var(--dialog-message-max-height,60vh);overflow-y:auto;padding:var(--dialog-message-padding,24px);text-align:center}.van-dialog__message-text{word-wrap:break-word}.van-dialog__message--hasTitle{color:var(--dialog-has-title-message-text-color,#646566);padding-top:var(--dialog-has-title-message-padding-top,8px)}.van-dialog__message--round-button{color:#323233;padding-bottom:16px}.van-dialog__message--left{text-align:left}.van-dialog__message--right{text-align:right}.van-dialog__message--justify{text-align:justify}.van-dialog__footer{display:flex}.van-dialog__footer--round-button{padding:8px 24px 16px!important;position:relative!important}.van-dialog__button{flex:1}.van-dialog__cancel,.van-dialog__confirm{border:0!important}.van-dialog-bounce-enter{opacity:0;transform:translate3d(-50%,-50%,0) scale(.7)}.van-dialog-bounce-leave-active{opacity:0;transform:translate3d(-50%,-50%,0) scale(.9)}
+@import "../common/index.wxss";
+.van-dialog {
+  background-color: var(--dialog-background-color, #fff);
+  border-radius: var(--dialog-border-radius, 16px);
+  font-size: var(--dialog-font-size, 16px);
+  overflow: hidden;
+  top: 45% !important;
+  width: var(--dialog-width, 320px);
+}
+@media (max-width: 321px) {
+  .van-dialog {
+    width: var(--dialog-small-screen-width, 90%);
+  }
+}
+.van-dialog__header {
+  font-weight: var(--dialog-header-font-weight, 500);
+  line-height: var(--dialog-header-line-height, 24px);
+  padding-top: var(--dialog-header-padding-top, 24px);
+  text-align: center;
+}
+.van-dialog__header--isolated {
+  padding: var(--dialog-header-isolated-padding, 24px 0);
+}
+.van-dialog__message {
+  -webkit-overflow-scrolling: touch;
+  font-size: var(--dialog-message-font-size, 14px);
+  line-height: var(--dialog-message-line-height, 20px);
+  max-height: var(--dialog-message-max-height, 60vh);
+  overflow-y: auto;
+  padding: var(--dialog-message-padding, 24px);
+  text-align: center;
+}
+.van-dialog__message-text {
+  word-wrap: break-word;
+}
+.van-dialog__message--hasTitle {
+  color: var(--dialog-has-title-message-text-color, #646566);
+  padding-top: var(--dialog-has-title-message-padding-top, 8px);
+}
+.van-dialog__message--round-button {
+  color: #323233;
+  padding-bottom: 16px;
+}
+.van-dialog__message--left {
+  text-align: left;
+}
+.van-dialog__message--right {
+  text-align: right;
+}
+.van-dialog__message--justify {
+  text-align: justify;
+}
+.van-dialog__footer {
+  display: flex;
+}
+.van-dialog__footer--round-button {
+  padding: 8px 24px 16px !important;
+  position: relative !important;
+}
+.van-dialog__button {
+  flex: 1;
+}
+.van-dialog__cancel,
+.van-dialog__confirm {
+  border: 0 !important;
+}
+.van-dialog-bounce-enter {
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.7);
+}
+.van-dialog-bounce-leave-active {
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.9);
+}
 </style>

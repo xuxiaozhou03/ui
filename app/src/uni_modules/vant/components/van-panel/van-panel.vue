@@ -1,41 +1,34 @@
 <template>
-  <view class="van-panel van-hairline--top-bottom custom-class">
-    <van-cell
-      wx:if="{{ title || desc || status }}"
-      title="{{ title }}"
-      label="{{ desc }}"
-      value="{{ status }}"
-      custom-class="header-class"
-      value-class="van-panel__header-value"
-    />
-    <slot wx:else name="header" />
+  <div :class="cn('van-panel', 'van-hairline--top-bottom', customClass)">
+    <template v-if="title || desc || status">
+      <van-cell
+        :title="title"
+        :label="desc"
+        :value="status"
+        :custom-class="headerClass"
+        value-class="van-panel__header-value"
+      />
+    </template>
+    <template v-else>
+      <slot name="header" />
+    </template>
 
-    <view class="van-panel__content">
+    <div class="van-panel__content">
       <slot />
-    </view>
+    </div>
 
-    <view class="van-panel__footer van-hairline--top footer-class">
+    <div :class="cn('van-panel__footer', 'van-hairline--top', footerClass)">
       <slot name="footer" />
-    </view>
-  </view>
+    </div>
+  </div>
 </template>
+
 <script lang="ts" setup>
-import { VantComponent } from "../common/component";
-
-VantComponent({
-  classes: ["header-class", "footer-class"],
-
-  props: {
-    desc: String,
-    title: String,
-    status: String,
-  },
-});
-
-// 转换为 Vue 3 的 computed 属性
+import { cn } from "../../utils";
+import { panelProps } from "./props";
+defineProps(panelProps);
 </script>
 <style>
-@import "../common/index.wxss";
 .van-panel {
   background: var(--panel-background-color, #fff);
 }
