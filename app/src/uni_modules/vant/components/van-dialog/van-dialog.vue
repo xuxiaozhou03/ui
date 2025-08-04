@@ -132,9 +132,19 @@
   </van-popup>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed, type CSSProperties } from "vue";
+import { ref, watch } from "vue";
 import { addUnit } from "../../utils";
 import { dialogProps } from "./props";
+import {
+  onGetUserInfo,
+  onContact,
+  onGetPhoneNumber,
+  onGetRealTimePhoneNumber,
+  onAgreePrivacyAuthorization,
+  onError,
+  onLaunchApp,
+  onOpenSetting,
+} from "../van-button/handler";
 
 const props = defineProps(dialogProps);
 
@@ -163,7 +173,11 @@ function close(action: string) {
 }
 
 function handleAction(action: "confirm" | "cancel") {
-  emit(action, { dialog: null });
+  if (action === "confirm") {
+    emit("confirm", { dialog: null });
+  } else if (action === "cancel") {
+    emit("cancel", { dialog: null });
+  }
   if (!props.asyncClose && !props.beforeClose) {
     close(action);
     return;

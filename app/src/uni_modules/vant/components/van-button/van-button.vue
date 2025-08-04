@@ -85,6 +85,17 @@
 import { computed, defineProps } from "vue";
 import type { CSSProperties } from "vue";
 import { buttonProps, commonButtonEmits } from "./props";
+import {
+  onGetUserInfo,
+  onContact,
+  onGetPhoneNumber,
+  onGetRealTimePhoneNumber,
+  onAgreePrivacyAuthorization,
+  onError,
+  onLaunchApp,
+  onOpenSetting,
+  onChooseAvatar,
+} from "./handler";
 
 const props = defineProps(buttonProps);
 // todo
@@ -132,15 +143,6 @@ function onClick(event: Event) {
     });
   }
 }
-function onGetUserInfo() {}
-function onContact() {}
-function onGetPhoneNumber() {}
-function onGetRealTimePhoneNumber() {}
-function onAgreePrivacyAuthorization() {}
-function onError() {}
-function onLaunchApp() {}
-function onOpenSetting() {}
-function onChooseAvatar() {}
 </script>
 <style>
 .van-button {
