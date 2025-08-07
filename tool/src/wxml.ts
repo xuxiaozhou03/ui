@@ -132,6 +132,7 @@ class Wxml {
       "wx:else": "v-else",
       "wx:elif": "v-else-if",
       "wx:for": "v-for",
+      "wx:key": ":key",
     };
     if (keyMap[key]) {
       return keyMap[key];
@@ -152,6 +153,16 @@ class Wxml {
   }
 
   transformProp(key: string, value: string | null, isDynamic = false) {
+    const passKeys = ["wx:for-item", "wx:for-index"];
+    if (passKeys.includes(key)) {
+      return {};
+    }
+
+    if (!isDynamic) {
+      if (value?.includes("computed.")) {
+        isDynamic = true;
+      }
+    }
     return {
       [this.transformAttrKey(key, isDynamic)]: this.transformAttrValue(value),
     };
@@ -166,6 +177,12 @@ class Wxml {
     }
     if (value.includes("utils.addUnit")) {
       return value.replace("utils.addUnit", "addUnit");
+    }
+    if (value.includes("computed.")) {
+      const match = value.match(/computed\.(\w+)/);
+      if (match) {
+        return match[1];
+      }
     }
     return value;
   }
@@ -197,7 +214,9 @@ class Wxml {
       const arr: string[] = [];
       value.forEach((item) => {
         if (item.type === "WXText") {
-          arr.push(`'${item.value}'`);
+          if (item.value) {
+            arr.push(`'${item.value}'`);
+          }
         } else if (item.type === "WXAttributeInterpolation") {
           const val = this.transformAttrValue(item.value);
           if (val) {
@@ -205,7 +224,7 @@ class Wxml {
           }
         }
       });
-      value = `cn(${arr.join(", ")})`;
+      value = `cn(${arr.filter(Boolean).join(", ")})`;
       return this.transformProp(key, value, true);
     } else if (key.includes("style")) {
       if (value.length === 2) {
@@ -220,7 +239,66 @@ class Wxml {
         }
       }
 
-      console.log(value);
+      const arr: string[] = [];
+      let temp = "";
+      value.forEach((item) => {
+        if (item.type === "WXText") {
+          if (item.value === ";") {
+            // 结束
+            arr.push(temp);
+            temp = "";
+            return;
+          }
+          if (item.value.startsWith(";")) {
+            arr.push(temp);
+            // 开始新的对成关系
+            temp = item.value.slice(1).replace(":", "").trim();
+            return;
+          }
+          if (item.value.includes(":")) {
+            temp = item.value;
+            return;
+          }
+          const hasClose = item.value.endsWith(";");
+          if (temp.includes(":")) {
+            temp += ` + '${item.value.replace(";", "")}'`;
+          } else {
+            temp += item.value.replace(";", "");
+          }
+
+          if (hasClose) {
+            if (temp) {
+              arr.push(temp);
+            }
+            temp = "";
+          }
+          return;
+        }
+        if (temp === "") {
+          let val = item.value;
+          if (val.includes("computed.")) {
+            // computed.barStyle({ zIndex, statusBarHeight, safeAreaInsetTop })
+            // 只要 barStyle
+            const match = val.match(/computed\.(\w+)/);
+            if (match) {
+              val = match[1]; // 获取 barStyle
+            }
+          } else if (val.includes("style(")) {
+            const match = val.match(/style\(([^)]+)\)/);
+            if (match) {
+              val = `(${match[1]})`; // 获取括号内的内容
+            }
+          }
+
+          arr.push(`...${val}`);
+          return;
+        }
+        temp += item.value;
+      });
+
+      const newValue = arr.filter(Boolean).join(",");
+
+      return this.transformProp(key, `{${newValue}}`, true);
     }
 
     return {};

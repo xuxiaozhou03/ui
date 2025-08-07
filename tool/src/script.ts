@@ -16,31 +16,20 @@ interface AstNode {
   moduleSpecifier?: string; // 导入模块路径
 }
 
+interface TsData {
+  classes: [];
+  props: {};
+  methods: {};
+  data: {};
+  created: {};
+  watch: {};
+}
+
 class Script {
   astTree: AstNode[];
   constructor(packagePath: string) {
     // 获取结构化的 AST
     this.astTree = this.getAst(packagePath).children;
-  }
-
-  // 递归打印 AST 节点（原来的方法，保留作为备用）
-  private printAst(node: typescript.Node, depth: number = 0) {
-    const indent = "  ".repeat(depth);
-
-    // 如果是标识符或字面量，打印其文本
-    if (typescript.isIdentifier(node)) {
-      console.log(`${indent}  text: "${node.text}"`);
-    } else if (
-      typescript.isStringLiteral(node) ||
-      typescript.isNumericLiteral(node)
-    ) {
-      console.log(`${indent}  text: "${node.text}"`);
-    }
-
-    // 递归处理子节点
-    typescript.forEachChild(node, (child) => {
-      this.printAst(child, depth + 1);
-    });
   }
 
   // 获取结构化的树形 AST
@@ -92,102 +81,6 @@ class Script {
     });
 
     return astNode;
-  }
-
-  // 从 AST 树重新生成代码
-  generateCode(astNode: AstNode): string {
-    return this.generateCodeFromAstNode(astNode);
-  }
-
-  // 递归生成代码
-  private generateCodeFromAstNode(astNode: AstNode): string {
-    // 对于叶子节点或简单节点，直接返回其文本
-    if (astNode.children.length === 0) {
-      return astNode.text;
-    }
-
-    // 对于有子节点的复合节点，根据节点类型生成代码
-    let code = "";
-
-    switch (astNode.kind) {
-      case "SourceFile":
-        // 源文件：连接所有子节点
-        code = astNode.children
-          .map((child) => this.generateCodeFromAstNode(child))
-          .join("");
-        break;
-
-      case "ImportDeclaration":
-        // 导入声明：重新构建 import 语句
-        code = astNode.text;
-        break;
-
-      case "FunctionDeclaration":
-        // 函数声明：重新构建函数
-        code = astNode.text;
-        break;
-
-      case "VariableStatement":
-        // 变量声明语句
-        code = astNode.text;
-        break;
-
-      default:
-        // 默认情况：使用原始文本或连接子节点
-        if (astNode.text.trim()) {
-          code = astNode.text;
-        } else {
-          code = astNode.children
-            .map((child) => this.generateCodeFromAstNode(child))
-            .join("");
-        }
-    }
-
-    return code;
-  }
-
-  // 查找特定类型的节点
-  findNodes(astNode: AstNode, kind: string): AstNode[] {
-    const result: AstNode[] = [];
-
-    if (astNode.kind === kind) {
-      result.push(astNode);
-    }
-
-    astNode.children.forEach((child) => {
-      result.push(...this.findNodes(child, kind));
-    });
-
-    return result;
-  }
-
-  // 修改节点（例如重命名标识符）
-  modifyNode(astNode: AstNode, modifications: { [key: string]: any }): AstNode {
-    const modified = { ...astNode };
-
-    // 应用修改
-    Object.keys(modifications).forEach((key) => {
-      (modified as any)[key] = modifications[key];
-    });
-
-    // 递归修改子节点
-    modified.children = astNode.children.map((child) =>
-      this.modifyNode(child, modifications)
-    );
-
-    return modified;
-  }
-
-  // 将结构化 AST 转换回 TypeScript SourceFile（用于复杂操作）
-  private astNodeToSourceFile(astNode: AstNode): typescript.SourceFile {
-    // 重新生成代码，然后解析为新的 SourceFile
-    const generatedCode = this.generateCode(astNode);
-    return typescript.createSourceFile(
-      "generated.ts",
-      generatedCode,
-      typescript.ScriptTarget.Latest,
-      true
-    );
   }
 }
 
