@@ -1,16 +1,15 @@
+<template>
+  <wxs src="../wxs/utils.wxs" module="utils" />
 
-  <template>
-   <wxs src="../wxs/utils.wxs" module="utils" />
-
-<view
-  wx:if="{{ info !== null && info !== '' || dot }}"
-  class="van-info {{ utils.bem('info', { dot }) }} custom-class"
-  style="{{ customStyle }}"
->{{ dot ? '' : info }}</view>
-
-  </template>
-  <script lang="ts" setup>
-  import { VantComponent } from '../common/component';
+  <view
+    wx:if="{{ info !== null && info !== '' || dot }}"
+    class="van-info {{ utils.bem('info', { dot }) }} custom-class"
+    style="{{ customStyle }}"
+    >{{ dot ? "" : info }}</view
+  >
+</template>
+<script lang="ts" setup>
+import { VantComponent } from "../common/component";
 
 VantComponent({
   props: {
@@ -19,12 +18,8 @@ VantComponent({
     customStyle: String,
   },
 });
+</script>
 
-  
-  </script>
-  
 <style>
 @import "./style.css";
 </style>
-
-  

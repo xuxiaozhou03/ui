@@ -1,5 +1,4 @@
 import type { ExtractPropTypes } from "vue";
-export const ButtonProps = {}
+export const ButtonProps = {};
 
-export type ButtonPropsType = ExtractPropTypes<typeof ButtonProps>
-  
+export type ButtonPropsType = ExtractPropTypes<typeof ButtonProps>;
