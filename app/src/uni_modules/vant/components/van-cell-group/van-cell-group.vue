@@ -1,0 +1,37 @@
+
+  <template>
+   <wxs src="../wxs/utils.wxs" module="utils" />
+
+<view
+  wx:if="{{ title }}"
+  class="{{ utils.bem('cell-group__title', { inset }) }}"
+>
+  {{ title }}
+</view>
+<view class="custom-class {{ utils.bem('cell-group', { inset }) }} {{ border ? 'van-hairline--top-bottom' : '' }}">
+  <slot />
+</view>
+
+  </template>
+  <script lang="ts" setup>
+  import { VantComponent } from '../common/component';
+
+VantComponent({
+  props: {
+    title: String,
+    border: {
+      type: Boolean,
+      value: true,
+    },
+    inset: Boolean,
+  },
+});
+
+  
+  </script>
+  
+<style>
+@import "./style.css";
+</style>
+
+  
